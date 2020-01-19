@@ -1,0 +1,290 @@
+\chapter{Package Overview}\label{chap:overview}
+
+This chapter introduces the main packages and their use.
+In Fig.~\ref{fig:packages} you can see the dependencies
+among the various packages. Here, as always in the packages
+diagrams in this manual, dependencies that can be inferred
+via a sequence of other dependencies are usually not displayed,
+even if a direct dependency exists, too.
+
+\singlediagram{packages}{Overview of all Renew packages}
+
+
+\section{Hierarchy \texttt{CH.ifa.draw}}
+
+Although the class hierarchy
+presented here still reflects the general
+structure of the original JHotDraw \cite{Gamma98}, it has been heavily
+modified. Especially, a parent/child mechanism was added
+to associate figures with each other. Moreover, a single graphical
+editor may now be responsible for multiple drawing windows.
+
+\begin{description}
+\item[\texttt{CH.ifa.draw.framework}] 
+  This package contains the main abstractions of JHotDraw 
+  in the form of interfaces and some auxiliary classes.
+\item[\texttt{CH.ifa.draw.standard}] 
+  This package contains some basic implementations of the
+  abstractions found in \texttt{CH.ifa.draw.framework}.
+  Typically, these implementations require some additional 
+  code to be fully functional, but they ensure that tedious
+  bookkeeping tasks are taken care of and that some convenience
+  methods are available.
+\item[\texttt{CH.ifa.draw.figures}]
+  This package contains classes for figures of various shapes, but also
+  the tools and handles required to create and modify these
+  figures.
+\item[\texttt{CH.ifa.draw.contrib}] 
+  This package contains code for a number of figures that
+  were not originally part of JHotDraw.
+\item[\texttt{CH.ifa.draw.util}] 
+  This package contains miscellaneous classes. Most of these are
+  concerned with building the GUI of JHotDraw and doing I/O.
+  The class \texttt{Storable} is especially notable, because it
+  supports the external storage format for saving drawings.
+\item[\texttt{CH.ifa.draw.application}]
+  This package contains a complete graphical editor as
+  a stand\-alone application. The main class is \texttt{DrawApplication}.
+\end{description}
+
+In many classes of this hierarchy, events are used for
+propagating state changes. Make sure to understand, at least vaguely,
+the event mechanism and all of the interfaces in the package
+\texttt{CH.ifa.draw.framework}
+before digging deeper into the sources.
+
+\section{Hierarchy \texttt{de.renew}}
+
+This hierarchy constitutes the Petri-net-specific part of Renew.
+Two subhierarchies can be found here: \texttt{de.renew.formalism}
+and \texttt{de.renew.gui}, which are responsible for implementing
+specific net formalisms and for implementing a GUI, respectively.
+But first we discuss the other packages in this hierarchy,
+which constitute the core simulation engine.
+
+\subsection{Simulation Engine}
+
+These packages are concerned with the non-graphical representation
+and execution of high-level Petri nets.
+
+\begin{description}
+\item[\texttt{de.renew.application}]
+  This package contains applications that allow the non-graphical
+  stand-alone simulation of Petri nets. At the moment,
+  \texttt{ShadowSimulator}, which bases the simulation
+  on a serialized shadow net system, is the only
+  class here. Other applications might follow.
+\item[\texttt{de.renew.call}] 
+  This package supports nets that implement Java methods. This is done by
+  automatically generating subclasses of 
+  \texttt{de.renew.simulator.NetInstance}, so-called Net Stubs, that convert
+  method calls to synchronous channel invocations.
+  These invocations are subsequently stored in the usual search queue
+  and executed by the simulator as soon as possible.
+  The Renew User Guide contains a description of how to utilize Net Stubs.
+\item[\texttt{de.renew.event}] 
+  This package contains the event mechanism that is used to couple
+  the simulator and the GUI.
+  It provides interfaces for event listeners and producers and
+  an abstract convenience implementation for listeners.
+\item[\texttt{de.renew.function}] 
+  This package contains a variety of function objects. An implementation
+  of the \texttt{Function} interface must provide a single method
+  that converts its argument into a result.
+  There are predefined function objects to perform all of the transformations
+  of objects that can be specified in a Java expression. This
+  package is not yet concerned with variables or assignment,
+  but only with operations on runtime objects and values.
+\item[\texttt{de.renew.shadow}]
+  The shadow layer separates the GUI from the
+  execution layer. Shadow nets represent the net drawings, 
+  but they abstract from all information that does not influence
+  the simulation, like position, size, or color of the net elements.
+
+  This package is based on a create/discard API: You can create
+  net elements, but few changes can be applied to these elements
+  without discarding and recreating them. In fact, even discarding
+  shadow nets is discouraged. Instead, an application should create
+  a new shadow net each time this is required.
+
+  The implementations of \texttt{ShadowCompiler} are responsible for
+  creating nets at the semantic layer using the shadow net.
+\item[\texttt{de.renew.remote}] 
+  This package allows to access the state of a running simulation
+  remotely via RMI calls. In some sense, it will be
+  the counterpart of the shadow package. While the \texttt{de.renew.shadow} 
+  package allows it to convert net drawings to nets, this
+  package will facilitate the display of net instances in net instance
+  drawings.
+  \newonedotsix{%
+    This package is now fully functional. The gui packages do no
+    longer access simulator classes directly to display a
+    running simulation. Instead, all state information is
+    obtained through remote accessor objects.
+  }
+\item[\texttt{de.renew.unify}] 
+  This package encapsulates a unification algorithm.
+  Unification is done in-place using modifiable objects.
+  The unification algorithm supports a backtracking mechanism
+  using the class \texttt{StateRecorder}.
+  Ordinary Java objects are unifiable
+  if and only if they are equal according to \texttt{Object.equals(...)}.
+  Variables can send notifications after they become fully bound,
+  so that functions can be evaluated as soon as their arguments
+  are fully known. An occurrence check is performed.
+  The special class \texttt{Calculator} of
+  unifiable objects is unifiable only with itself, but is
+  incorporated into the occurrence check. These objects are 
+  used to represent calculations that can be based on some objects
+  and might lead to an arbitrary result.
+\item[\texttt{de.renew.util}] 
+  A package of miscellaneous classes that are used somewhere else,
+  but were considered too useful across applications.
+\item[\texttt{de.renew.expression}] 
+  This package combines the functionality of
+  the \texttt{de.renew.function} package and
+  the \texttt{de.renew.unify} package and implements
+  full Java expressions. It adds those expressions
+  that cannot be interpreted by a mere function evaluation.
+  Especially, this package handles the introduction of local variables.
+  To do this, every expression is evaluated in the context of a
+  variable mapper, which maps variable names to variables of the
+  unification mechanism. Other additions of this package are
+  type checks, constants, and bidirectional expressions.
+\item[\texttt{de.renew.engine.common}] 
+  This packages defines some reusable occurrences and
+  executables. These objects are not sufficient for
+  defining a formalism, but they constitute essential
+  elements for most formalisms.
+\item[\texttt{de.renew.engine.searcher}] 
+  This package contains the basic algorithms that are
+  used during the search for an activated binding.
+  Classes and interfaces remain very abstract here:
+  We talk about things that may be searched and things
+  that may be executed, but do not give any concrete
+  examples.
+\item[\texttt{de.renew.engine.searchqueue}] 
+  This package defines the \texttt{SearchQueue}, which is responsible
+  for keeping track of possibly enabled \texttt{Searchable}s so
+  that they can later on be searched for activated binding.
+  The search queue is also keeping track of the current simulation
+  time, so that it may order the searchables according to the earliest
+  possible time when a search may possibly succeed.
+\item[\texttt{de.renew.engine.simulator}] 
+  A simulator makes sure to retrieve searchables from the
+  search queue and to search them for activated binding.
+  the binding are then executed with a policy suitable for
+  the simulator, be it concurrently or sequentially.
+\item[\texttt{de.renew.net}] 
+  This package defines the basic building block for defining nets
+  and net instances: places and transitions. It does not yet deal
+  with arcs and transition instances.
+\item[\texttt{de.renew.net.arc}] 
+  Here we define various arc types for use with nets.
+\item[\texttt{de.renew.net.event}] 
+  Events and event listeners are used when dynamic chnges of
+  a net's state and of actions in the net must be tracked
+  by other code.
+\item[\texttt{de.renew.net.inscription}] 
+  Transition inscriptions augment a transition's behavior.
+  The inscriptions defined in this package are by no way
+  exhaustive, but represent the most commonly used inscriptions.
+\item[\texttt{de.renew.database}] This package interacts with the
+  simulator core and makes sure that all changes in all nets
+  can be recorded in a database. The access to the database is
+  transactional, i.e., the database driver is notified about all
+  tokens that are moved by a single transition in a single
+  method call and is supposed to record these changes permanently
+  and atomically.
+\item[\texttt{de.renew.watch}] This package allows to keep track of all
+  possible valuations of a synchronous channel of a net instance.
+  Afterward, one valuation may be chosen to request an explicit firing
+  of a transition.
+  This has been applied to design a workflow engine, but other
+  uses are imaginable, as it allow an external entity to watch and
+  control the flow of the simulation.
+% \item[\texttt{de.renew.test}] This package provides a few
+%   automated test scenarios, which aid in maintaining the correctness
+%   of some crucial parts of Renew. At the moment, there are not
+%   many tests available, but it is planned to extend this
+%   package considerably.
+% \item[\texttt{de.renew.debug}] This package contains a few
+%   miscellaneous classes that turned out useful during the
+%   implementation of Renew. It is not required to use or 
+%   understand this package.
+\end{description}
+
+\subsection{Net Formalisms}
+
+\begin{description}
+\item[\texttt{de.renew.formalism.java}] This package 
+  provides a compiler for the Renew default net formalism
+  that inputs shadow nets and outputs nets at the semantic layer.
+  Most other net formalism are based on this package.
+  Typically, only the parser needs to be exchanged for a different
+  one in order to accommodate for a different syntax.
+\item[\texttt{de.renew.formalism.stub}] A variant of the
+  Java net formalism that experiments with some improved
+  type rules, which are essential when generating net stubs.
+  Usage of this net formalism is discouraged.
+\item[\texttt{de.renew.formalism.bool}] A special
+  net formalism that implement Boolean Petri nets.
+  These nets are especially useful to experiment with workflows
+  that are derived from event-driven process chains.
+\item[\texttt{de.renew.formalism.fs}] This formalism was a first
+  prototype to include Feature Structures (see below) into Renew.
+  It is now only used as a basis for the following formalism and
+  for debugging.
+\item[\texttt{de.renew.formalism.fsnet}] This formalism 
+%has been   developed in the PhD thesis of Frank Wienberg and
+  supports Feature Structures as a means to describe object
+  constraints.
+  It includes a type modelling tool to easily specify
+  used defined types. Also, all available Java classes can be
+  used as types. Tokens are Feature Structures which can be
+  combined using unification and can be tested for subsumption.
+\end{description}
+
+\subsection{Graphical User Interface}
+
+\begin{description}
+\item[\texttt{de.renew.gui}] This contains the GUI
+  for drawing, editing, and simulating Petri nets with Renew.
+  Specialized figures aid in the presentation of the net
+  and new tools modify these figures. The application class
+  \texttt{CPNApplication} is responsible for setup and
+  coordination.
+\item[\texttt{de.renew.gui.xml}] This package contains
+  an experimental XML storage format for nets. The XML
+  import function uses the visitor pattern and requires a SAX-compatible
+  XML parser.
+\item[\texttt{de.renew.gui.maria}] This package features a special
+  mode for drawing nets of the Petri net analyzer Maria.
+  No simulation support is available, but it is possible to design
+  a net graphically and export it to simulation in Maria.
+\item[\texttt{de.renew.gui.fs}] This package provides the GUI
+  elements needed in the FSNet formalism (see above).
+  These are type modelling figures and Feature Structures.
+  The Feature Structure figure is also used to render
+  Java objects as \texttt{expanded Tokens}.
+\end{description}
+
+\section{Package \texttt{de.uni\symbol{95}hamburg.fs}}
+
+This package is an implementation of a typed Feature Structure
+formalism and has been developed for Renew's \texttt{FSMode}.
+A Feature Structure is a graph with typed nodes and labelled arcs.
+The arc labels can be seen as features or attributes of the nodes.
+A Feature Structure points to a root node of such a graph.
+The type system allows subtypes (\emph{is-a}-relations) and
+incompatible types (\emph{is-not-a}-relations).
+Types can be tested for equality and subsumption.
+Among the functions available for Feature Structures is subsumption
+and unification, which is in fact graph unification.
+The packages \texttt{de.renew.formalism.fs},
+\texttt{de.renew.formalism.fsnet}, and \texttt{de.renew.gui.fs}
+depend on this package.
+
+% Local Variables:
+% TeX-master:"architecture.tex"
+% End:

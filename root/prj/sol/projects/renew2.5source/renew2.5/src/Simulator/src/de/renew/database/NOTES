@@ -1,0 +1,22 @@
+Notes on the use of the net database
+====================================
+
+For database-backed nets initial marking inscriptions may not
+create additional net instances. This would result in untimely
+or missing updates to the database and a possibly corrupted 
+database state! The creation of net instances can only be
+undone if performed in an inscription like
+  n:new net
+and not by creating the net instance directly!
+
+Is it required to send a rollback message to the transaction objects?
+Unless they access the database right away, this could be handled
+by the garbage collector.
+
+After one binding of a search result set has been executed,
+no further binding that was found in the same search
+may be executed again, because new net instances may have been
+created. These should not be used by more than one
+binding. Reusing bindings makes little sense anyway, because
+the bindings are probably disabled.
+

@@ -1,0 +1,28 @@
+The formalism component provides support for multiple net compilers.
+ShadowCompilerFactory objects will be used to create compilers.
+The factories can be registered by the FormalismPlugin instance via the addCompilerFactory method.
+A set of standard compilers is provided:
+- Java Net Compiler
+- Null Compiler
+- Bool Compiler
+- P/T Compiler
+- Timed Compiler
+One compiler is always active at a time. This can be configured by the setCompiler method.
+If a compiler is set active but is not present in the system, the choice will be
+stored and the compiler will be chosen as soon as it is registered.
+Commands to list all available compilers and set the current compiler are provided.
+Components may register themselves as FormalismChangeListeners. 
+They will be notified if formalisms are added or removed or if the current compiler changes.
+
+included packages:
+	de.renew.formalism
+	de.renew.formalism.java
+	de.renew.formalism.bool
+	de.renew.formalism.pt
+
+included commands:
+	listFormalism	- show a list of all compilers
+	setFormalism	- set a specific compiler as the active one
+	
+properties:
+	renew.compiler	- the initially active compiler.

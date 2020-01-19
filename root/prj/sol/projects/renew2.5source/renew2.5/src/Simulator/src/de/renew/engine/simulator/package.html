@@ -1,0 +1,38 @@
+<html>
+  <body>
+    A simulator makes sure to retrieve searchables from the
+    search queue and to search them for activated binding.
+    the binding are then executed with a policy suitable for
+    the simulator, be it concurrently or sequentially.
+    <p>
+    Many classes in this package are expected to be called within
+    simulation threads:
+    </p>
+    <ul>
+       <li>all Finders, </li>
+       <li>Binding, and </li>
+       <li>all constructors and internal methods of Simulators. </li>
+    </ul>
+    <p>
+    Most methods within the <code>Simulator</code> interface
+    automatically wrap their execution within a simulation thread.
+    The following classes serve to provide simulation threads and
+    appropriate wrappers:
+    </p>
+    <ul>
+       <li>SimulationThreadPool, </li>
+       <li>BlockingSimulationCallable, and </li>
+       <li>BlockingSimulationRunnable. </li>
+    </ul>
+    <p>
+    Some classes are merely considered as utility classes and may be
+    used outside of simulation threads:
+    </p>
+    <ul>
+       <li>all Comparators, </li>
+       <li>BindingList, and </li>
+       <li>SimulatorEventQueue. </li>
+    </ul>
+
+  </body>
+</html>

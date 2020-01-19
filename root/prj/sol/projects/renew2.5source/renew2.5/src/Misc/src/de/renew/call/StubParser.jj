@@ -1,0 +1,1188 @@
+/**
+ *
+ * Copyright (C) 1996, 1997 Sun Microsystems Inc.
+ *
+ * This file was modified from billsJava1.0.2.jj .
+ *
+ * Use of this file and the system it is part of is constrained by the
+ * file COPYRIGHT distributed with JavaCC version 7.0.  You may, however,
+ * make any modifications you wish to this file.
+ *
+ * Author: Sriram Sankar
+ * Date: 3/5/97
+ *
+ * Author: Olaf Kummer
+ * Date: 27/10/98
+ *
+ * Author: Benjamin Schleinzer
+ * Date: 24/11/06
+ *
+ * Author: Jan Schlüter
+ * Date: 15/03/08
+ *
+ * Author: Martin Wincierz
+ * Date: 01/09/15
+ *
+ * 24/11/06 Added SimulationThread support
+ * 15/03/08 Added missing log4j Logger
+ *          Added new class declaration "for netinstance" which
+ *          allows creating stubs for wrapping existing net instances
+ */
+
+options {
+  LOOKAHEAD = 1;
+  STATIC = false;
+  JAVA_UNICODE_ESCAPE = true;
+  UNICODE_INPUT = false;
+}
+
+PARSER_BEGIN(StubParser)
+package de.renew.call;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Vector;
+
+//TODO: Please switch on or off this flag to suppress all "unused" warnings in this code. 
+//Default case is to suppress unused warnings, because the generator produces lots of unused code.
+// when working on this class, turn the suppression off.
+@SuppressWarnings("unused")
+public class StubParser {
+  String className;
+  String netName;
+
+  Set<String> variables;
+  Set<String> assignedVariables;
+  Hashtable<String, String> variableTypes;
+  Set<String> getternames;
+  Set<String> setternames;
+
+  StringBuffer out = new StringBuffer();
+  String pckg = "";
+    
+  void out (String output) {
+    out.append(output);
+    out.append("\n");
+  }
+  
+  public String getPackage() {
+  	return pckg;
+  }
+  
+  public String getOutput() {
+  	return out.toString();
+  }
+
+  ParseException makeParseException(String msg) {
+    return new ParseException("Error in line "+token.beginLine+", column "+
+      token.beginColumn+":\n"+msg);
+  }
+
+  void addGetterName(String name) throws ParseException  {
+    if(getternames==null)    {
+      getternames=new HashSet<String>();
+    }
+
+    if(getternames.contains(name))    {      throw makeParseException("Getter declared twice: " +name);
+    }
+
+    getternames.add(name);  }  
+  void addSetterName(String name) throws ParseException
+  {
+    if(setternames==null)
+    {
+      setternames=new HashSet<String>();
+    }
+
+    if(setternames.contains(name))
+    {
+      throw makeParseException("Setter declared twice: " +name);
+    }
+
+    setternames.add(name);
+  }
+    
+
+  void variableInit() {
+    variables=new HashSet<String>();
+    assignedVariables=new HashSet<String>();
+    variableTypes=new Hashtable<String, String>();
+  }
+
+  void declareVariable(String type, String variable)
+    throws ParseException
+  {
+    if (variables.contains(variable)) {
+      if (variableTypes.containsKey(variable)) {
+	throw makeParseException("Variable declared twice: "+variable);
+      } else {
+	throw makeParseException("Variable declared after use: "+variable);
+      }
+    }
+    variables.add(variable);
+    if (type!=null) {
+      variableTypes.put(variable,type);
+    }
+  }    
+
+  String getInternalName(String variable) 
+    throws ParseException
+  {
+    if (!variables.contains(variable)) {
+      if (variable.equals("this")) {
+        // The special variable 'this' does not need to be declared,
+        // it is always redirected to the private field '_instance'
+        // to make sure we refer to the net instance.
+        return "_instance";
+      }
+      throw makeParseException("No such variable: "+variable);
+    }
+    return "vv"+variable;
+  }
+
+  String getParameterName(String variable)
+    throws ParseException
+  {
+    return "pp"+variable;
+  }
+
+  boolean isPrimitive(String type) {
+    type=type.intern();
+    return type=="boolean" ||
+      type=="char" ||
+      type=="byte" ||
+      type=="short" ||
+      type=="int" ||
+      type=="long" ||
+      type=="float" ||
+      type=="double";
+  }
+
+  String getObjectType(String type) {
+    type=type.intern();
+    if (type=="boolean") {
+      return "java.lang.Boolean";
+    } else if (type=="char") {
+      return "java.lang.Character";
+    } else if (type=="byte") {
+      return "java.lang.Byte";
+    } else if (type=="short") {
+      return "java.lang.Short";
+    } else if (type=="int") {
+      return "java.lang.Integer";
+    } else if (type=="long") {
+      return "java.lang.Long";
+    } else if (type=="float") {
+      return "java.lang.Float";
+    } else if (type=="double") {
+      return "java.lang.Double";
+    } else {
+      return "java.lang.Void";
+    }
+  }
+
+  String getTypeString(String variable) {
+    String type=(String)variableTypes.get(variable);
+    if (isPrimitive(type)) {
+      return getObjectType(type)+".TYPE";
+    } else {
+      return type+".class";
+    }
+  }
+}
+
+PARSER_END(StubParser)
+
+/******************************
+ * THE JAVA LEXER STARTS HERE *
+ ******************************/
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <FORMAL_COMMENT: "/**" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+  < ABSTRACT: "abstract" >
+| < ACTION: "action" >
+| < BOOLEAN: "boolean" >
+| < BREAK: "break" >
+| < BYTE: "byte" >
+| < CASE: "case" >
+| < CATCH: "catch" >
+| < CHAR: "char" >
+| < CLASS: "class" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < _DEFAULT: "default" >
+| < DO: "do" >
+| < DOUBLE: "double" >
+| < ELSE: "else" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < FINAL: "final" >
+| < FINALLY: "finally" >
+| < FLOAT: "float" >
+| < FOR: "for" >
+| < GOTO: "goto" >
+| < GUARD: "guard" >
+| < IF: "if" >
+| < IMPLEMENTS: "implements" >
+| < IMPORT: "import" >
+| < INSTANCEOF: "instanceof" >
+| < INT: "int" >
+| < INTERFACE: "interface" >
+| < LONG: "long" >
+| < NATIVE: "native" >
+| < NEW: "new" >
+| < NULL: "null" >
+| < PACKAGE: "package">
+| < PRIVATE: "private" >
+| < PROTECTED: "protected" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < SHORT: "short" >
+| < STATIC: "static" >
+| < SUPER: "super" >
+| < SWITCH: "switch" >
+| < SYNCHRONIZED: "synchronized" >
+| < THIS: "this" >
+| < THROW: "throw" >
+| < THROWS: "throws" >
+| < TRANSIENT: "transient" >
+| < TRUE: "true" >
+| < TRY: "try" >
+| < VOID: "void" >
+| < VOLATILE: "volatile" >
+| < WHILE: "while" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER:
+      [
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+TOKEN : /* SEPARATORS */
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < ASSIGN: "=" >
+| < GT: ">" >
+| < LT: "<" >
+| < BANG: "!" >
+| < TILDE: "~" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < INCR: "++" >
+| < DECR: "--" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < RSIGNEDSHIFT: ">>" >
+| < RUNSIGNEDSHIFT: ">>>" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RUNSIGNEDSHIFTASSIGN: ">>>=" >
+}
+
+/***********************************
+ * THE STUBBER GRAMMAR STARTS HERE *
+ ***********************************/
+
+void StubFile() :
+{
+  Token t, t2, s;
+  String name;
+  String implementsList;
+  boolean hasConstructor=false;
+}
+{
+  [ PackageClause() ]
+
+  ( ImportClause() )*
+  {
+    out("import java.util.concurrent.Callable;");
+    out("import java.util.concurrent.ExecutionException;");
+    out("import java.util.concurrent.Future;");
+    out("import java.util.Set;");
+    out("import java.util.Collection;");
+	out("");
+    out("import de.renew.engine.simulator.SimulationThreadPool;");
+    out("import de.renew.net.NetInstance;");
+    out("import de.renew.net.Place;");
+    out("import de.renew.net.PlaceInstance;");
+    out("import de.renew.engine.searchqueue.SearchQueue;");
+  }
+
+  s="class" t=<IDENTIFIER>
+  {
+    className=t.image;
+    if(s.specialToken!=null){
+    out(s.specialToken.image);
+    }
+    out("public class "+t.image);
+  }
+
+  // we want to avoid having to reserve "net" and "netinstance" as
+  // global keywords, so we are increasing the LOOKAHEAD to check
+  // if there is one or two <IDENTIFIER>s ("netinstance" or "net ...")
+  // following
+  "for"
+  (
+    LOOKAHEAD(2)
+    t=<IDENTIFIER> t2=<IDENTIFIER>
+    {
+      if (!t.image.equals("net")) {
+        throw makeParseException("Expected 'for net <netname>' or 'for netinstance', encountered 'for " + t.image + " " + t2.image + "'");
+      }
+      out("  extends de.renew.net.NetInstanceImpl");
+      netName = t2.image;
+    }
+    |
+    t=<IDENTIFIER>
+    {
+      if (!t.image.equals("netinstance")) {
+        throw makeParseException("Expected 'for net <netname>' or 'for netinstance', encountered 'for " + t.image + "'");
+      }
+      netName = null;
+    }
+  )
+
+  [
+    "implements"
+    name=Name()
+    { implementsList=name; }
+    (
+      "," name=Name()
+      { implementsList=implementsList+", "+name; }
+    )*
+    { out("  implements "+implementsList); }
+  ]
+
+  "{"
+  {
+    out("{");
+    out("");
+    out("  private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger");
+    out("                                                        .getLogger("+className+".class);");
+    if (netName==null) {
+      out("  private final NetInstance _instance;");
+    }
+    else {
+      out("  private final NetInstance _instance = this;");
+    }
+    out("");    
+  }
+
+  (
+    LOOKAHEAD(<IDENTIFIER> "(")
+    ConstructorDeclaration()
+    { hasConstructor=true; }
+  |
+  	 LOOKAHEAD(2)
+     PlaceAccessDeclaration()
+  |
+     MethodDeclaration()
+
+  )*
+
+  "}"
+  <EOF>
+  {
+    if (!hasConstructor) {
+      if (netName == null) {
+        // Output a default constructor for a stub wrapping an existing instance.
+        out("  public "+className+"(NetInstance instance)");
+        out("  {");
+        out("    _instance = instance;");
+        out("  }");
+      }
+      else {
+        // Output a default constructor.
+        // No synchronisation at all. Might also want an optional
+        // "new" synchronisation without parameters.
+        out("  public "+className+"()");
+        out("  {");
+        out("    super();");
+        out("    Future<Object> future = SimulationThreadPool.getCurrent()");
+        out("                                 .submitAndWait(new Callable<Object>() {");
+        out("      public Object call() throws RuntimeException {");    
+        out("        try {");
+        out("          de.renew.net.Net net = de.renew.net.Net.forName(\""+netName+"\");");
+        out("          net.setEarlyTokens(true);");
+        out("          initNet(net, true);");
+        out("          createConfirmation(de.renew.application.SimulatorPlugin.getCurrent().getCurrentEnvironment().getSimulator().currentStepIdentifier());");
+        out("        } catch (de.renew.net.NetNotFoundException e) {");
+        out("          throw new RuntimeException(e.toString(), e);");
+        out("        } catch (de.renew.unify.Impossible e) {");
+        out("          throw new RuntimeException(e.toString(), e);");
+        out("        }");	
+        out("        return null;");     
+        out("      }");
+        out("    });"); 
+        out("    try {");
+        out("        future.get();");
+        out("    } catch (InterruptedException e) {");
+        out("        logger.error(\"Timeout while waiting for simulation thread to finish\", e);");
+        out("    } catch (ExecutionException e) {");
+        out("        logger.error(\"Simulation thread threw an exception\", e);");
+        out("    }");        
+        out("  }");
+      }
+    }
+    out("}");
+  }
+}
+
+void PackageClause() :
+{
+}
+{
+  "package" pckg=Name() ";"
+  { 
+  	out("package "+pckg+";"); 
+  }
+}
+
+void ImportClause() :
+{
+  String name;
+  boolean star=false;
+}
+{
+  "import" name=Name() [ "." "*" { star=true;} ] ";"
+  {
+    if (star) {
+      out("import "+name+".*;");
+    } else {
+      out("import "+name+";");
+    }
+  }
+}
+
+void PlaceAccessDeclaration() :
+{}
+{  (    PlaceGetterDeclaration()
+  |
+    PlaceSetterDeclaration()
+  )}
+
+void PlaceGetterDeclaration() :
+{
+  Token t;
+  Token s;
+  String name;}
+{  s="get "  t=<STRING_LITERAL>  ";"
+  {    name=t.image.replaceAll("\\s","");
+    name=name.replaceAll("\\W","");
+
+    addGetterName(name);
+
+    if(s.specialToken != null) {
+      out(s.specialToken.image);
+      }
+    out("public Set<Object> get" + name + "()");
+    out("{");
+    out("      Set<Object> result = null;");
+    out("      Collection<Place> places = _instance.getNet().places();");
+    out("      Place place = null;");
+    out("      for (Place p : places) {");
+    out("          if (p.getName().equals(" + t.image + ")) {");
+    out("              place = p;");
+    out("              break;");
+    out("          }");
+    out("      }");
+    out("      PlaceInstance placeInstance = null;");
+    out("      if (place != null) {");
+    out("          placeInstance = _instance.getInstance(place);");
+    out("      }");
+    out("      if (placeInstance != null) {");
+    out("          result = placeInstance.getDistinctTokens();");
+    out("      }");
+    out("      return result;");
+    out("}");  }}
+
+void PlaceSetterDeclaration() :
+{
+  Token t;
+  Token s;
+  String name;
+}
+{
+  s="set " t=<STRING_LITERAL> ";"
+  {
+    name=t.image.replaceAll("\\s","");
+    name=name.replaceAll("\\W","");
+
+    addSetterName(name);
+
+    if(s.specialToken != null) {
+      out(s.specialToken.image);
+      }
+    out("public void set" + name + "(Object o)");
+    out("{");
+    out("      Collection<Place> places = _instance.getNet().places();");
+    out("      Place place = null;");
+    out("      for (Place p : places) {");
+    out("          if (p.getName().equals(" + t.image + ")) {");
+    out("              place = p;");
+    out("              break;");
+    out("          }");
+    out("      }");
+    out("      if (place != null) {");
+    out("          PlaceInstance placeInstance = _instance.getInstance(place);");
+    out("          placeInstance.insertToken(o,SearchQueue.getTime());");
+    out("      }");
+    out("}");
+  }
+}  
+
+void MethodDeclaration() :
+{
+  String type;
+  String tmpType;
+  boolean isBreak;
+  Token t;
+  Token s;
+}
+{
+  ( 
+    type=Type()
+    {
+      isBreak=false;
+    }
+  |
+    s="void"
+    {
+      if(s.specialToken != null) {
+      out(s.specialToken.image);
+      }
+      type="void";
+      isBreak=false;
+    }
+  |
+    s="break" "void"
+    {
+      if(s.specialToken != null) {
+      out(s.specialToken.image);
+      }
+      type="void";
+      isBreak=true;
+    }
+  )
+  t=<IDENTIFIER>
+  { variableInit(); }
+  Params("public "+type+" "+t.image,null,null)
+  {
+    assignedVariables.add("this");
+    if (!type.equals("void")) {
+      declareVariable(type,"return");
+      tmpType=type;
+      if(isPrimitive(type)){
+      	tmpType=getObjectType(type);
+      }
+      out("      Future<"+tmpType+"> future = SimulationThreadPool.getCurrent()");
+      out("                                   .submitAndWait(new Callable<"+tmpType+">() {");
+      out("        public "+tmpType+" call() throws RuntimeException {");
+      out("          Object "+getInternalName("return")+";");
+    } else if (isBreak) {
+	  out("      SimulationThreadPool.getCurrent().execute(new Runnable() {");
+	  out("        public void run() {");
+    } else {
+      out("      SimulationThreadPool.getCurrent().executeAndWait(new Runnable() {");
+	  out("        public void run() {");
+    }
+  }
+  MethodBody("            ")
+  {
+    if (!type.equals("void")) {
+      if (!assignedVariables.contains("return")) {
+	throw makeParseException("Pseudo-variable return unassigned "+
+	  "at end of method.");
+      }
+      if (isPrimitive(type)) {
+	      out("            return ((de.renew.util.Value)"+
+          getInternalName("return")+")."+type+"Value();");
+      } else {
+	      out("            return ("+type+")"+getInternalName("return")+";");
+      }
+    }
+    out("        }");
+    out("      });");
+    if (!type.equals("void")) {
+      out("      try {");
+      out("          return future.get();");
+      out("      } catch (InterruptedException e) {");
+      out("          logger.error(\"Timeout while waiting for simulation thread to finish\", e);");
+      out("      } catch (ExecutionException e) {");
+      out("          logger.error(\"Simulation thread threw an exception\", e);");
+      out("      }");
+	  out("");
+      out("      // We should never return nothing but some error occured befor.");
+      if(type=="boolean") {
+      	out("      return false;");
+      } else if (type=="char"){
+      	out("      return \"\\u0000\";");
+      }else if (type=="byte" ||
+      			type=="short" ||
+      			type=="int" ||
+      			type=="long" ||
+      			type=="float" ||
+      			type=="double"){
+      	out("      return 0;");
+      }
+      else {
+		out("      return null;");
+	  }
+    }      
+    out("  }");
+  }
+}
+
+void ConstructorDeclaration() :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  {
+    if (!t.image.equals(className)) {
+      throw makeParseException(
+        "Constructor name and class name do not match.");
+    }
+    variableInit();
+  }
+  Params("public "+className,
+    null,
+    "    super();\n")
+  {
+    if (netName == null) {
+      // constructor for a stub wrapping an existing net instance
+      // there must be a parameter "instance" so we can initialize our _instance field
+      if (!variables.contains("instance")) {
+        throw makeParseException(
+          "Custom constructors for netinstance stubs must have an 'instance' parameter "+
+          "taking the NetInstance to be wrapped by the stub.");
+      }
+      out("    _instance = " + getInternalName("instance") + ";");
+    }
+    else {
+      // constructor for a stub being a net instance itself
+      out("    Future<Object> future = SimulationThreadPool.getCurrent()");
+      out("                                 .submitAndWait(new Callable<Object>() {");
+      out("      public Object call() throws RuntimeException {");
+      out("        try {");
+      out("          de.renew.net.Net net = de.renew.net.Net.forName(\""+netName+"\");");
+      out("          net.setEarlyTokens(true);");
+      out("          initNet(net, true);");
+      out("          createConfirmation(de.renew.application.SimulatorPlugin.getCurrent().getCurrentEnvironment().getSimulator().currentStepIdentifier());");
+      out("        } catch (de.renew.net.NetNotFoundException e) {");
+      out("          throw new RuntimeException(e.toString(), e);");
+      out("        } catch (de.renew.unify.Impossible e) {");
+      out("          throw new RuntimeException(e.toString(), e);");
+      out("        }");	
+      out("        return null;");         
+      out("      }");
+      out("    });");
+      out("    try {");
+      out("        future.get();");
+      out("    } catch (InterruptedException e) {");
+      out("        logger.error(\"Timeout while waiting for simulation thread to finish\", e);");
+      out("    } catch (ExecutionException e) {");
+      out("        logger.error(\"Simulation thread threw an exception\", e);");
+      out("    }");    
+    }
+    assignedVariables.add("this");
+  }
+  MethodBody("    ")
+  {
+    out("  }");
+  }
+}
+
+void MethodBody(String indent) :
+{
+}
+{
+  {
+    out(indent+"de.renew.unify.Tuple inTuple;");
+    out(indent+"de.renew.unify.Tuple outTuple;");
+  }
+  (
+    LOOKAHEAD(Variable(indent) ":")
+    DownlinkSpecification(indent)
+  |
+    LOOKAHEAD(Type() <IDENTIFIER> "=")
+  	VariableAssignment(indent)
+  |
+    VariableDeclaration(indent)
+  )*
+  "}"
+}
+
+void VariableAssignment(String indent) :
+{
+  String type;
+  String type2;
+  String decl;
+  Token s;
+  String expr;
+  Token t;
+}
+{
+  type=Type()
+  s=<IDENTIFIER> "="
+  (     expr=Name()
+  |
+     t=< STRING_LITERAL >
+     { expr = t.image;   }
+  |
+     t=< INTEGER_LITERAL >
+     { expr = t.image;   }
+  |
+     t=< CHARACTER_LITERAL >
+     { expr = t.image;   }
+  |
+     t=< FLOATING_POINT_LITERAL >
+     { expr = t.image;   }
+  |
+  	 "new " type2=Type() "(" 
+  	 {decl="";}
+  	 [t=<IDENTIFIER>
+  	 {decl=t.image;}
+  	 (
+  	     "," t=<IDENTIFIER>
+  	     {decl+=("," + t.image);}
+  	 )*]
+  	 ")"
+  	 { expr = "new " + type2 + "(" + decl + ")";}
+  )
+  ";"
+  {
+    declareVariable(type,s.image);
+    assignedVariables.add(s.image);
+    out(indent + type +" " + getInternalName(s.image) + "=" + expr + ";");
+  }
+  
+}
+
+void VariableDeclaration(String indent) :
+{
+  String type;
+  Token t;
+  Token s;
+}
+{
+  type=Type()
+  t=<IDENTIFIER>
+  {
+    declareVariable(type,t.image);
+    out(indent+"Object "+getInternalName(t.image)+";");
+  }
+  ";"
+}
+
+void Params(String start, String throwsClause, String firstCmd) :
+{
+  String decl;
+  StringBuffer result;
+}
+{
+  "("
+  {
+    result=new StringBuffer("  ");
+    result.append(start);
+    result.append("(");
+  }
+  [
+    decl=Param()
+    { result.append(decl); }
+    (
+      "," decl=Param()
+      {
+        result.append(", ");
+        result.append(decl);
+      }
+    )*
+  ]
+  ")"
+  {
+    result.append(")");
+    out(result.toString());
+    if (throwsClause!=null) {
+      out(throwsClause);
+    }
+  }
+  "{"
+  { 
+    out("  {");
+    if (firstCmd!=null) {
+      out(firstCmd);
+    }
+    // Copy all parameters into the internal variables.
+    // On the fly, convert primitives to values.
+    Iterator<String> iterator=variables.iterator();
+    while (iterator.hasNext()) {
+      String variable=(String)iterator.next();
+      String type=(String)variableTypes.get(variable);
+      if (isPrimitive(type)) {
+	out("      final Object "+getInternalName(variable)+"="+
+	  "new de.renew.util.Value(new "+getObjectType(type)+
+	  "("+getParameterName(variable)+"));");
+      } else {
+	out("      final Object "+getInternalName(variable)+"="+
+	  getParameterName(variable)+";");
+      }
+    }
+  }
+}
+
+String Param() :
+{
+  String type;
+  Token t;
+}
+{
+  type=Type()
+  t=<IDENTIFIER>
+  {
+    declareVariable(type,t.image);
+    assignedVariables.add(t.image);
+    return "final "+type+" "+getParameterName(t.image);
+  }
+}
+
+void DownlinkSpecification(String indent) :
+{
+  String netVar;
+  String channel;
+  String argVar;
+  Vector<String> channelVariables=new Vector<String>();
+  Hashtable<String, String> components;
+}
+{
+  netVar=Variable(indent)
+  {
+    if (!assignedVariables.contains(netVar)) {
+      throw makeParseException("Variable is unassigned: "+netVar);
+    }
+  }
+  ":" channel=ChannelName()
+  "("
+  [
+    argVar=Variable(indent)
+    { channelVariables.addElement(argVar); }
+    (
+      "," argVar=Variable(indent)
+     { channelVariables.addElement(argVar); }
+    )*
+  ]
+  ")" ";"
+  {
+    out(indent+"inTuple=new de.renew.unify.Tuple("+channelVariables.size()+");");
+
+    components=new Hashtable<String, String>();
+
+    for (int i=0;i<channelVariables.size();i++) {
+      String var=channelVariables.elementAt(i);
+      if (assignedVariables.contains(var)) {
+	out(indent+"try {");
+	out(indent+"  de.renew.unify.Unify.unify(inTuple.getComponent("+i+"),"+
+          getInternalName(var)+",null);");
+        out(indent+"} catch (de.renew.unify.Impossible e) {");
+        out(indent+"  throw new RuntimeException("+
+          "\"Unification failed unexpectedly.\", e);");
+        out(indent+"}");
+      } else if (components.containsKey(var)) {
+	out(indent+"try {");
+	out(indent+"  de.renew.unify.Unify.unify(inTuple.getComponent("+i+"),");
+        out(indent+"    inTuple.getComponent("+components.get(var)+"),null);");
+        out(indent+"} catch (de.renew.unify.Impossible e) {");
+        out(indent+"  throw new RuntimeException("+
+          "\"Unification failed unexpectedly.\", e);");
+        out(indent+"}");
+      } else {
+	// In the case of typed variables, make an
+	// appropriate type check.
+	if (variableTypes.containsKey(var)) {
+	  out(indent+"try {");
+	  out(indent+"  de.renew.expression.CallExpression."+
+	    "expressionConstraint(new de.renew.unify.Variable(),");
+	  out(indent+"    new de.renew.formalism.function.CastFunction("+
+	    getTypeString(var)+"),");
+	  out(indent+"    new de.renew.unify.Variable("+
+	    "inTuple.getComponent("+i+"),null),null);");
+          out(indent+"} catch (de.renew.unify.Impossible e) {");
+          out(indent+"  throw new RuntimeException("+
+            "\"Unification failed unexpectedly.\", e);");
+          out(indent+"}");
+	}
+	// Remember that this variable is a component of
+	// the current vector.
+	components.put(var,""+i);
+      }
+    }
+
+    out(indent+"outTuple=de.renew.call.SynchronisationRequest.synchronize(");
+    out(indent+"_instance,\""+channel+"\",inTuple);");
+    out("//**only to avoid unused warnings. !BAD! style**");
+    out(indent+"outTuple.hashCode();");
+
+    for (int i=0;i<channelVariables.size();i++) {
+      String var=channelVariables.elementAt(i);
+      if (!assignedVariables.contains(var)) {
+	out(indent+getInternalName(var)+"=outTuple.getComponent("+i+");");
+	assignedVariables.add(var);
+      }
+    }
+  }
+}
+
+String ChannelName() :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER> 
+  { return t.image; }
+|
+  "new"
+  { return "new"; }
+}
+
+String Variable(String indent) :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  {
+    if (!variables.contains(t.image)) {
+      // Might also want
+      //   throw makeParseException("No such variable: "+t.image);
+      // if all variables must be declared.
+      declareVariable(null,t.image);
+      out(indent+"Object "+getInternalName(t.image)+";");
+    }
+    return t.image;
+  }
+|
+  "return"
+  {
+    if (!variables.contains("return")) {
+      throw makeParseException("No return in constructor or void method.");
+    }
+    return "return";
+  }
+|
+  "this"
+  {
+    return "this";
+  }
+}
+
+String Type() :
+{
+  String type;
+}
+{
+  type=NonArrayType()
+  ( "[" "]"
+    { type=type+"[]"; }
+  )*
+  { return type; }
+}
+
+String NonArrayType() :
+{
+  String type;
+}
+{
+  (
+    type=PrimitiveType()
+  | 
+    type=Name() 
+  )
+  { return type; }
+}
+
+String PrimitiveType() :
+{
+  Token t;
+}
+{
+  (
+    t="boolean"
+  |
+    t="char"
+  |
+    t="byte"
+  |
+    t="short"
+  |
+    t="int"
+  |
+    t="long"
+  |
+    t="float"
+  |
+    t="double"
+  )
+  { 
+  if(t.specialToken != null){
+  out(t.specialToken.image);}
+  return t.image; }
+}
+
+String Name() :
+/*
+ * A lookahead of 2 is required below since "Name" can be followed
+ * by a ".*" when used in the context of an "ImportDeclaration".
+ */
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<IDENTIFIER> { s.append(t.image); }
+  ( LOOKAHEAD(2) "." t=<IDENTIFIER> 
+    { s.append("."); s.append(t.image); }
+  )*
+  {
+    return s.toString();
+  }
+}
+

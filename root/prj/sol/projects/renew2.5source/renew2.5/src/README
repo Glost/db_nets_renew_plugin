@@ -1,0 +1,163 @@
+Style guide: code, directories, CVS, ...
+----------------------------------------
+
+See Renew/Core/doc/internal/style.txt 
+(This file is not included in the Renew source distribution.)
+
+
+Used Tools (not included in the repository)
+-------------------------------------------
+
+The versions listed are the versions installed in the FBI-RZ Hamburg.
+The override notes are needed if your software installation differs
+from the default locations. Most probably, you will need to follow
+Tip A) below before you are able to build Renew at home.
+
+The tools are separated into two categories: mandatory and optional.
+Mandatory tools are required by every ant run, optional tools are
+needed for specific purposes only.
+
+Mandatory tools:
+
+- Java-SDK: javac, rmic, javadoc, ...
+    Purpose:  Code compilation and documentation
+    Version:  1.7 (or higher)
+    URL:      http://www.java.com/
+    Override: $JAVA_HOME and $PATH environment variables
+
+- ant
+    Purpose:  Managing the build process
+    Version:  1.8.2
+    URL:      http://ant.apache.org/
+    Override: $ANT_HOME and $PATH environment variables
+
+- javacc
+    Purpose:  Parser generation
+    Version:  5.0
+    URL:      http://javacc.java.net/
+              file:///local/tgi/java/lib/javacc/
+    Override: dir.javacc ant property
+
+
+Optional tools:
+
+- JUnit
+    Purpose:  Testing framework for Java
+    Needed for: ant test
+    Version:  4.4
+    URL:      http://junit.org/
+    Install:  copy junit.jar to Renew/lib/junit/junit.jar
+
+- Mockito
+    Purpose:  Mockup framework for Java
+    Needed for: ant test
+    Version:  1.9.5
+    URL:      http://code.google.com/p/mockito/
+    Install:  copy mockito1.9.5.jar to Renew/lib/mockito/mockito1.9.5.jar
+
+- Cobertura
+    Purpose:  Report source code coverage by JUnit tests
+    Needed for: ant cobertura
+    Version:  1.9.4.1
+    URL:      http://cobertura.sourceforge.net/
+              file:///local/tgi/java/lib/cobertura
+    Override: dir.cobertura ant property
+
+- Jalopy
+    Purpose:  Source code beautification
+    Needed for: ant format, test.format
+    Version:  1.5rc3 with individual fixes
+    URL:      http://jalopy.sourceforge.net/
+              file:///local/tgi/java/lib/jalopy-1.5rc3-tgi-r9474/
+    Override: dir.jalopy.lib ant property
+
+- JarBundler
+    Purpose:  Ant task to create MacOS X application bundles
+    Needed for: ant buildapp.jarbundler (< Java 7)
+    Version:  2.1.0
+    URL:      http://jarbundler.sourceforge.net/
+              file:///local/tgi/java/lib/jarbundler/jarbundler.jar
+    Override: file.jarbundler.jar ant property
+
+- AppBundler
+    Purpose:  Ant task to create MacOS X application bundles (>= Java 7)
+    Needed for: ant buildapp.appbunder
+    Version:  1.0ea-renew
+    URL:      http://bitbucket.org/mhaustermann/appbundler
+              file:///local/tgi/java/lib/appbundler/appbundler-1.0ea-renew.jar
+    Override: file.appbundler.jar ant property
+
+- Launch4j
+    Purpose:  Ant task to create Windows exe wrapper
+    Needed for: ant buildexe
+    Version:  3.0.2
+    URL:      http://launch4j.sourceforge.net/
+    	      file://local/tgi/java/lib/launch4j/
+    Override: dir.launch4j ant property
+              You might also need to set the dir.launch4j.bin ant property
+              if the mingw binutils are not provided at the default
+              location at ${dir.launch4j}/bin .
+
+- LaTeX 2e
+    Purpose:  Typesetting user and architecture guides
+    Needed for: ant latexdoc
+    Version:  TeX Live 2012
+    URL:      http://www.tug.org/texlive/
+    Override: $PATH environment variable
+
+
+Additional tools for TGI developers:
+
+- Subversion (svn)
+    Purpose:  Concurrent version control
+    Version:  >= 1.5
+    URL:      http://subversion.tigris.org/
+    Override: $PATH environment variable
+
+
+Tips for compilation and execution (in Unix syntax)
+---------------------------------------------------
+
+A) To configure the build process:
+   - Run
+     ant configure
+     to ensure that the file Renew/ant/local.properties
+     is generated.
+   - Configure the properties in Renew/ant/local.properties,
+     possibly overriding properties defined in
+     Renew/ant/commonproperties.xml .
+
+B) To build from scratch: 
+   - Run "ant" on top level (Renew/)
+   - The distribution tree (including all plugin components) 
+     will be created in Renew/dist
+   Note: The default ant target is 'dist', which compiles all plugins
+         intended for distribution. Developers at the FBI-RZ Hamburg
+         should use 'all' to compile all experimental plugins. Similar
+         distinction exists for the 'clean' and 'cleanall' targets.
+
+C) To run the application:
+   - Go to the Renew/dist directory and execute
+     java -jar loader.jar gui
+   - The java -jar command will not use any given classpath,
+     neither from environment variable nor from -classpath option.
+     If you want to use your own classes with Renew plugins or 
+     within simulations, execute
+     java -Dde.renew.classPath=<yourOwnClasspath> -jar loader.jar gui
+   - If you want to use own classes behind the back of Renew, execute
+     java -classpath loader.jar:<anyOtherClasspath> de.renew.plugin.Loader gui
+     Renew can then use your classes, but your classes will not
+     see any Renew classes.
+   - The 'gui' command at the end of these lines can be replaced by
+     any other command registered at the PluginManager. If you have
+     the PromptPlugin installed, you can omit the initial command 
+     at the command line and use the interactive prompt instead.
+
+D) To configure with more than one plugin directory:
+   - Create a Renew configuration file. There are two locations:
+     either ".renew.properties" in your home directory (i.e. ~/.renew.properties)
+     or "renew.properties" in the directory Renew/dist/config .
+   - Put a line of the form
+     pluginLocations=/a/path/to/plugins:/an/other/path/to/plugins
+     in there. The default plugin location is automatically included.
+

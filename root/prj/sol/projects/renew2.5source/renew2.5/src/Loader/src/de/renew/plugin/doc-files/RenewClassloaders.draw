@@ -1,0 +1,95 @@
+11 
+    CH.ifa.draw.standard.StandardDrawing 33 
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 38 25 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 52 35 "Java boot class loader" "SansSerif" 1 12 0 REF 1 
+            CH.ifa.draw.standard.OffsetLocator 0 -10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 38 142 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 44 152 "Java system class loader" "SansSerif" 1 12 0 REF 5 
+            CH.ifa.draw.standard.OffsetLocator 0 -10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 1 "LineStyle" "String" "10" 2 116 142 116 81 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 5  
+            CH.ifa.draw.standard.ChopBoxConnector REF 1   
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 65 55 "(Java class library)" "SansSerif" 0 12 0 REF 1 
+            CH.ifa.draw.standard.OffsetLocator 0 10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 77 172 "(CLASSPATH)" "SansSerif" 0 12 0 REF 5 
+            CH.ifa.draw.standard.OffsetLocator 0 10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 215 226 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 215 231 "Renew system class loader" "SansSerif" 1 12 0 REF 19 
+            CH.ifa.draw.standard.OffsetLocator 0 -15 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 222 248 "(CLASSPATH, Renew libs\nand loader.jar)" "SansSerif" 0 12 0 REF 19 
+            CH.ifa.draw.standard.OffsetLocator 0 10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 4 "LineStyle" "String" "10" "BSplineDegree" "Int" 2 "LineShape" "Int" 0 "BSplineSegments" "Int" 15 6 293 226 292 187 255 143 144 122 130 106 123 81 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 19  
+            CH.ifa.draw.standard.ChopBoxConnector REF 1   
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 215 343 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 239 353 "Plugin class loader" "SansSerif" 1 12 0 REF 30 
+            CH.ifa.draw.standard.OffsetLocator 0 -10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 215 460 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 236 470 "Bottom class loader" "SansSerif" 1 12 0 REF 34 
+            CH.ifa.draw.standard.OffsetLocator 0 -10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 1 "LineStyle" "String" "10" 2 293 460 293 399 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 34  
+            CH.ifa.draw.standard.ChopBoxConnector REF 30   
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 222 373 "(All plug-in class libraries)" "SansSerif" 0 12 0 REF 30 
+            CH.ifa.draw.standard.OffsetLocator 0 10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 235 490 "(de.renew.classPath)" "SansSerif" 0 12 0 REF 34 
+            CH.ifa.draw.standard.OffsetLocator 0 10 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 1 "LineStyle" "String" "10" 2 293 343 293 282 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 30  
+            CH.ifa.draw.standard.ChopBoxConnector REF 19   
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 392 548 157 56  
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 413 553 "Bottom class loader" "SansSerif" 1 12 0 REF 52 
+            CH.ifa.draw.standard.OffsetLocator 0 -15 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 412 583 "(de.renew.classPath)" "SansSerif" 0 12 0 REF 52 
+            CH.ifa.draw.standard.OffsetLocator 0 15 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 4 "LineStyle" "String" "10" "BSplineDegree" "Int" 2 "LineShape" "Int" 0 "BSplineSegments" "Int" 15 6 470 548 469 511 443 475 337 444 312 429 302 399 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 52  
+            CH.ifa.draw.standard.ChopBoxConnector REF 30   
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 414 568 "- class reinit mode -" "SansSerif" 3 12 0 REF 52 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 580 233 "Created by de.renew.plugin.Loader\nObtainable via de.renew.plugin.PluginManager,\nmethod getSystemClassloader()" "SansSerif" 0 12 0 REF 19 
+            CH.ifa.draw.standard.OffsetLocator 416 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 580 350 "Created by de.renew.plugin.PluginManager\nObtainable via de.renew.plugin.PluginManager,\nmethod getPluginClassloader()" "SansSerif" 0 12 0 REF 30 
+            CH.ifa.draw.standard.OffsetLocator 416 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 580 467 "Created by de.renew.plugin.PluginManager\nObtainable via de.renew.plugin.PluginManager,\nmethod getBottomClassloader()" "SansSerif" 0 12 0 REF 34 
+            CH.ifa.draw.standard.OffsetLocator 416 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 581 555 "Created by de.renew.simulator.SimulatorPlugin\nObtainable via de.renew.util.ClassSource,\nmethod getClassloader()" "SansSerif" 0 12 0 REF 52 
+            CH.ifa.draw.standard.OffsetLocator 240 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 580 149 "Created by Java virtual machine\nObtainable via java.lang.ClassLoader,\nmethod getSystemClassloader()" "SansSerif" 0 12 0 REF 5 
+            CH.ifa.draw.standard.OffsetLocator 568 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 581 32 "Created by Java virtual machine\n\n" "SansSerif" 0 12 0 REF 1 
+            CH.ifa.draw.standard.OffsetLocator 551 3 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 208 122 "<<delegates\n                  to parent>>" "SansSerif" 2 12 0 REF 26 
+            CH.ifa.draw.standard.OffsetLocator 58 -15 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5    
+        CH.ifa.draw.figures.LineConnection "attributes" "attributes" 5 "LineStyle" "String" "1 2" "BSplineDegree" "Int" 2 "LineShape" "Int" 0 "BSplineSegments" "Int" 15 "FillColor" "Color" 255 255 255 255 5 116 198 116 227 140 254 165 254 215 254 NULL 
+            de.renew.gui.AssocArrowTip 0.4 11.0 11.0 1  "de.renew.gui.AssocArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 5  
+            CH.ifa.draw.standard.ChopBoxConnector REF 19   
+        CH.ifa.draw.figures.TextFigure "attributes" "attributes" 3 "TextAlignment" "Int" 0 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 9 224 "created by copying\nattributes from\nLoader.class.getClassLoader(),\nassuming it is an URLClassLoader" "SansSerif" 2 12 0 REF 87 
+            CH.ifa.draw.standard.OffsetLocator -61 30 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5     0 182 920 691 

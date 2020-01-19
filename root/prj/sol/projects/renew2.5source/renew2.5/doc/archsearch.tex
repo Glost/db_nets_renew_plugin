@@ -1,0 +1,426 @@
+\section{Activated Transition Instances}
+
+Before computing the enabled bindings of a transition instance,
+the simulator need to determine which transition to search.
+
+\subsection{The Search Queue}
+
+It is often the case in an object-oriented Petri net
+that the enabled transition instances are located 
+in a small sub-range of the net for longer time, whereas 
+in other net parts no transition instances are activated. 
+In such a case it would not be efficient to check 
+all transition instances for enabledness every time. Rather those 
+transitions are to be checked, whose enabledness status
+might have changed.
+
+\singlediagram{searchqueue}{The search queue}
+
+To this end we keep all potentially activated transition
+instances in a central data structure. 
+This data structure is implemented by the class \texttt{SearchQueue}.
+In a search queue, 
+you can not only include transitions, but all kinds of objects
+that might have to be searched for activated bindings, indicated
+as implementations of the interface \texttt{Searchable}.
+
+The search queue also keeps track of the time during the
+simulation of timed Petri nets. To this end, it records for each
+searchable object the earliest time when it should be searched.
+Whenever there are no more searchables that should be searched right now,
+the search queue advances the time, notifies optional listeners
+and returns a searchable object for the next relevant point of time.
+
+For each different time stamp, the search queue
+creates an object of type \texttt{SearchQueueData} which group
+the associated searchables. Different implementations of
+\texttt{SearchQueueData} can use different queueing strategies.
+The \texttt{SearchQueueFactory} is responsible for creating
+new instances of \texttt{SearchQueueData}-objects.
+
+The simulator extracts possibly activated transition instances 
+from the search queue and checks for enabledness.
+If the transition instance is not activated, 
+the transition instance is discarded 
+and another transition instance is selected. If it is enabled, it
+is reinserted into the search queue for a check on 
+additional concurrent firings. If the simulator determines that the
+transition will be enabled at some future point of time, but not right
+now, it will be inserted with an appropriate time stamp.
+
+The search queue may also notify listeners whenever new searchables
+arrive in the queue. For an overview of the search queue architecture,
+see Fig.~\ref{fig:searchqueue}.
+
+
+
+\subsection{Triggers}
+
+We observe that a transition can be recognized as deactivated without 
+looking at all input places. For example input places could be empty 
+or contain only such tokens that violate a guard. If the marking of a place
+that does not influence the enabledness changes, this event should
+no cause an insertion of the transition instance into the
+search queue, because the transition instance must still be
+disabled.
+
+Only those places, whose tokens received attention during 
+the check on activation at all, should provoke the new check. 
+In order to realize this optimization, it is necessary that 
+each place manages a set of the transitions, which have queried 
+the place during their check on activation and which therefore 
+must be notified after a modification. 
+
+The event mechanism discussed here is called the trigger mechanism.
+A place instance is a \texttt{Trigger} 
+that might cause a transition instance to be
+rechecked. Hence a transition instance implements
+the interface \texttt{Triggerable}. Fig.~\ref{fig:trigger}
+provides a class diagram for the trigger mechanism.
+The class \texttt{TriggerCollection} is a utility class that
+simplifies the administration of triggers.
+
+\singlediagram{trigger}{Triggers and triggerables}
+
+As soon as a notification is sent to all triggerables, 
+the set of triggers can be deleted. All relevant transition instances
+have been inserted into the search queue and do not need another
+notification. Only while the transitions are again checked, 
+they must log on themselves again for notification at the place instance.
+They will do this only if the place is relevant for the activatability 
+of the transition instance. 
+
+Additionally, every transition keeps track of all its triggers.
+Having been triggered, it can explicitly deregister itself from
+all triggers, even those that did not cause the check for enabledness.
+As a modification was already detected, notifications by the other 
+place instances are useless. Only during the new check for activation, 
+the places whose current tokens are relevant should again be registered.
+
+This way, the relevant place instances on which a transition instance
+depend may change over time. This is also helpful for good
+memory management, because links between triggers and triggerable
+might stop the garbage collector from claiming all unused
+memory otherwise.
+
+We summarize the process:
+\begin{itemize}
+\item \emph{Before} relying on a marking for the analysis
+  of a transition enabledness, the transition is registered with
+  the place's triggerable collection as a triggerable.
+\item In any case, a triggerable is registered at a
+  triggerable collection, never vice versa.
+\item After a change is done to a place, the place's triggerable collection
+  is used to inform all transitions of their possible enabledness.
+\item Each transition removes itself from all its triggers.
+  Afterward, it inserts itself into the search queue.
+\end{itemize}
+
+In this process, the following lock order is respected to avoid 
+deadlocks:
+\begin{itemize}
+\item First, lock triggerable collections via synchronisation.
+\item Second, lock trigger collections via synchronisation.
+\end{itemize}
+
+\section{Search Algorithm}
+
+Here we describe the algorithm that determines enabled bindings for
+a transition. The basic algorithm is quite general and constitutes
+essentially an adaptable backtracking tree search.
+
+During the tree search the decisions to be made at a certain point of time
+arise mainly out of input arcs that may be bound to different tokens.
+But there are other decision such as the choice of an appropriate
+transition that satisfies a given uplink.
+
+Each of these decisions will typically lead to a variable binding, 
+so that backtracking is necessary for examining the other possibilities. 
+If many decisions are to be met, not all the possible combinations 
+should be exhaustively searched, but rather the search should be aborted 
+as early as possible.
+
+All sorts of decisions are encapsulated in the interface \texttt{Binder}.
+An instance of the class \texttt{Searcher} coordinates the search process
+and selects the binder that makes the next decision. The searcher
+also references all information necessary for 
+the search procedure. After all binders 
+have had their chance to bind variables, the searcher determines whether
+the current set of variable bindings leads to an activated transition
+and transfers control to an instance of \texttt{Finder}, which may
+use the current bindings in the desired way. The main step before
+invoking the finder is to ask the \texttt{CalculationChecker}
+about possible conflicts with regard to the action inscriptions
+and the complete binding of all variables involved in early computations.
+
+The search process is initiated by an object of type
+\texttt{Searchable}. Such objects own a method that
+can register some binders at the searcher and transfer control
+to the searcher.
+
+After the Searcher is assigned to start a search procedure, it asks 
+all binders for a estimate on the relative cost of trying all
+bindings in order to determine the binder that should start the
+search process. 
+This cost is referred to as the binding badness. The searcher 
+always selects the binder with the minimal cost.
+
+A special value for the binding badness is reserved, in 
+order to represent infinite costs. A binder should indicate 
+infinite costs, if at this time no new binding information 
+can be acquired from the binder. 
+Otherwise it is a good clue, to indicate the number of 
+necessary branches in the search tree as binding costs. 
+Thus those binders are preferred by the searcher, which keep 
+the width of the search tree small. Since this does not ensure the optimal
+search tree in all cases, a binder can also use any other heuristics. 
+
+The selection of the optimal binder is highly dynamic. The order of 
+binders may not only
+be different for different searches of one transition instance.
+It may in fact different for different branches of the search tree.
+In order to exploit the performance advantages associated with
+this optimization, it is recommended that the computation
+of the binding badness itself should be relatively fast.
+
+Typically binders with the binding costs $0$ are those binders, 
+which can prove that the current branch of the search tree does 
+not contain enabled bindings. It is clear that such binders 
+should be called with priority, so as to cut off the search tree as early
+as possible. Similarly, binding costs of $1$ pertain to a binding, 
+which must be executed in each case, since there are no alternatives. 
+Such binders are likewise preferred, because 
+their handling must be done in any case and can perhaps help to 
+better estimate the costs of the remaining binders. 
+
+After the searcher determined a binder in such a way, 
+it removes the binder from its list of unprocessed binders 
+and transfers the control to the binder. Now the binder tries
+all possible bindings that may lead to a solution one variant 
+after the other. In each case the resulting binding information
+
+Each time, when the binder selected a possibility, the search method 
+of the searcher is called again. The searcher can then determine and 
+call one of the remaining binders. Thus binders and searcher alternate, 
+until a solution is found, or until a binder ascertains that no
+decision can lead to success on its part. In such a case the binder 
+terminates its search method and returns with an appropriate message 
+to the calling searcher. This will go back to the last binder, 
+which examines a further binding possibility. 
+
+A binder may not only contribute information to the search, 
+but it may register further binders at the searcher for 
+future consideration. Thus a decision could be made, 
+but at the price of a new pending decision. 
+These additional binders can make an initially simple search 
+process complicated. But it also helps to keep a search process 
+simple as long as no absolute necessity exists for a certain decision. 
+
+If a binder returns, because it did not succeed in finding
+an appropriate solution to the search problem,
+backtracking must occur.
+Modifications that were applied to variables 
+of the unification algorithm can be easily 
+cancelled, since the unification algorithm already introduced 
+a backtracking mechanism, as described earlier.
+The \texttt{StateRecorder}-object, which is necessary for each 
+modifying operation, is centrally administered by the searcher, 
+since exactly one such object per search procedure is necessary. 
+
+Another modification during the traversal of the search tree 
+concerns the registered binders themselves. Here the searcher 
+makes sure that a binder is removed 
+from the list of the possible binders
+before control is passed to it. After the search procedure 
+it is automatically registered again. If a binder would like 
+to register other new binders, then also the deregistration
+has to be administered by the binder.
+
+\singlediagram{sbf}{The searcher/binder/finder data structure}
+
+Binders can rely on the following assumptions:
+\begin{itemize}
+\item Each binder is processed at some time, unless it reports an infinite 
+  binding badness. 
+\item A binder is not called as long as it announces an infinite
+  binding badness. 
+\end{itemize}
+On the other hand the following duties fall upon binders: 
+\begin{itemize}
+\item The sequence, in which two binders with finite binding costs 
+  are processed, may only affect the order, but not on the set of 
+  found solutions. 
+\item By the actions of binders only restrictions, but not extensions 
+  of the remaining solution space, can take place. 
+\item The binding costs, which a binder reports, 
+  may only decrease with the operations of other binders, but never increase. 
+\item Before a Binder accesses the status of a changeable object, 
+  in particular a place instance, it registers the currently
+  searched transition instance as triggerable of the changeable object.
+\item A modification of a changeable object may lead to missing
+  or redundant solutions, but not to other failures.
+\end{itemize}
+
+We assume in the following that binders communicate
+over the variables of the unification algorithm. Thus no central 
+object is necessary, which must administer the binding 
+information already collected. This enables us to combine binders 
+flexibly.
+
+Since variables are changed only by unification, they are 
+only more strictly bound during the search process, so that 
+the set of the allowed bindings decreases monotonously, as 
+required by the specification of binders.
+Because the sequence of unification operations does not 
+influence the outcome, it will also be simpler to achieve 
+the arbitrary exchangeability of operations of binders.
+
+The searcher accepts a solution, if all binders are processed. The 
+searcher will then transfer the finder for evaluation, which can 
+use the solution as desired. Finally the finder informs the searcher, 
+whether further solutions are to be found. For this a query method 
+\texttt{isCompleted()} is provided, which states, whether the 
+search procedure is to be terminated.
+
+\singlediagram{search}{A search process}
+
+In Fig.~\ref{fig:search} we depict a typical search procedure as a 
+collaboration diagram.
+
+
+\section{Application to Petri Nets}
+\label{sec:occrea}
+
+The search algorithm that was described up to now could be flexibly
+amended for many different application areas, since there is nothing
+intrinsically net-related about it. We will discuss
+the specialization to Petri nets now.
+
+For normal Petri nets a firing mode must only consider the 
+bindings of all variables. We want to manage nets with synchronous 
+channels, too, so that several transitions can be taken part in a 
+firing. In particular, only during the search procedure, when 
+variables are gradually bound, it becomes 
+clear, which transitions need to be synchronised.
+This cannot be assumed beforehand.
+
+Therefore it is necessary that the searcher keeps track 
+of the involved transition instances during the search procedure. 
+Alongside with the involved transition instances a record of variable 
+bindings has to be administered, hence it seems natural to 
+aggregate pairs of one transition instance and the record of
+variables in a class. This combination is called transition 
+occurrence and managed by the class \texttt{TransitionOccurrence}. 
+
+An interface \texttt{Occurrence} abstracts from the concrete 
+characteristics of a transition occurrence and can be used to integrate 
+occurrences of active objects of other formalisms. 
+
+Whenever a transitions instance is to be checked for enabledness and
+whenever it is selected as target of a synchronisation, 
+a transitions occurrence is produced by it, and this occurrence enters 
+into a set of occurrences with the searcher. 
+
+At the same time inscription occurrences, objects implementing
+\texttt{InscriptionOccurrence}, of all transition inscriptions 
+of the transition in question, are produced. With inscription occurrences 
+the concept that the semantics of transitions results from aggregated 
+inscriptions, is repeated on the dynamic level. 
+
+Each inscription occurrence administers necessary information of 
+this inscription during the search procedure, for example the 
+allocation of used variables. Alone the transition occurrence knows 
+all used variables. The inscription occurrences are responsible for 
+the production of binders if they are required by the inscription. 
+
+A transition instance creates an occurrence of itself while
+\texttt{startSearch(Searcher)} is called. 
+It registers itself at a Searcher and automatically asks the 
+occurrence for the binders produced by the inscription occurrences.
+
+The search algorithm administers no inscription occurrences. 
+It will only note the occurrences, which again encapsulate the inscription 
+occurrences. This has the advantage, that formalisms for which 
+the active elements are not composed by individual inscriptions 
+can be also treated by this simulation algorithm. In addition, 
+this secures a maximum independence from the individual occurrences. 
+
+\begin{table}[htbp]
+  \begin{center}
+    \begin{tabular}{lll}
+      inscription & occurrence & binder(s) \\\hline
+      \texttt{ActionInscription} & \texttt{ActionOccurrence} & N/A \\\hline
+      \texttt{Arc} & \texttt{ArcOccurrence} & \texttt{InputArcBinder} \\
+      & & \texttt{TestArcBinder} \\
+      & & \texttt{InhibitorArcBinder} \\
+      & & \texttt{ArcAssignBinder} \\\hline
+      \texttt{ClearArc} & \texttt{ClearArcOccurrence} & N/A \\\hline
+      \texttt{ConditionalInscription} & \texttt{ConditionalOccurrence} & 
+        \texttt{ConditionalOccurrence} \\\hline
+      \texttt{CreationInscription} & \texttt{CreationOccurrence} & N/A \\\hline
+      \texttt{DownlinkInscription} & \texttt{DownlinkOccurrence} &
+        \texttt{ChannelBinder} \\\hline
+      \texttt{EnumeratorInscription} & \texttt{EnumeratorOccurrence} &
+        \texttt{EnumeratorBinder} \\\hline
+      \texttt{FlexibleArc} & \texttt{FlexibleArcOccurrence} &
+        \texttt{FlexibleArcBinder}  \\
+    \end{tabular}
+    \caption{Inscription classes and associated occurrence classes}
+    \label{tab:inscroccbind}
+  \end{center}
+\end{table}
+
+In Table~\ref{tab:inscroccbind} we summarize the different
+inscription occurrences and the executables that they can create.
+The \texttt{ArcOccurrence} class is special in the sense that
+it creates different binders depending on its attributes.
+It may also create more than one binder. If the arc can contribute
+to the binding information, it will create an \texttt{ArcAssignBinder},
+which is responsible for trying all tokens in order to produce
+a variable assignment. In any case, it creates a binder that checks 
+for the availability of the token that is computed by the arc's
+expression.
+
+
+\section{Finders}
+
+The concept of a finder was already introduced earlier, but we will
+now investigate the implemented subclasses which link the
+search process to the execution algorithm. The following subclasses
+are implemented:
+\begin{description}
+\item[\texttt{AbortFinder}] This finder aggregates another finder
+  and is responsible for terminating the current search,
+  if so requested.
+\item[\texttt{EnablednessFinder}] This finder terminates the 
+  search as soon as the first enabled binding was found, because it is 
+  only supposed to determine whether a transition is enabled. 
+\item[\texttt{ExecuteFinder}] This finder must initiate the execution of 
+  some binding of the transition. For this task, too it is enough to 
+  search till the first binding. The finder must, however, make additional 
+  records on the found binding. 
+\item[\texttt{CollectingFinder}] This finder looks up all possible 
+  bindings of a transition and always requires a full search. 
+  It is useful if we want to display all enabled bindings of 
+  a transition or if we want to select a binding from the 
+  set of all bindings in a fair way.  The collecting finder
+  can naturally be combined with the abort finder, in order to
+  achieve an abort of the search early. Of course this means that
+  the originally desired information will not be available. 
+\end{description}
+
+The use of an \texttt{ExecuteFinder} in the current form cannot 
+guarantee that all bindings of a transition are found with the 
+same probability. Although different tokens are checked in random 
+order, the order of handling of the input arc binders
+may influence the probability of certain bindings.
+
+\singlediagram{finder}{The \texttt{Finder} classes}
+
+Nevertheless all bindings remain firable, so that each possible 
+action in a simulation is possibly observable. Whether a 
+preference in realistic nets occurs or is significant, would 
+have to be determined. We can take care of fairness for all 
+firing modes within a transition using a \texttt{CollectingFinder}. 
+
+

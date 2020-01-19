@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+   <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="Renew-Export" default="dist" basedir=".">
+    <description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+This Plugin provides access to external Export Formats maintained by the 
+FreeHep program.
+    </description>
+
+  <!-- makes some checks. (internal). -->
+  <!-- if there is something to initialise, insert here -->
+  <target name="configure">
+    <property name="plugin.name" value="export"/>
+
+    &commonproperties;
+
+    <path id="ref.classpath">
+	<path refid="ref.sharedlibs"/>
+	<path refid="ref.antclasspath"/>
+	<fileset dir="${dir.renew.dist.plugins}">
+		<include name="util*.jar"/>
+		<include name="ch*.jar"/>
+		<include name="renewant*.jar"/>
+	</fileset>
+        <fileset dir="${dir.renew.dist}/libs/freehep">
+                <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${dir.renew.dist}">
+                <include name="loader*.jar"/>
+        </fileset>
+    </path>
+  </target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+  
+  <target name="compile" 
+  		depends="init, prepare, javac" 
+  		description="Compiles this project with all dependencies (default).">
+  </target>
+
+  <target name="dist" 
+		depends="init, compile, jar, copytodist.jar" 
+  		description="Builds this project resulting in ${file.build.jar}'. Prepend 'clean' to build from scratch.">
+  </target>
+
+  <target name="clean" 
+		depends="configure, clean.common.jar"
+  		description="Removes all generated code/classes/doc.">
+  </target>
+  
+  <!-- copies all non source files from src to build -->
+  <target name="prepare"
+  	depends="init">
+	<copy todir="${dir.build.classes}">
+		<fileset dir="${dir.src}">
+			<include name="**/*.gif"/>
+		</fileset>
+	</copy>
+  </target>
+
+  <!-- creates a plugin jar file including all libraries and classes -->
+  <target name="jar"
+  	depends="compile">
+	<jar destfile="${file.build.jar}">
+		<fileset dir="${dir.build.classes}"/>
+	</jar>
+  </target>
+
+</project>

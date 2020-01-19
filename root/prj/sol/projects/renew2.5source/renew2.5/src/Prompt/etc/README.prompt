@@ -1,0 +1,14 @@
+The prompt component provides a simple command line in which the user can type text.
+After a line is entered, it is interpreted as a command, and the PluginManager
+is asked to execute the registered de.renew.plugin.command.CLCommand.
+The String to look up the command is the substring of the entered line up to the first whitespace,
+the arguments given to its execute method are the remaining whitespace separated substrings.
+A keep-alive feature allows the prompt to prevent automatic termination of the plugin system.
+
+included packages:
+	de.renew.prompt
+provided commands:
+	keepalive	- controls the keep-alive feature of the prompt interactively
+properties:
+	de.renew.prompt.dont		- set to true if the prompt should NOT be started
+	de.renew.prompt.keepalive	- set to true to enable keep-alive feature at startup time (the property is ignored afterwards)

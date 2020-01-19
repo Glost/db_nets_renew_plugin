@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin 
+	name="Protocoldiagram Drawing Tool" 
+	className="de.renew.diagram.PaletteCreatorPlugin">
+
+<!-- The description of the plugin's menu.
+     It will appear in the "plugins"-menu under the plugin's name.-->
+<menu>
+
+  <!-- creates a menuitem with the label "item" which will result
+  	   in calling the given class' execute()-method when clicked
+  	   (class must be an instance of de.renew.PluginCommand).-->
+  <menuitem
+	label="show / hide"
+	command="de.renew.diagram.ShowPaletteCommand"/>
+
+</menu>
+
+</plugin>

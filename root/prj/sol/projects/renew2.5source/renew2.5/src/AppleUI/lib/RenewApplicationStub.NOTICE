@@ -1,0 +1,6 @@
+The file RenewApplicationStub is not intended to be distributed, it has to
+be ripped from a Java Developer installation under MacOS X.
+However, it is needed to create the Apple-specific application bundle.
+On MacOS X systems with Developer tools installed, the jarbundler task
+uses the installed JavaApplicationStub as a fallback, which is better than
+the may-be-outdated file in the internal Renew developer repository.

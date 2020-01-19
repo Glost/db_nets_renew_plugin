@@ -1,0 +1,41 @@
+   
+% @author Hannes Ahrens
+% @date   März 2009
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass[10pt,a4paper]{llncs}
+
+\usepackage{ngerman}
+\usepackage[utf8]{inputenc}
+\usepackage{rotating}
+\usepackage[dvips]{epsfig}
+\usepackage{graphicx}
+\usepackage{acronym}
+
+
+\usepackage[T1]{fontenc}
+
+\usepackage{hyperref}  
+%\usepackage[pagebackref]{hyperref}
+
+\date{\today}
+\newcommand{\netscale}{.75}
+\pagestyle{myheadings}
+\setcounter{tocdepth}{2}
+
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%------------- DOCUMENT -------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{mult}
+
+%\bibliographystyle{gerplain}
+\bibliographystyle{plain}
+\bibliography{navbib}
+
+\end{document}

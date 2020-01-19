@@ -1,0 +1,63 @@
+\chapter{Java Bugs}
+
+In this chapter we will describe a few Java bugs that
+we found especially grieving during our development work.
+Any hints to alleviate these problems are greatly welcome.
+
+
+\section{Graphics object loses draw commands}
+
+Under Sun/Solaris we observed the following effect with all
+JDKs: When many hundreds of objects are currently selected,
+the handles are not correctly drawn on the screen. This is caused 
+by the \texttt{Graphics} object that Java passes to the \texttt{update(...)}
+method of the \texttt{StandardDrawingView}. It looks as though not all
+handles of the selected objects are present.
+We have not found any workaround for this problem.
+
+
+\section{Packing a frame is not portable}
+
+Invoking \texttt{Frame.pack()} leads to unpredictable
+results under some window managers and JDK implementations. 
+Sometimes the windows are reduced to zero width and height.
+
+
+\section{Window titles are not shown correctly}
+
+Under some window managers and JDK implementations
+the window titles of frames are not correctly displayed.
+
+This bug was recognized, but closed without fix by Sun.
+
+
+\section{Memory leak through event objects}
+
+In some cases, event objects are retained by the AWT event queue
+even after their processing. This lead to a memory leak.
+
+
+\section{Memory leak through windows}
+
+In some cases, a closed window is retained by the AWT event queue
+even after it disposal. This lead to a memory leak.
+
+
+\section{Windows move on the screen}
+
+Under some window managers and JDK implementations
+windows move around the screen unpredictably
+during certain operations.
+
+
+\section{Bad fonts and symbols}
+
+Using the Sun JDK, the method \texttt{Graphics.drawBytes(...)}
+does not select the correct font unless
+\texttt{Graphics.drawString(...)} is called before.
+\texttt{Graphics.drawString(...)} does not correctly support all font
+encodings, however.
+
+% Local Variables:
+% TeX-master:"architecture.tex"
+% End:

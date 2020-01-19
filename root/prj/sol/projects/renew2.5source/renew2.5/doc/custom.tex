@@ -1,0 +1,32 @@
+\section{Customizing Renew}
+
+Because Renew is available with source, it is tempting to
+create a customized version of it. This is indeed possible
+and this manual will help you with the task,
+but there are a few drawbacks:
+\begin{itemize}
+\item Currently Renew is only partially commented. 
+\item You diverge from the main development line. The internal structure
+  of Renew might change significantly in future versions. If you send
+  your additions/improvements to us,
+  we will try to include them in the main release.
+\item This internal programming guide still needs considerable
+  work to cover all aspects of Renew.
+\end{itemize}
+However, there might be reasons to modify Renew due to your
+particular applications.
+
+If you implement a new net formalism, we suggest that you start a
+new Java package for it, e.g.\ \texttt{de.renew.evenbetter}.
+You might want to place the package in your own package hierarchy.
+
+Not all customization can be done by simply adding more classes.
+Sometimes you might require some changes to the standard classes.
+It is a good idea to check such issues with the Renew team,
+because sometimes we might know best where to place
+this hook or that abstraction.
+
+Although we do not require this as part of our license,
+we will be very happy if you send us any modified
+source code.
+

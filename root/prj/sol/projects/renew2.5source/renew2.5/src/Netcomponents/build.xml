@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+   <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="Renew-Netcomponents" default="dist" basedir=".">
+	<description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+Renew-Netcomponents facilitates the insertion of prefactured
+patterns into a net.
+  </description>
+
+	<!-- makes some checks. (internal). -->
+	<!-- if there is something to initialise, insert here -->
+	<target name="configure">
+                <echo>JAVA_HOME = ${java.home}</echo>
+                <echo>Java version = ${java.version}</echo>
+		<property name="plugin.name" value="nc"/>
+    &commonproperties;
+    
+    <property name="dir.src.tools" location="tools"/>
+		<property name="dir.dist.tools" location="${dir.dist.plugin}/tools"/>
+
+		<path id="ref.classpath">
+			<path refid="ref.sharedlibs"/>
+			<fileset dir="${dir.renew.lib}">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="${dir.renew.dist.plugins}">
+				<include name="util*.jar"/>
+				<include name="ch*.jar"/>
+				<include name="gui*.jar"/>
+			</fileset>
+			<fileset dir="${dir.renew.dist}">
+				<include name="loader*.jar"/>
+			</fileset>
+		</path>
+
+
+
+	</target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+  
+  <target name="compile" 
+  	depends="init, javac" 
+  	description="Compiles the Renew netcomponents plugin with all dependencies (default).">
+	</target>
+
+
+	<target name="dist" 
+	  depends="init,  compile, jar, copytodist.jar" 
+	  description="Builds the Renew netcomponents plugin completely. Prepend 'clean' to build from scratch.">
+	</target>
+
+	<target name="clean" 
+		depends="configure, clean.common.jar"
+  		description="Removes all generated code/classes/doc.">
+	</target>
+
+
+
+	<!-- creates a plugin jar file including all libraries and classes -->
+	<target name="jar"
+	  depends="init, compile">
+		<jar destfile="${file.build.jar}">
+			<fileset dir="${dir.build.classes}"/>
+		</jar>
+	</target>
+
+</project>

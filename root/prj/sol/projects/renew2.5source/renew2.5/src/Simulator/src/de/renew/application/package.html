@@ -1,0 +1,56 @@
+<html>
+  <body>
+    Provides the simulator component facade.
+
+    <H2></h2>
+    <table BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+      <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+	<td COLSPAN=4><font SIZE="+2"><b>Used properties</b></font></td>
+      </tr>
+      <tr>
+	<td>de.renew.eagerSimulation</td>
+	<td>boolean</td>
+	<td>false</td>
+	<td>Specifies whether the simulator should use eager
+	  simulation.</td>
+      </tr>
+      <tr>
+	<td>de.renew.simulatorClass</td>
+	<td>class name</td>
+	<td><i>(not set)</i></td>
+	<td>Specifies the simulator class to use.</td>
+      </tr>
+      <tr>
+	<td>de.renew.simulatorMultiplicity</td>
+	<td>int</td>
+	<td>1</td>
+	<td>Specifies the simulator multiplicity to use. This
+	  property is evaluated only if
+	  <code>de.renew.simulatorClass</code> is set to
+	  {@link de.renew.engine.simulator.ParallelSimulator}.
+	</td>
+      </tr>
+      <tr>
+	<td>de.renew.simulatorMode</td>
+	<td>int</td>
+	<td>1</td>
+	<td>Specifies simulator class and multiplicity to
+	  use. This property does not get evaluated if
+	  <code>de.renew.simulatorClass</code> is set.
+	  <dl>
+	    <dt>Negative values</dt>
+	    <dd>Use multiple sequential simulators. The absolute
+	      value determines the number of simulators.</dd>
+	    <dt>0</dt>
+	    <dd>Same as -1: Use one sequential simulator.</dd>
+	    <dt>1 (default)</dt>
+	    <dd>Use one concurrent simulator.</dd>
+	    <dt>Positive values</dt>
+	    <dd>Use multiple concurrent simulators. The absolute
+	      value determines the number of simulators.</dd>
+	  </dl>
+	</td>
+      </tr>
+    </table>
+  </body>
+</html>

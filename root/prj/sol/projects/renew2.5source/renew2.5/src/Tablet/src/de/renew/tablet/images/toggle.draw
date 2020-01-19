@@ -1,0 +1,10 @@
+11 
+    CH.ifa.draw.standard.StandardDrawing 5 
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "LineWidth" "Int" 1 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 84 10 67 67 NULL  
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 199 158 255 0 0 160 160  
+        de.renew.gui.TransitionFigure "attributes" "attributes" 1 "LineWidth" "Int" 8 6 92 71 49 NULL  
+        de.renew.gui.ArcConnection "attributes" "attributes" 2 "LineWidth" "Int" 8 "FontName" "String" "DejaVu Sans Condensed" 2 67 92 94 66 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 3  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 1   
+        de.renew.gui.PlaceFigure "attributes" "attributes" 1 "LineWidth" "Int" 8 96 12 58 54 NULL   135 168 586 600 

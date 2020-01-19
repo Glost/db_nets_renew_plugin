@@ -1,0 +1,134 @@
+\chapter{Introduction}
+
+On the following pages, you will learn about Renew, the
+Reference Net Workshop. The most important topics
+are:
+\begin{itemize}
+\item installing the tool (Chapter \ref{ch:install}),
+\item the reference net formalism (Chapter \ref{ch:reference}),
+\item using Renew (Chapter \ref{ch:usage}),
+\end{itemize}
+Both reference nets and their supporting tools are based
+on the programming language Java. To be able to use them
+to their full capacity, some knowledge of Java is required.
+While the basic concepts of Java will be explained in this document,
+there are plenty of books that will serve as a more in-depth
+introduction to Java. \cite{vdLinden96} is a good first start for 
+experienced programmers.
+
+If you encounter any problem during your work with Renew,
+we will try to help you. See Appendix~\ref{ap:contact}
+for our address. At the same address, you can make suggestions
+for improvements or you can request information on the latest
+release of Renew. If you want to submit example models or
+extensions to the tool, that would be especially welcome.
+
+
+\section{Should I Use Renew?}
+
+The main strength of Renew lies in its openness and versatility.
+\begin{itemize}
+\item Renew has been written in Java, so it will run on all
+major modern operating systems without changes.
+
+\item Renew comes complete with source, so its algorithms may 
+be freely extended and improved. It is in fact possible
+to add special net inscriptions quickly. It is even possible
+to implement completely new net formalisms without changing
+the basic structure of Renew.
+
+\item Renew can make use of any Java class. Today there exist
+Java classes that cover almost all aspects of programming.
+
+\item Reference nets are themselves Java objects. Making
+calls from Java code to nets is just as easy as to make calls
+from nets to Java code.
+\end{itemize}
+The Petri net formalism of Renew, too, might be very interesting for
+developers.
+\begin{itemize}
+\item Renew supports synchronous channels.
+Channels are a powerful communication mechanism and they can be used as
+a reliable abstraction concept.
+
+\item Net instances allow object-oriented modeling with Petri nets.
+While a few other net formalisms provide net instances, it is their 
+consistent integration with the other features that makes them useful.
+
+\item Reference nets were specifically designed with garbage
+collection of net instances in mind, which is indispensable for
+good object-oriented programming.
+
+\item Many arc types are available that cover almost all
+net formalisms. Simulation time with an earliest firing time
+semantics is integrated.
+\end{itemize}
+There are, however, a few points to be aware of.
+\begin{itemize}
+\item There are currently only rudimentary analysis tools for Renew. 
+Although a few export interfaces have already been implemented,
+useful analysis seems a long way off.
+Currently, Renew relies entirely on simulation to explore the
+properties of a net, where you can dynamically and
+interactively explore the state of the simulation.
+
+However, for many applications, analysis does not play a
+prominent role. Petri nets are often used only because of
+their intuitive graphical representation, their expressiveness,
+and their precise semantics.
+
+\item During simulation, the user cannot change the current 
+marking of the simulated net except by firing a transition.
+This can make it somewhat more difficult to set up a desired 
+test case.
+
+\item In our formalism, there is no notion of firing probabilities
+or priorities. By exploiting the open architecture of Renew,
+these features may be added later on, possibly
+as third-party contributions. 
+
+\item Renew is an academic tool. Support will be given as
+time permits, but you must be aware that it might take
+some time for us to process bug reports and even more time
+to process feature requests.
+
+But since Renew is provided with source code, you can do many
+changes on your own. And your feature requests have
+a high probability to be satisfied if you
+can already provide an implementation.
+\end{itemize}
+
+
+\section{How to Read This Manual}
+
+It is generally recommended to read all chapters in
+the order in which they are presented. However, when somebody else
+has installed Renew for you, you should skip 
+Chapter~\ref{ch:install} entirely.
+
+%\newinversion{\renewversion}{%
+\newtwodotfive{%
+If you are already familiar with a previous version of Renew, you should
+simply skim the manual and look for the Renew 2.5 icons as
+shown to the left. The paragraphs that are tagged with this
+icon elaborate on new features of the current version.
+
+You should also consult Section~\ref{sec:upgrade} for
+some notes on the upgrade process. The upgrade might
+require some explicit actions on your part.
+}
+
+Advanced users may want to consult the architecture guide
+\texttt{doc/architecture.pdf} in the source package of Renew,
+if it is intended to modify Renew. It is not recommended for the casual
+user to spend much time reading this manual, as it is quite technical
+and of little help in the day-to-day use of Renew.
+
+\input{thanks}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "renew.tex"
+%%% End: 
+
+% LocalWords:  formalisms Petri

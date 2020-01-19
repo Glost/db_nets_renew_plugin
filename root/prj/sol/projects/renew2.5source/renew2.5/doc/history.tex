@@ -1,0 +1,605 @@
+\section{History}\label{sec:history}
+
+Version 1.0 was the first public release. It
+included a net editor, a reference net
+simulator, a Java stub compiler, and example nets.
+
+\subsection{Changes in Version 1.1}
+
+\subsubsection*{Modifications}
+
+Some performance enhancements were implemented and minor
+bugs were fixed. Some source level inconsistencies were
+cleaned up.
+The thread model of Java 1.2 was adopted.
+The source code was changed to be compilable with Java 1.1.3.
+The windowing code was made more robust under Java 1.2.
+
+The handling of \texttt{null}-objects in the simulator was corrected.
+The type system was made more compatible with the Java type system.
+The trace flag of netelements is now saved to disk.
+The simulation performance was improved.
+The garbage collection of net instances was improved.
+
+The graphical user interface was improved for some window managers.
+The presentation of current markings was improved.
+The interactive execution of reference nets has been
+improved a lot (see Section~\ref{sec:simulation}).
+
+\subsubsection*{Additions}
+
+The parallel simulation code was added.
+The checks for double names and for cyclic channel
+dependencies were added.
+Transition inscriptions may now include several parts
+separated by semicolons.
+Virtual places may now be used in nets.
+
+During the simulation, bindings can be selected and fired
+under user control.
+The multiset of tokens contained in
+a place instance can be displayed as just the cardinality of the
+multiset, a collection of all tokens in the multiset directly
+within the drawing, or in a separate window.
+Individual components of tuples can
+be inspected. Initial markings are hidden during the simulation.
+
+\subsection{Changes in Version 1.2}
+
+\subsubsection*{Modifications}
+
+The simulation engine was made more robust and flexible.
+Minor bugs were fixed.
+
+A single inscription figure may now contain multiple
+arc inscriptions or initial marking inscriptions that are separated
+by semicolons.
+Slight inconsistencies in the inscription language were
+cleaned up. The type rules were improved.
+The results of action inscriptions may now be passed through
+synchronous channels even in the presence of typed variables.
+
+Some display problems with Java 1.2 have been fixed.
+
+\subsubsection*{Additions}
+
+Flexible arcs were added.
+Clear arcs were added.
+Inhibitor arcs were added.
+
+Marked places and firing transitions can now be highlighted during
+the simulation.
+A rudimentary net layout algorithm has been implemented.
+The state of a running simulation can now be saved and restored.
+Restarting a simulation may now reload Java classes.
+
+Export of Encapsulated PostScript was implemented.
+Selection of groups of figures was improved.
+
+\subsection{Changes in Version 1.3}
+
+\subsubsection*{Modifications}
+
+Some minor improvements of the graphical user interface were
+applied.
+
+\subsubsection*{Additions}
+
+The timed simulation mode was added.
+Lists were provided in addition to tuples.
+
+Breakpoints were added in order to control the
+graphical simulation.
+An XML import and export facility was added.
+A graph layout algorithm that may help in viewing nets
+was added. More commands for arranging figures manually were
+provided. The ability to select and deselect figures by type
+was added.
+
+\subsection{Changes in Version 1.4}
+
+\subsubsection*{Modifications}
+
+This was a maintenance release that provided mainly
+improvements in the user interface, documentation updates, and
+bug fixes.
+
+\subsubsection*{Additions}
+
+You can now inspect token Java objects in detail and
+put toolbars into their own window. You can
+insert intermediate points into connections more easily.
+
+\subsection{Changes in Version 1.5}
+
+\subsubsection*{Modifications}
+
+The compatibility with Java 1.2 was improved.
+Bugs in the simulation engine were fixed.
+Some GUI problems were corrected.
+The menu structure was cleaned up and simplified.
+
+\subsubsection*{Additions}
+
+A persistent database backing supports the deployment 
+of the simulator in environment with high availability 
+requirements.
+
+Arcs can be B-splines. 
+An alignment can be specified for every text figure.
+Transitions and places can be refined.
+Subnets can be coarsened. Nets can be merged.
+
+Drawings are now autosaved. A backup copy of every file is kept.
+Undo and redo commands were added. Search and replace commands
+were added.
+
+The architecture guide was added, which is a manual that
+describes the most important internal algorithms
+and data structures of Renew.
+
+
+\subsection{Changes in Version 1.5.1}
+
+\subsubsection*{Modifications}
+
+This was a maintenance release that provided
+bug fixes for the simulation engine.
+
+\subsection{Changes in Version 1.5.2}
+
+\subsubsection*{Modifications}
+
+This was a maintenance release that provided
+bug fixes for the install scripts and a performance improvement
+of the simulation engine.
+
+
+\subsection{Changes in Version 1.6}
+
+\subsubsection*{Modifications}
+
+Java 1.2 is now required for compiling and running Renew.
+Bugs in the Java net parser, class loader and simulation engine
+were fixed.
+Shadow net system serialization and rendering has been fixed.
+The windows menu is sorted alphabetically.
+Windows can be de-iconified.
+
+\subsubsection*{Additions}
+
+A remote layer allows the separation of the user interface from the
+simulation engine.
+A net loader allows on-demand loading and compilation of nets
+during a simulation.
+
+A new transition inscription \texttt{manual} was introduced
+for transitions that are not supposed to fire automatically
+in ordinary running simulations.
+
+
+\subsection{Changes in Version 2.0}
+
+\subsubsection*{Removals}
+
+The \texttt{RenewMode} interface provided by the GUI has been removed.
+In consequence, the start scripts for the modes disappeared, too.
+The channel, name and isolated node checks have been removed from the
+\texttt{Net} menu because they need to be adopted to the new
+simulator architecture.
+
+\subsubsection*{Modifications}
+
+Java 1.4 is now required for compiling and running Renew.
+The application was decomposed into several plug-ins.
+The simulation engine was restructured.
+The GUI application classes were restructured and (partly) converted
+to use the Swing package from the Java foundation classes.
+The import and export menus have been restructured.
+The handling of the various configuration properties has been
+canonised by the plug-in system.
+The class loader for custom classes has changed.
+
+The \texttt{:net()} channel is no longer invoked implicitly on
+instance creation.
+The class \texttt{SequentialSimulator} is replaced by the
+\texttt{NonConcurrentSimulator} without deadlock detection
+feature.
+The expanded token display feature has moved into the optional FS
+plug-in, this option has no effect unless the FS plug-in is
+installed.
+
+\subsubsection*{Additions}
+
+A plug-in system was added as bottom layer of the application.
+The ability to switch simulator modes, net formalisms, the net loader
+path, and the remote access feature on the fly was added.
+A PNML-compatible export format was added.
+The editor is able to load drawings from URLs.
+The net loader can now search nets relative to the classpath.
+
+\subsection{Changes in Version 2.0.1}
+
+\subsubsection*{Modifications}
+
+This was a maintenance release that provided
+bug fixes for the install scripts 
+and some redraw issues of the graphical net editor.
+
+\subsubsection*{Additions}
+
+An experimental \texttt{AppleUI} plug-in is available as optional
+download. It provides rudimentary integration with the Mac OS look\&feel.
+
+\subsection{Changes in Version 2.1}
+
+\subsubsection*{Modifications}
+
+Many error messages of the Java net compiler or about problems in a running
+simulation became more detailed.
+The command-line tool \texttt{ShadowTranslator} and the corresponding Ant
+task now optionally include the specified formalism and a syntax check.
+Fixed transition modes of bool net compiler.
+Fixed manual transitions in saved simulation states.
+
+The color and font attribute dialogues were improved.
+Whitespace-only inscriptions are now deleted automatically (like empty
+ones).
+The GuiPrompt plug-in now provides a text area for command feedback.
+The binding selection frame is now scrollable.
+Tool windows and dialogues are now listed in the \texttt{Windows} menu.
+Breakpoints pre-set via the \texttt{Net} menu are now visually tagged.
+Fixed some drawing edit bugs in the GUI.
+Fixed some rare deadlocks in the token game display.
+Improved scrolling effect of mouse wheel in drawings.
+Fixed handling of polygons.
+
+Some important changes to configuration properties are documented in the
+upgrade notes (see Section~\ref{sec:upgrade}).
+Developers might also have a look there because of some code changes.
+
+The set of Ant build files that come with the Renew source has undergone
+some changes.
+The build process now stores information about the compilation environment
+with the plug-ins.
+Distribution file names can now optionally include version information.
+The \texttt{list} and \texttt{info} commands optionally display this
+information.
+
+\subsubsection*{Additions}
+
+All Renew components (except the console prompt) now use the Apache Log4J
+logging framework instead of Java console output. 
+In the default configuration, informational and error messages are printed
+to the console and logged to a file.
+The simulation trace also goes to the logging framework (see
+Section~\ref{subsec:log4jConfiguration}).
+The new Logging plug-in provides a simulation trace window within the GUI.
+
+The \texttt{Net step} option has been added to the simulation menu.
+
+\subsection{Changes in Version 2.1.1}
+
+\subsubsection*{Modifications}
+
+This was a maintenance release that provides several minor bug fixes for
+PNML export, \texttt{null} token display and access to public methods of
+private (inner) classes in Java expressions.
+In addition, this release is capable of reading drawing files created with
+the later release 2.2 (with some minor exceptions).
+
+\subsubsection*{Additions}
+
+The AppleUI plugin now supports building a Mac OS X application bundle.
+
+\subsection{Changes in Version 2.2}
+
+\subsubsection*{Modifications}
+
+Java 1.5 is now required for compiling and running Renew.
+
+The Gui now uses the Graphics2D Framework that came with Java 1.2, so some of the figures might
+be drawn a little bit different when it comes to size and style.
+Tokens are now displayed on a white opaque background in the token game to
+increase readability.
+Scrolling now continues if the mouse is moved outside a drawing while a
+button is pressed.
+
+Modifier keys (Ctrl, Shift) have been added to several commands and tools
+on drawing figures.
+These enable users to resize figures to equal width and height, to adjust
+polygon vertices at right angles with their adjacent edges, and to restrict
+polygon transformations to either scaling or rotation.
+Keyboard movement of figures with arrow keys can now be sped up using the
+Shift modifier.
+
+The behavior of Search and Replace has been fixed so that multiple instances of the search string 
+in the same figure are now found and replaced correctly.
+The Drawing Load Server has been restricted to accept local connection
+requests only.
+
+\subsubsection*{Additions}
+
+Renew now includes and uses the VectorGraphics packages of the FreeHEP
+project to accomplish graphical export of drawings. 
+Additional supported export formats are PDF, SVG, and PNG.
+EPS export now exports non-standard fonts correctly (at the price of larger
+files).
+EPS files now always have a rectangular white canvas.
+
+A new pie figure allows to draw segments of arcs and ellipses.
+Line styles (dotted, dashed, etc.) can now be applied to boxes, ellipses
+and other figures with outlines.
+A transparency attribute has been added to all figure, font and pen colors.
+This breaks compatibility with older Renew versions, so that drawings saved with version 2.2 
+can not be opened by previous versions (except release 2.1.1).
+The transparency attribute is currently ignored when exporting drawings to EPS and this feature 
+might not be implemented in future versions.
+For drawings with transparency use one of the two new export formats SVG or
+PDF, which handle transparency correctly.
+
+The hotkey Ctrl+M now brings the menu and toolbar frame to front.
+Added ``show net pattern/instance element'' options to the context menu in
+the simulation trace window.
+The net stub compiler now additionally supports stub objects that wrap
+themselves around an existing net instance during instantiation (before, a
+stub object always created its own net instance).
+
+We provide a Mac OS X application bundle as well as configuration files for
+the FreeDesktop (e.g. Gnome) environment that allow desktop integration
+with separate icons and mime-types for Renew document files.
+However, there is still no such support for the Windows family of operating
+systems.
+
+\subsubsection*{Relevant for developers only}
+
+GUI and simulation have been separated so that they use different threads now. 
+All calls to the simulation are decoupled and executed in specialized
+simulation threads.
+All calls to the GUI are delegated to or synchronized with the AWT event
+thread.
+Simulation threads can now be configured with a separate priority.
+Loading of user-supplied classes in the context of simulations has been improved.
+
+A new parameter ``netpath'' has been added to the Ant task to create shadow
+net systems.
+The Ant build environment has been enhanced to support separate source
+code trees for JUnit tests and Cobertura coverage reports.
+However, there still are nearly no test cases implemented.
+Several tools that form the Renew build environment are now required in newer releases.
+Please refer to the readme file in the source package.
+
+\subsection{Changes in Version 2.3}
+\label{sec:changes-2.3}
+
+\subsubsection*{Modifications}
+
+Java 1.6 is now required for compiling and running Renew.
+
+Renew now includes and uses the 2.2 version of the FreeHEP project for
+graphical exports of drawings.
+
+Renew offers a better syntax check for Java reference net
+models. If a Java inscription references a non-existing method or
+field of an object, a proposal for existing methods or fields is
+made instead of just pointing out the syntax error (see also
+Section~\ref{sec:errors}).
+
+Minor modifications to the graphical editor functionality of Renew
+consist of the following. The names and colors of place figures are
+now transferred to their virtual places. The editor prevents adding
+more than one arc inscription by right-clicking on an arc with the
+mouse as this happened rather by accident than on purpose. However, it
+is still possible to add multiple arc inscriptions by using the
+inscription tool.
+
+\subsubsection*{Additions}
+
+On startup Renew displays a splashscreen that gives information about
+the loaded plugins.
+
+There are two new entries in the File menu. The first addition is a
+list of recently saved drawings. The second addition is the
+possibility to open the \emph{Renew Navigator}, which allows to import
+file folders and show their content in a tree view. A more detailed
+description of how to use the navigator can be found in
+Section~\ref{sec:navigator}.
+
+It is now possible to define re-usable \emph{Net Components}. A net
+component consists of a set of net elements that typically fulfill
+some generic function and can be treated as a whole in a larger net
+model. More details can be found in Section~\ref{sec:net-components}.
+
+The background of expanded tokens in instance/simulation
+drawings can be changed to be transparent by setting the property 
+\texttt{de.\allowbreak{}renew.\allowbreak{}gui.\allowbreak{}no\allowbreak{}Token\allowbreak{}Background}.
+
+Several keyboard shortcuts have been changed and more have been
+added, especially for selecting the main drawing tools. A
+comprehensive list of existing shortcuts can be found in
+Appendix~\ref{sec:keyboard-shortcuts}.
+
+\subsubsection*{Relevant for Developers only}
+
+Generics are now used throughout the code.
+
+The RMI functionality which was formerly included in the Simulator
+plugin was extracted into a new Remote plugin.
+
+The lock functionality was moved from the Simulator to the Util
+plugin.
+
+% Some bugs have been fixed in this version:
+% \begin{itemize}
+% \item Resolved deadlock in SimulatorPlugin facade (Bugzilla bug \#222).
+% \item Fixed bug in handling boolean properties.
+% \item Fixed handling plugin locations which had special characters in their filenames.
+% \item Plugins can now add reference nets from multiple jar files
+%   (previously only files from last jar file were loaded).
+%   \TODO{mwe: verstehe ich nicht}
+% \end{itemize}
+
+There are several changes to the Ant build environment. The Ant target 
+\texttt{clean} in the meta build file now iterates over
+all subdirectories instead of having a fixed list of plugins. Source
+files of nets (.rnw) can optionally be included in the generated
+plugin archives (.jars) with the Ant target \texttt{rnw}. To activate
+this function you need to set the property
+\texttt{option.include.rnws} in your Ant properties (build.xml of the
+plugin in question or ant local.properties). The property
+\texttt{option.sns.compile} switches the syntax check for shadow net
+files (.sns) on and off. The Ant target \texttt{javac} accepts an
+encoding parameter which is set via the property
+\texttt{option.compile.encoding} and defaults to utf-8. The Ant task
+\texttt{createpng} allows to export net drawings to .png files.
+
+%  Another change is related to the loading mechanism for plugins.
+% \TODO{describe loading\\}
+
+\subsection{Changes in Version 2.4}
+
+\subsubsection*{Modifications}
+
+The support for the \emph{.xrn} format is discontinued. We encourage the use
+of PNML instead.  
+We fixed the remote server connection (RMI) by providing
+configuration (see the User Guide Section 2.6.)  
+We have fixed the
+simulation database backing and adapted the mechanism for MySQL with InnoDB.  
+Remaining AWT dialogues have been converted to Swing.  
+The Logging GUI has been improved by decoupling the Simulator from the GUI.  
+The \emph{loadrenew} script now starts a regular Renew instance if the
+connection to a Drawing Load Server is not possible.  
+The desktop integration for Linux and Windows have been improved. We provide new unified icons for all operating systems.
+
+Many minor bugs
+have been fixed. Some of these were:
+\begin{itemize}
+\item Rare problems with locating nets relative to the \emph{classpath} have been
+  solved.
+\item Changes on the line style now affects all figures.
+\item The font style \emph{underlined} now also affects small font sizes.
+\item Export to PNML now always produces files in UTF-8 character
+  encoding.
+\item The Logging tab of the Configure Simulation dialog has been
+  revised.
+\item The log4j PatternLayout can now be set from within the GUI
+\item Custom file appenders created in Logging GUI are now functional.
+\item Net components are more robust if attached figures are manipulated.
+\item It is now possible to escape whitespaces in command line commands. 
+In that way it is possible to open drawings with whitespaces in the path 
+from command line.
+\end{itemize}
+
+\subsubsection*{Additions}
+
+The Navigator now offers a button to recursively expand a directory
+sub-tree.  The Navigator now loads directories without locking the
+GUI. PNML and ARM files are shown in the Navigator.  
+The keyboard
+shortcut \emph{Ctrl+Enter} closes the text editor overlay.  
+
+The background transparency of EPS files can now be controlled by
+setting the property \texttt{de.renew.io.export.eps-transparency}.
+For Windows, the installation script \emph{installrenew.bat} creates reg
+ files that associate and disassociate Renew drawing files with 
+ \emph{loadrenew.bat} and register icons.  
+ We provide deb packages for Debian-based systems.
+
+
+\subsubsection*{Relevant for Developers}
+
+
+We refactored large parts of the code base.  Many Java compiler
+warnings have been resolved and Javadoc documentation have been
+improved.  A few more JUnit tests have been introduced.  Logging and
+the simulator have been partially reworked to allow deadlock-free
+real-time (GUI) logging with only minimal time delay.  Several tools
+that were originally mandatory to build Renew are now optional: these
+are Cobertura, Jalopy, JUnit and Latex.
+
+\subsection{Changes in Version 2.4.1}
+
+This is a maintenance release that provides a fix for a race condition
+that occurs - under rare conditions - during the termination of the
+simulation.
+
+% see https://tgiprojekte.informatik.uni-hamburg.de/issues/1527 for details
+
+\subsection{Changes in Version 2.4.2}
+
+This is a maintenance release that provides a fix for the import
+of reference nets from PNML format (RefNet).
+
+% see https://tgiprojekte.informatik.uni-hamburg.de/issues/3259 for detail
+
+\subsection{Changes in Version 2.4.3}
+
+This is a maintenance release that provides an update of the FreeHEP library
+and a new version of the Mac OS X application bundle.
+It fixes issues concerning the export functionality with newer Java versions.
+This version requires at least Java 7.
+
+% see https://tgiprojekte.informatik.uni-hamburg.de/issues/4327 for details
+
+\subsection{Changes in Version 2.5}
+
+\subsubsection*{Modifications}
+
+We have modified several features of Renew.
+Most obvious is the complete reimplementation of the Navigator plugin. 
+It is now persistent, extensible and the tree view can now be filtered.
+We optionally provide some convenient extensions, 
+such as the integration of the drawing's diff feature (ImageNetDiff), 
+which can now be triggered directly from the Navigator GUI.
+The FreeHEP library has been upgraded to version 2.4.
+The quick-draw\footnote{The possibility to quickly draw an arc and a n
+  node by using the arc handle (see
+  Section~\ref{subsubsec:toolTransition}).}  feature has been
+improved, which results in a reduction to half the amount of mouse
+clicks during quickly drawing net elements.
+Some key-bindings are now configurable.
+
+The log4j configuration and the configuration GUI have been improved. 
+The individual log4j configuration file now resides in folder \emph{.renew}, 
+which is located in the users home folder. The default location for log files moved there, as well.
+The loading of plugins at startup can now be black-listed or white-listed.
+The PDF export produces  PDF documents with bounding boxes; configuration has been fixed.
+The grid can now be adapted and it can be activated as default.
+Several console commands have been improved, including the
+following plugin commands: \emph{list}, \emph{load},
+\emph{unload} and also  export command \emph{ex}. Type \emph{help}
+to print a synopsis of all commands.
+
+\subsubsection*{Additions}
+The Console plugin replaces the Prompt plugin. 
+It employs the well-established JLine2 libray and provides several improvements:
+tab-completion for commands and attributes, command history and editable command line.
+The Quick Fix feature improves the reporting of syntax errors by
+providing suitable proposals for remedies and their automatic
+realization.
+The Refactoring plugin (optional) provides features such as renaming
+of variable or renaming of synchronous channels.
+Drag \& drop now works for Renew drawings. Simply pull the drawing
+over Renew's main window. Drawings and also folders can also be
+dragged into the Navigator Window. Additionally you can add images to
+a drawing by dragging it on the drawing's window.
+Two new text tools have been added. One is the target text tool, which
+allows to add hyperlinks to any drawing element. The targets can be
+other model artifacts, for instance a net, or external resources
+referenced by a URL. The hyperlink is activated by using the
+\emph{Ctrl} modifier key together with a mouse click.
+The comment tool allows to quickly add comments to a drawing element.
+    
+\subsubsection{Removals}
+\begin{itemize}
+\item Macao format has been removed, since its usability was very limited.
+\item The PostScript export has been removed. Use EPS export or PDF export instead.
+\end{itemize}
+
+
+
+% Local Variables:
+% mode: latex
+% TeX-master:"renew.tex"
+% End:

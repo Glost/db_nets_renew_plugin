@@ -1,0 +1,34 @@
+<!-- commontasks.xml
+
+     This file can be included in the build.xml of many Renew
+     components or plugins. The ideal location for inclusion
+     is inside the "init" target.
+
+     Some properties have to be set before this file is included.
+     If you want to configure them for your local build  environment,
+     edit the file 'local.properties' in this directory.
+     The properties of interest are:
+     - dir.renew.dist.plugins    - location of the Renew plugins directory
+
+     Some components have to be built before this file can be used:
+     - RenewAnt
+-->
+
+<taskdef name="enhjavacc"
+	 classname="de.renew.ant.EnhancedJavaCCTask">
+    <classpath>
+      <fileset dir="${dir.renew.dist.plugins}">
+	<include name="renewant*.jar"/>
+      </fileset>
+    </classpath>
+</taskdef>
+
+<taskdef name="latex"
+	 classname="de.renew.ant.LaTeX">
+    <classpath>
+      <fileset dir="${dir.renew.dist.plugins}">
+	<include name="renewant*.jar"/>
+      </fileset>
+    </classpath>
+</taskdef>
+

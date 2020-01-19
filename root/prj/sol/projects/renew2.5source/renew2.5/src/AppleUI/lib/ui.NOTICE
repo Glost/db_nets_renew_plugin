@@ -1,0 +1,15 @@
+The file ui.jar is not intended to be distributed, it has to
+be ripped from a Java 1.6 installation under MacOS X.
+However, it is needed to compile the Apple-specific extensions
+for the plugin system on non-Apple systems.
+
+The current version is a copy of 
+
+System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Classes/ui.jar
+
+Java version:
+
+java version "1.6.0_37"
+Java(TM) SE Runtime Environment (build 1.6.0_37-b06-434-11M3909)
+Java HotSpot(TM) 64-Bit Server VM (build 20.12-b01-434, mixed mode)
+

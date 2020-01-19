@@ -1,0 +1,10 @@
+This plugin works in the same way as the Prompt plugin does, only that it does not
+present a command line but a dialog in which the user can enter its command.
+A menu entry which shows this dialog is added to the gui when the plugin is initialized.
+
+included packages:
+	de.renew.gui (1 class)
+provided commands:
+	- none -
+properties:
+	- none -

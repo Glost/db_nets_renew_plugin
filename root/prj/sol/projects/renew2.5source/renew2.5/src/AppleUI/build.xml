@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+   <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="Renew-AppleUI" default="dist" basedir=".">
+    <description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+Renew-AppleUI adds some basic support for the Apple desktop to 
+the plugin system. Please note that this plugin is not specific
+to the Gui or JHotDraw plugin.
+    </description>
+
+  <!-- makes some checks. (internal). -->
+  <!-- if there is something to initialise, insert here -->
+  <target name="configure">
+    <property name="plugin.name" value="appleui"/>
+
+    &commonproperties;
+
+    <path id="ref.classpath">
+      <fileset dir="${dir.renew.dist.plugins}">
+	<!-- These are all soft dependencies. -->
+	<include name="ch*.jar"/>
+	<include name="gui*.jar"/>
+      </fileset>
+      <fileset dir="${dir.renew.dist}">
+	<include name="loader*.jar"/>
+      </fileset>
+      <fileset dir="lib">
+        <!-- This jar file is ripped from a Java installation on
+             a MacOS X system. It is needed for compilation on
+             non-Apple systems only. -->
+        <include name="ui.jar"/>
+      </fileset>
+    </path>
+  </target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+ 
+  <target name="compile" 
+  		depends="init, javac" 
+  		description="Compiles this project with all dependencies (default).">
+  </target>
+
+  <target name="dist" 
+		depends="init, compile, jar, copytodist.jar" 
+  		description="Builds this project resulting in appleui.jar'. Prepend 'clean' to build from scratch.">
+  </target>
+
+  <target name="clean" 
+		depends="configure, clean.common.jar"
+  		description="Removes all generated code/classes/doc.">
+<!--     No need to remove the application bundle because it -->
+<!--     resides in the build tree cleaned by the common target. -->
+<!--     <delete includeEmptyDirs="true" failOnError="false"> -->
+<!--       <fileset dir="${dir.build}/Reference Net Workshop.app" -->
+<!--                defaultexcludes="false" -->
+<!--                followsymlinks="false"> -->
+<!--       </fileset> -->
+<!--     </delete> -->
+  </target>
+
+  <!-- creates a plugin jar file including all libaries and classes. -->
+  <target name="jar"
+  	depends="compile">
+	<jar destfile="${file.build.jar}">
+		<fileset dir="${dir.build.classes}"/>
+	</jar>
+  </target>
+
+  <target name="buildapp" 
+		depends="buildapp.appbundler"
+		description="Creates an MacOS X application bundle (must be called AFTER Renew has been built!). Uses buildapp.appbundler.">
+  </target>
+
+  <target name="linkedapp" 
+	    depends="linkedapp.appbundler"
+	    description="builds the MacOS X Renew application bundle with links to dist/plugins and dist/libs. Uses linkedapp.appbundler.">
+  </target>
+  
+  <target name="init.buildapp.jarbundler">
+    <property name="jarbundler.javadir" value="Contents/Resources/Java/"/>
+    <property name="jarbundler.relativepathfromjavatoappdir" value="../../../"/>
+  </target>
+ 
+  <target name="init.buildapp.appbundler">
+    <property name="appbundler.javadir" value="Contents/Java/"/>  
+    <property name="appbundler.relativepathfromjavatoappdir" value="../../"/>
+  </target>
+  
+  <target name="buildapp.checkappdirexists.jarbundler"
+	  depends="configure, init.buildapp.jarbundler">
+      <available file="${dir.build}/Reference Net Workshop.app/${jarbundler.javadir}"
+		 property="buildapp.appdirexists.jarbundler"/>
+  </target>
+
+  <target name="buildapp.checkappdirexists.appbundler"
+	  depends="configure, init.buildapp.appbundler">
+      <available file="${dir.build}/Reference Net Workshop.app/${appbundler.javadir}"
+		 property="buildapp.appdirexists.appbundler"/>
+  </target>
+  
+  <target name="buildapp.checksymlinksexist.jarbundler"
+      depends="buildapp.checkappdirexists.jarbundler, init.buildapp.jarbundler"
+      if="buildapp.appdirexists.jarbundler">
+    <antcall target="buildapp.checksymlinksexist.generic">
+      <param name="javadir" value="${jarbundler.javadir}"/>
+      <param name="bundler" value="jarbundler"/>
+    </antcall>
+  </target>
+  
+  <target name="buildapp.checksymlinksexist.appbundler"
+      depends="buildapp.checkappdirexists.appbundler, init.buildapp.appbundler"
+      if="buildapp.appdirexists.appbundler">
+    <antcall target="buildapp.checksymlinksexist.generic">
+      <param name="javadir" value="${appbundler.javadir}"/>
+      <param name="bundler" value="appbundler"/>
+    </antcall>
+  </target>  
+  
+  <!-- only call with antcall with the javadir and bundler parameter set -->  
+  <target name="buildapp.checksymlinksexist.generic"
+	  depends="configure">
+    <delete quiet="true">
+      <fileset dir="${dir.build}/Reference Net Workshop.app/${javadir}"
+	       followsymlinks="false">
+	<include name="**/.dir.links~" />
+      </fileset>
+    </delete>
+    <symlink action="record"
+	     linkfilename=".dir.links~">
+      <fileset dir="${dir.build}/Reference Net Workshop.app/${javadir}">
+      </fileset>
+    </symlink>
+    <condition property="buildapp.symlinksexist.${bundler}">
+      <and>
+	<os family="unix"/>
+	<resourcecount when="ge"
+		       count="1">
+	  <fileset dir="${dir.build}/Reference Net Workshop.app/${javadir}"
+		   followsymlinks="false"
+		   defaultexcludes="false">
+	    <include name="**/.dir.links~" />
+	  </fileset>
+	</resourcecount>
+      </and>
+    </condition>
+  </target>
+  
+  <target name="buildapp.safesymlinkremoval.jarbundler"
+      depends="buildapp.checksymlinksexist.jarbundler, init.buildapp.jarbundler"
+      if="buildapp.symlinksexist.jarbundler">
+    <antcall target="buildapp.checksymlinksexist.generic">
+      <param name="javadir" value="${jarbundler.javadir}"/>
+    </antcall>
+  </target>
+
+  <target name="buildapp.safesymlinkremoval.appbundler"
+      depends="buildapp.checksymlinksexist.appbundler, init.buildapp.appbundler"
+      if="buildapp.symlinksexist.appbundler">
+    <antcall target="buildapp.checksymlinksexist.generic">
+      <param name="javadir" value="${appbundler.javadir}"/>
+    </antcall>
+  </target>
+
+  <!-- only call with antcall with the javadir parameter set -->
+  <target name="buildapp.safesymlinkremoval.generic"
+	  depends="configure">
+    <!-- work safely around people that replace the nested plugins folder
+         of the application bundle by a symlink to ${dir.renew.dist.plugins}
+         (or any other directories and files below the Java resource tree).
+         If we do not remove the symlinks in advance, the recursive directory
+         deletion of the jarbundler task would in fact remove all files in
+         the linked locations. -->
+    <!-- WARNING: ONLY THE TWO DIRECTORY SYMLINKS plugins AND libs ARE REMOVED,
+         AN AUTOMATED REMOVAL OF ALL FOUND SYMLINKS SEEMS NOT FEASIBLE!
+         The symlink task cannot remove more than one link at a time, making it
+	 hard to work on a dynamically computed set of links.
+	 The delete task with a nested fileset would need followsymlinks="false"
+	 configured, but then it does not remove symlinks at all!
+         Anyway, the best solution would probably be to fix the jarbundler
+	 implementation to deactivate the followsymlinks behaviour of its
+	 integrated delete task. -->
+    <symlink action="delete"
+	     failonerror="false"
+	     link="${dir.build}/Reference Net Workshop.app/${javadir}/plugins"/>
+    <symlink action="delete"
+	     failonerror="false"
+	     link="${dir.build}/Reference Net Workshop.app/${javadir}/libs"/>
+  </target>
+  
+  <target name="buildapp.jarbundler.universal"
+      depends="buildapp.safesymlinkremoval.jarbundler, init.buildapp.jarbundler"      
+      description="Creates an MacOS X application bundle (must be called AFTER Renew has been built!). Uses jarbundler and the universalJavaApplicationStub (for Java 6+).">
+    <antcall target="buildapp.jarbundler.genericstub">
+      <param name="stubfile" value="universalJavaApplicationStub"/>
+    </antcall>
+  </target>
+
+  <target name="buildapp.jarbundler"
+      depends="buildapp.safesymlinkremoval.jarbundler, init.buildapp.jarbundler"
+      description="Creates an MacOS X application bundle (must be called AFTER Renew has been built!). Uses jarbundler and the JavaApplicationStub (for Java 6).">      
+    <antcall target="buildapp.jarbundler.genericstub">
+      <param name="stubfile" value="RenewApplicationStub"/>
+    </antcall>
+  </target>
+
+  <!-- only call with antcall with the stubfile parameter set -->
+  <target name="buildapp.jarbundler.genericstub"
+          depends="init.jarbundler, dist">
+      <jarbundler 
+    	arguments="gui"
+        dir="${dir.build}" 
+        name="Reference Net Workshop"
+        shortname="Renew"
+        mainclass="de.renew.plugin.Loader"
+        jar="${dir.renew.dist}/loader.jar"
+        bundleid="de.renew"
+        icon="${dir.etc}/Renew.icns"
+        jvmversion="${option.compile.target}+"
+        version="${renew.version}"
+        stubfile="${dir.lib}/${stubfile}"
+    	workingdirectory="$USER_HOME">
+      <javaproperty name="apple.laf.useScreenMenuBar" value="false"/>
+      <javafileset dir="${dir.renew.dist}"/>
+    	<documenttype name="Renew document"
+    	                    mimetypes="application/x-renew" 
+    	                    iconFile="${dir.etc}/application-x-renew.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew Petri net drawing"
+    	                    extensions="rnw" 
+    	                    mimetypes="application/x-renew-net" 
+    	                    iconFile="${dir.etc}/application-x-renew-net.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew simulation state"
+    	                    extensions="rst" 
+    	                    mimetypes="application/x-renew-state" 
+    	                    iconFile="${dir.etc}/application-x-renew-state.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew shadow net system"
+    	                    extensions="sns" 
+    	                    mimetypes="application/x-renew-sns" 
+    	                    iconFile="${dir.etc}/application-x-renew-sns.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew interaction diagram"
+    	                    extensions="aip" 
+    	                    mimetypes="application/x-renew-interactiondiagram" 
+    	                    iconFile="${dir.etc}/application-x-renew-interactiondiagram.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew simple drawing"
+    	                    extensions="draw" 
+    	                    mimetypes="application/x-renew-drawing" 
+    	                    iconFile="${dir.etc}/application-x-renew-drawing.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew PNML net drawing"
+    	                    extensions="pnml" 
+    	                    mimetypes="application/pnml+xml" 
+    	                    iconFile="${dir.etc}/application-pnml+xml.icns"
+    	                    role="Editor"/>
+    	<documenttype name="Renew Lola net drawing"
+    	                    extensions="net" 
+    	                    mimetypes="application/x-renew-lola" 
+    	                    iconFile="${dir.etc}/application-x-renew-lola.icns"
+    	                    role="Editor"/>
+    </jarbundler>
+    <copy todir="${dir.build}/Reference Net Workshop.app/Contents/Resources/Java/config/">
+      <fileset dir="${dir.etc}">
+        <include name="renew.properties"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="buildapp.appbundler"
+            depends="init.appbundler, dist, buildapp.safesymlinkremoval.appbundler"
+          description="Creates an MacOS X application bundle (must be called AFTER Renew has been built!). Uses appbundler (for Java 7+).">
+      <bundleapp 
+        outputdirectory="${dir.build}"
+        name="Renew"
+        displayname="Renew"
+        identifier="de.renew"
+        shortversion="${renew.version}"
+        version="${renew.version}"
+        icon="${dir.etc}/Renew.icns"
+        ignorePSN="true"
+        mainclassname="de.renew.plugin.Loader">
+      <arch name="x86_64"/>
+      <arch name="i386"/>
+      <!-- Workaround since the icon parameter for bundleapp doesn't work -->
+      <option value="-Xdock:icon=Contents/Resources/Renew.icns"/>
+      <option value="-Xdock:name=Renew"/>
+      <argument value="gui"/>
+      <classpath file="${dir.renew.dist}/loader.jar"/>
+      <bundledocument name="Renew Petri net drawing"
+                          extensions="rnw" 
+                          icon="${dir.etc}/application-x-renew-net.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew simulation state"
+                          extensions="rst" 
+                          icon="${dir.etc}/application-x-renew-state.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew shadow net system"
+                          extensions="sns" 
+                          icon="${dir.etc}/application-x-renew-sns.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew interaction diagram"
+                          extensions="aip" 
+                          icon="${dir.etc}/application-x-renew-interactiondiagram.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew simple drawing"
+                          extensions="draw" 
+                          icon="${dir.etc}/application-x-renew-drawing.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew PNML net drawing"
+                          extensions="pnml" 
+                          icon="${dir.etc}/application-pnml+xml.icns"
+                          role="Editor"/>
+      <bundledocument name="Renew Lola net drawing"
+                          extensions="net" 
+                          icon="${dir.etc}/application-x-renew-lola.icns"
+                          role="Editor"/>
+    </bundleapp>
+    <move file="${dir.build}/Renew.app" tofile="${dir.build}/Reference Net Workshop.app"/>
+    <copy todir="${dir.build}/Reference Net Workshop.app/Contents/Java">
+      <fileset dir="${dir.renew.dist}">
+	<include name="config/*"/>
+	<include name="libs/commonscli/*"/>
+	<include name="libs/freehep/*"/>
+	<include name="libs/jline/*"/>
+	<include name="libs/log4j/*"/>
+	<include name="bin/unix/installrenew"/>
+	<include name="doc/*"/>
+	<include name="samples/**/*"/>
+	<include name="plugins/appleui-*.jar"/>
+	<include name="plugins/ch-*.jar"/>
+	<include name="plugins/console-*.jar"/>
+	<include name="plugins/export-*.jar"/>
+	<include name="plugins/formalism-*.jar"/>
+	<include name="plugins/formalismgui-*.jar"/>
+	<include name="plugins/gui-*.jar"/>
+	<include name="plugins/guiprompt-*.jar"/>
+	<include name="plugins/logging-*.jar"/>
+	<include name="plugins/misc-*.jar"/>
+	<include name="plugins/navigator-*.jar"/>
+	<include name="plugins/nc-*.jar"/>
+	<include name="plugins/remote-*.jar"/>
+	<include name="plugins/simulator-*.jar"/>
+	<include name="plugins/splashscreen-*.jar"/>
+	<include name="plugins/util-*.jar"/>
+      </fileset>
+      <!--
+      <fileset dir="${dir.renew.dist}">
+        <exclude name="loader.jar"/>
+      </fileset>
+      -->
+    </copy>
+    <copy todir="${dir.build}/Reference Net Workshop.app/Contents/Java/config/">
+      <fileset dir="${dir.etc}">
+        <include name="renew.properties"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="linkedapp.checkos"
+	  depends="configure">
+    <condition property="linkedapp.isunix"
+	       value="true">
+      <os family="unix"/>
+    </condition>
+  </target>  
+
+  <target name="linkedapp.jarbundler.universal"
+      depends="buildapp.jarbundler.universal, init.buildapp.jarbundler"
+	  description="builds the MacOS X Renew application bundle with links to dist/plugins and dist/libs. Uses jarbundler and the universalJavaApplicationStub (for Java 6+).">      
+    <antcall target="linkedapp.generic">
+      <param name="javadir" value="${jarbundler.javadir}"/>
+      <param name="relativepathfromjavatoappdir" value="${jarbundler.relativepathfromjavatoappdir}"/>      
+    </antcall>
+  </target>
+
+  <target name="linkedapp.jarbundler"
+      depends="buildapp.jarbundler, init.buildapp.jarbundler"
+	  description="builds the MacOS X Renew application bundle with links to dist/plugins and dist/libs. Uses jarbundler and the JavaApplicationStub (for Java 6).">
+      <antcall target="linkedapp.generic">
+      <param name="javadir" value="${jarbundler.javadir}"/>
+      <param name="relativepathfromjavatoappdir" value="${jarbundler.relativepathfromjavatoappdir}"/>      
+    </antcall>
+  </target>
+
+  <target name="linkedapp.appbundler"
+      depends="buildapp.appbundler, init.buildapp.appbundler"      
+	  description="builds the MacOS X Renew application bundle with links to dist/plugins and dist/libs. Uses appbundler (for Java 7+).">
+      <antcall target="linkedapp.generic">
+      <param name="javadir" value="${appbundler.javadir}"/>
+      <param name="relativepathfromjavatoappdir" value="${appbundler.relativepathfromjavatoappdir}"/>      
+    </antcall>
+  </target>
+
+  <!-- only call with antcall with the javadir and relativepathfromjavatoappdir parameter set -->
+  <target name="linkedapp.generic"
+	  depends="linkedapp.checkos"
+	  if="linkedapp.isunix">
+    <delete quiet="true"
+	    includeemptydirs="true">
+      <fileset dir="${dir.build}/Reference Net Workshop.app/${javadir}/plugins"
+	       followsymlinks="false"/>
+      <fileset dir="${dir.build}/Reference Net Workshop.app/${javadir}/libs"
+	       followsymlinks="false"/>
+    </delete>
+    <symlink action="single"
+	     link="${dir.build}/Reference Net Workshop.app/${javadir}/plugins"
+	     resource="../${relativepathfromjavatoappdir}/../../dist/plugins"/>
+    <symlink action="single"
+	     link="${dir.build}/Reference Net Workshop.app/${javadir}/libs"
+	     resource="../${relativepathfromjavatoappdir}/../../dist/libs"/>
+  </target>
+
+</project>

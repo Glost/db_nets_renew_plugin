@@ -1,0 +1,19 @@
+# +-------------------------------------------------------------------
+# | plugin.cfg (version ${pdversion})
+# |
+# | Configures the $appName plug-in for Renew.
+# | This plug-in enhances Renew as functionality extension.
+# | This file is generated from a template (de/renew/pd/netcomponents/plugin.cfg.vm)
+# | with the PluginDevelopment Plugin (version ${pdversion}).
+# | However, it may be edited / cutomized.
+# +-------------------------------------------------------------------
+
+# Fixed properties of the plugin
+# ------------------------------
+name = $appName
+provides = de.renew.$smallAppName
+requires =
+version = 0.1
+
+# User-configurable plugin properties
+# -----------------------------------

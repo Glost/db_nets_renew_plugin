@@ -1,0 +1,107 @@
+\section{The Shadow Layer}
+
+In order to separate the simulation engine from the 
+graphical user interface, we added an intermediate data
+structure that is called a \emph{shadow net system}.
+A shadow net system abstracts from those information
+of a net drawing that is irrelevant for the simulation engine.
+It also allows a uniform interface for the automatic
+generation of nets that are not supposed to be graphically displayed.
+
+\subsection{Shadow Nets}
+
+In Fig.~\ref{fig:shadowns} you can see the classes that
+are used to represent a Petri net on the shadow level.
+No graphical information like size, position, or color is
+found here, but only topological information, i.e., information
+about the relationship of transitions, places, arcs, and inscriptions.
+
+A shadow net system consists of an arbitrary number of shadow nets.
+It also keeps track of a shadow compiler that determines the 
+net formalism used for this shadow net system. At the moment, it is not
+possible to use different compilers for different nets.
+
+A shadow net aggregates a number of shadow net elements, where
+places and transitions are the most important.
+Shadow places and shadow transitions are jointly referred to as
+shadow nodes. Shadow nodes have got a name. All shadow nodes
+are also inscribable, i.e., they may be annotated by
+other shadow net elements. Typically, they are annotated by
+\texttt{ShadowInscription} objects.
+
+Inscriptions are not structured further. They are uninterpreted
+character strings. A shadow inscription
+may come in two flavors: normal and special. Almost all textual annotations
+should be normal inscriptions. Special inscriptions may be used,
+however, if there are different annotation types that cannot
+be distinguished syntactically. E.g., some net formalisms might use
+natural numbers for capacities and initial markings alike, so that
+one inscription type would have to be declared special.
+
+A shadow declaration node is an inscription to the entire net.
+It is typically used to declare local variables, but
+this may vary. Typically, there should be at most one 
+declaration node per net.
+
+Shadow arcs are other shadow net elements. They connect
+places and transitions. They may be directed from places
+to transitions or vice versa. They have got a certain
+arc type: \texttt{test}, \texttt{ordinary}, \texttt{both},
+\texttt{inhibitor}, \texttt{doubleOrdinary}, \texttt{doubleHollow}.
+
+\singlediagram{shadowarctype}{The shadow arc types}
+
+Every arc type may be assigned a different semantical meaning.
+Although the names given to the arc types are partially
+semantic in meaning (e.g.~\texttt{inhibitor}), they may be interpreted
+in any way by the net formalism that is realized by
+the \texttt{ShadowCompiler} of the shadow net system.
+
+Arcs like several other shadow objects possess a trace flag
+that indicates whether a trace message should be printed 
+if this object influences a simulation run. If it is inappropriate to
+print a trace message, this flag may be ignored.
+
+\singlediagram{shadowns}{The shadow classes}
+
+\subsection{Net formalisms}
+
+A \texttt{ShadowNetCompiler} defines a Petri net formalism.
+It is responsible for converting a shadow net system into
+a collection of nets as defined by the simulation algorithm.
+
+In doing this, it needs to create nets, places, and transitions
+of the semantical level. This mapping need not be one to one,
+but that can be considered the typical case. 
+The IDs of the shadow net elements can be reused of the IDs of the
+\texttt{Place} and \texttt{Transition} elements, so that one
+can visualize the state of a simulation at the graphical layer.
+
+In doing the transition, it will also be required to
+parse the textual annotations and to decorate the
+places and transitions accordingly.
+
+\singlediagram{compiler}{The standard shadow compiler}
+
+The standard implementation of the shadow compiler
+is the \texttt{JavaNetCompiler} as indicated in
+Fig.~\ref{fig:compiler}. It delegates most of the
+parsing work to an instance of \texttt{JavaNetParser},
+which implements the interface \texttt{InscriptionParser}.
+For own net formalisms it is suggested to start with
+\texttt{JavaNetCompiler} and subclass it, essentially
+only overriding the method that creates the parser,
+because most of the handling of the places and
+transitions will stay the same for all net formalisms.
+
+Note that the parser is written with JavaCC \cite{JavaCC}
+and that this parser generator does not support inheritance.
+That means that you might end up copying large parts of your 
+grammar from existing grammars. You might also 
+choose a syntactic niche and modify the standard
+parser, but make sure that it behaves exactly as before
+when used with the \texttt{JavaNetCompiler}.
+This might, however, hinder the inclusion of your extension
+into the main development line.
+
+

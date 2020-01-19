@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- jing (RELAX NG validator) does not recognize SGML's !DOCTYPE
+     Thus, for validating this schema the following line must be hided. -->
+<!-- <!DOCTYPE grammar PUBLIC "-//thaiopensource//DTD RNG 20010705//EN" "">
+-->
+
+<grammar ns="http://www.informatik@uni-hmburg.de/refNetb"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"> 
+
+
+ <a:documentation>
+    We include PNML with the correct URI for our Petri Net Type Definition.
+ </a:documentation>
+ <include href="http://www.informatik.hu-berlin.de/top/pnml/basicPNML.rng">
+  <define name="nettype.uri" combine="choice">
+   <a:documentation>
+      We define the net type URI declaring the namespace of this 
+      Petri net type definition.
+   </a:documentation>
+   <value>http://???????????????????????</value>
+  </define>  
+ </include>
+
+ <a:documentation>
+    All labels of this Petri net type come from the Conventions Document.
+ </a:documentation>
+ <include href="http://www.informatik.hu-berlin.de/top/pnml/conv.rng"/>
+
+ <define name="net.content" combine="interleave">
+  <a:documentation>
+     A Ref. net may have a name and a Deklaration.
+  </a:documentation>
+  <optional><ref name="Name"/></optional>
+  <optional><ref name="RefNetDeklaration"/></optional>
+ </define>
+
+ <define name="place.content" combine="interleave">
+  <a:documentation>
+     A place of a Ref. net may have a name, an initial marking and a Type.
+  </a:documentation>
+  <interleave>
+   <optional><ref name="PTMarking"/></optional>
+   <optional><ref name="Name"/></optional>
+   <optional><ref name="RefNetPlaceType"/></optional>
+  </interleave>
+ </define>
+
+ <define name="transition" combine="interleave">
+  <a:documentation>
+     A transition of a Ref. net may have a name, guard, uplink, downlink, action and Create.
+  </a:documentation>
+  <optional><ref name="Name"/></optional>
+  <optional><ref name="RefNetGuard"/></optional>
+  <optional><ref name="RefNetUplink"/></optional>
+  <optional><ref name="RefNetDownlink"/></optional>
+  <optional><ref name="RefNetAction"/></optional>
+  <optional><ref name="RefNetCreate"/></optional>
+ </define>
+
+ <define name="Arc" combine="interleave">
+  <a:documentation>
+     An arc of a Ref. net may have an inscription.
+  </a:documentation>
+  <optional><ref name="RefNetExpression"/></optional>
+ </define>
+ 
+</grammar>
+
+<!--
+Local Variables:
+mode: xml
+sgml-indent-step: 1
+End:
+-->

@@ -1,0 +1,415 @@
+<!-- cvstargets.xml
+
+     This file can be included in the build.xml of many Renew
+     components as well as at the main level build.xml. It
+     provides cvs-specific targets for regular cvs updates and
+     checkins.
+
+     Some of the targets defined in this file depend on the
+     targets "init" and "compile" not defined in this xml
+     snippet. These targets have to be defined otherwhere in the
+     build.xml including this snippet.
+-->
+
+  <!-- Determines the actual CVS repository root to use. 
+       When not configured via property or environment,
+       the CVS/Root file is used, whereby the eclipse-typical
+       :extssh: mode is replaced by :ext:. -->
+  <target name="configure.cvsroot"
+          depends="configure">
+    <property environment="env" />
+    <loadfile srcFile="CVS/Root"
+	      property="cvsroot.fromfile">
+      <filterchain>
+	<replacestring from=":extssh:" to=":ext:"/>
+	<striplinebreaks/>
+      </filterchain>
+    </loadfile>
+
+    <echo level="verbose">CVS root configuration order:
+1. property cvsroot:    ${cvsroot}
+2. file CVS/Root:       ${cvsroot.fromfile}
+3. environment CVSROOT: ${env.CVSROOT}
+</echo>
+    <condition property="cvsroot" value="${cvsroot.fromfile}">
+      <and>
+        <not>
+          <isset property="cvsroot" />
+        </not>
+        <isset property="cvsroot.fromfile" />
+      </and>
+    </condition>
+    <condition property="cvsroot" value="${env.CVSROOT}">
+      <and>
+        <not>
+          <isset property="cvsroot" />
+        </not>
+        <isset property="env.CVSROOT" />
+      </and>
+    </condition>
+
+    <fail unless="cvsroot">
+Could not determine cvs root.
+Either fix the xml file, set the Ant property 'cvsroot' or set the environment variable CVSROOT.
+    </fail>
+    <echo level="info" message="Using cvsroot: ${cvsroot}"/>
+  </target>
+
+  <!-- Updates the working directory tree and sets properties
+       - log.update.check.unknown,
+       - log.update.check.conflict,
+       - log.update.check.merged,
+       - log.update.check.updated and
+       - log.update.check.modified. -->
+  <target name="update.getreport"
+	  depends="configure, configure.cvsroot">
+    <mkdir dir="${dir.build}" />
+    <tempfile property="file.temp.update"
+	      destdir="${dir.build}"
+	      prefix="update"
+	      suffix=".log" />
+    <record name="${file.temp.update}" loglevel="info" emacsmode="true" action="start"/>
+    <cvs command="update -d -P" cvsroot="${cvsroot}" failonerror="true"/>
+    <record name="${file.temp.update}" action="stop" />
+
+    <echo level="verbose" message="Checking for unknown files." />
+    <loadfile srcFile="${file.temp.update}"
+	      property="log.update.check.unknown">
+      <filterchain>
+	<linecontainsregexp>
+	  <regexp pattern="^[?] " />
+	</linecontainsregexp>	
+      </filterchain>
+    </loadfile>
+
+    <echo level="verbose" message="Checking for conflict files." />
+    <loadfile srcFile="${file.temp.update}"
+	      property="log.update.check.conflict">
+      <filterchain>
+	<linecontainsregexp>
+	  <regexp pattern="^[C] " />
+	</linecontainsregexp>	
+      </filterchain>
+    </loadfile>
+
+    <echo level="verbose" message="Checking for merged files." />
+    <loadfile srcFile="${file.temp.update}"
+	      property="log.update.check.merged">
+      <filterchain>
+	<linecontainsregexp>
+	  <regexp pattern="^Merging differences " />
+	</linecontainsregexp>	
+      </filterchain>
+    </loadfile>
+
+    <echo level="verbose" message="Checking for updated files." />
+    <loadfile srcFile="${file.temp.update}"
+	      property="log.update.check.updated">
+      <filterchain>
+	<linecontainsregexp>
+	  <regexp pattern="^[UP] " />
+	</linecontainsregexp>	
+      </filterchain>
+    </loadfile>
+
+    <echo level="verbose" message="Checking for modified files." />
+    <loadfile srcFile="${file.temp.update}"
+	      property="log.update.check.modified">
+      <filterchain>
+	<linecontainsregexp>
+	  <regexp pattern="^[ARM] " />
+	</linecontainsregexp>	
+        <prefixlines prefix="CVS: " />
+      </filterchain>
+    </loadfile>
+
+    <delete file="${file.temp.update}" quiet="true" />
+  </target>
+
+  <!-- Evaluates the log.update.check.unknown property from the
+       update.getreport target. -->
+  <target name="update.check.unknown"
+	  if="log.update.check.unknown"
+	  depends="configure, update.getreport">
+    <echo level="error">
+There exist files unknown to CVS in your working directories.
+Please either
+- remove these files,
+- include them in .cvsignore or
+- add them to the repository.
+    </echo>
+    <echo level="info" message="${log.update.check.unknown}" />
+    <property name="cond.update.check.fail" value="true"/>
+  </target>
+  
+  <!-- Evaluates the log.update.check.conflict property from the
+       update.getreport target. -->
+  <target name="update.check.conflict"
+	  if="log.update.check.conflict"
+	  depends="configure, update.getreport">
+    <echo level="error">
+Changes from the repository are in conflict with your changes.
+Please resolve and recompile.
+    </echo>
+    <echo level="info" message="${log.update.check.conflict}" />
+    <property name="cond.update.check.fail" value="true"/>
+  </target>
+  
+  <!-- Evaluates the log.update.check.merged property from the
+       update.getreport target. -->
+  <target name="update.check.merged"
+	  if="log.update.check.merged"
+	  depends="configure, update.getreport">
+    <echo level="error">
+Changes from the repository have been merged into your files.
+Please recompile.
+    </echo>
+    <echo level="info" message="${log.update.check.merged}" />
+    <property name="cond.update.check.fail" value="true"/>
+  </target>
+  
+  <!-- Evaluates the log.update.check.updated property from the
+       update.getreport target. -->
+  <target name="update.check.updated"
+	  if="log.update.check.updated"
+	  depends="configure, update.getreport">
+    <echo level="error">
+Changes from the repository have been copied to your directory tree.
+Please recompile.
+    </echo>
+    <echo level="info" message="${log.update.check.updated}" />
+    <property name="cond.update.check.fail" value="true"/>
+  </target>
+
+  <!-- Evaluates the log.update.check.modified property by asking
+       the user if the file list matches his intentions.
+       This target is currently not in use. -->
+  <target name="update.check.intention"
+	  if="log.update.check.modified"
+	  depends="configure, update.getreport">
+    <input addproperty="input.update.correct" validargs="y,Y,n,N">
+The following files will be committed:
+(A:add, R:remove, M:modified)
+-----------------------------------------------------------------
+${log.update.check.modified}-----------------------------------------------------------------
+Does this set of files match your commit intentions? </input>
+    <condition property="input.update.cancel">
+      <not>
+      <equals arg1="${input.update.correct}"
+		arg2="y"
+		trim="true" 
+		casesensitive="false"/>
+      </not>
+    </condition>
+    <fail if="input.update.cancel" message="As you wish."/>
+  </target>
+
+  <!-- Updates the working directory tree.
+       Fails if the repository is newer than the working directory.
+       Fails if any local files are unknown to cvs. -->
+  <target name="update.check"
+	  depends="configure, update.getreport, update.check.unknown, update.check.conflict, update.check.merged, update.check.updated">
+    <!-- update.check.intention is not needed since the commit.getmessage
+         target also requires active user interaction. --> 
+    <fail if="cond.update.check.fail" message="See messages above."/>
+  </target>
+
+  <!-- Updates the working directory tree. -->
+  <target name="update"
+	  depends="configure, update.getreport"
+	  description="Get changes from the CVS repository.">
+  </target>
+
+  <target name="commit.getmessage"
+	  if="log.update.check.modified"
+          depends="configure, commit.geteditor, update.getreport">
+    <tempfile property="file.temp.commitmessage"
+	      destdir="${dir.build}"
+	      prefix="commit"
+	      suffix=".msg" />
+    <echo level="verbose" message="Creating commit message file ${file.temp.commitmessage}." />
+    <!-- It is important that the lines below are NOT justified
+         to move every CVS: at the beginning of its own line. 
+         That would introduce empty lines in the generated file. --> 
+    <echo file="${file.temp.commitmessage}">CVS: -----------------------------------------------------------------
+CVS: Please enter your commit log message.
+CVS: All lines beginning with CVS: will be removed.
+CVS: The Ant commit target will fail if no log message is given.
+CVS:
+${log.update.check.modified}CVS: -----------------------------------------------------------------
+</echo>
+
+    <echo level="info" message="Please enter your commit message." />
+    <exec executable="${bin.editor.wrapper}">
+      <arg line="${bin.editor.wrappedline}" />
+      <arg file="${file.temp.commitmessage}" />
+    </exec>
+
+    <echo level="verbose" message="Reading commit message file." />
+    <loadfile srcFile="${file.temp.commitmessage}"
+	      property="temp.commitmessage.parsed">
+      <filterchain>
+        <striplinecomments>
+          <comment value="CVS:"/>
+          <comment value="cvs:"/>
+        </striplinecomments>
+      </filterchain>
+    </loadfile>
+
+    <delete file="${file.temp.commitmessage}" quiet="true" />
+
+    <fail unless="temp.commitmessage.parsed" 
+	  message="Empty commit log message not allowed." />
+
+  </target>
+
+  <!-- Checks whether the local files are ready to be committed. -->
+  <target name="precommit"
+	  if="log.update.check.modified"
+	  depends="configure, compile, format, update.check"
+	  description="Checks whether the local changes are ready to be committed.">
+    <echo level="info">
+The following files will be committed:
+(A:add, R:remove, M:modified)
+-----------------------------------------------------------------
+${log.update.check.modified}-----------------------------------------------------------------
+Please check if this set of files matches your commit intentions.
+    </echo>
+  </target>
+
+  <!-- Commits changes from the working directory tree
+       into the CVS repository. -->
+  <target name="commit"
+	  if="temp.commitmessage.parsed"
+	  depends="configure, configure.cvsroot, commit.geteditor, precommit, commit.getmessage"
+	  description="Commits all local changes into the CVS repository.">
+    <echo level="verbose" message="Rewriting commit message file without comments." />
+    <echo file="${file.temp.commitmessage}"
+	  message="${temp.commitmessage.parsed}"/>
+    <echo level="info">Commit message is:
+${temp.commitmessage.parsed}
+    </echo>
+
+    <cvs command="commit -F ${file.temp.commitmessage}" cvsroot="${cvsroot}" failonerror="true"/>
+
+    <delete file="${file.temp.commitmessage}" quiet="true" />
+  </target>
+
+  <!-- Determines the editor to use for editing the commit log
+       message. Besides the cvs-like interpretation of different
+       environment variables (VISUAL and EDITOR), there has to be
+       checked that (on Unix systems) a separate X window can be
+       opened for editing. This is due to the fact that Ant does
+       not provide terminal input to executed programs. -->
+  <target name="commit.geteditor"
+          depends="configure, commit.geteditor.guess, commit.geteditor.checkX">
+    <!-- generate default values if not set by previous targets. -->
+    <property name="bin.editor.wrapper" value="${bin.editor}"/>
+    <property name="bin.editor.wrappedline" value=""/>
+
+    <echo level="verbose" message="Editor call is: ${bin.editor.wrapper} ${bin.editor.wrappedline} &lt;file&gt;"/>
+  </target>
+
+  <!-- Interprets several environment variables to determine the
+       editor to use. Falls back to OS-specific editors, if needed. -->
+  <target name="commit.geteditor.guess"
+          depends="configure">
+    <property environment="env" />
+    <echo level="verbose">Editor configuration order:
+1. bin.editor: ${bin.editor}
+2. VISUAL:     ${env.VISUAL}
+3. EDITOR:     ${env.EDITOR}
+4. OS-dependent default (notepad, emacs)</echo>
+    <condition property="bin.editor" value="${env.VISUAL}">
+      <and>
+        <not>
+          <isset property="bin.editor" />
+        </not>
+        <isset property="env.VISUAL" />
+      </and>
+    </condition>
+    <condition property="bin.editor" value="${env.EDITOR}">
+      <and>
+        <not>
+          <isset property="bin.editor" />
+        </not>
+        <isset property="env.EDITOR" />
+      </and>
+    </condition>
+    <condition property="bin.editor" value="emacs">
+      <and>
+        <not>
+          <isset property="bin.editor" />
+        </not>
+        <os family="unix"/>
+      </and>
+    </condition>
+    <condition property="bin.editor" value="notepad">
+      <and>
+        <not>
+          <isset property="bin.editor" />
+        </not>
+        <os family="windows"/>
+      </and>
+    </condition>
+    <fail unless="bin.editor">
+Could not determine editor. There seems not to be any OS-specific default editor defined in ant/cvstargets.xml for ${os.name}.
+Either fix the xml file, set the Ant property 'bin.editor' or set one of the environment variables VISUAL or EDITOR.
+    </fail>
+    <echo level="info" message="Editor is ${bin.editor} ."/>
+  
+    <condition property="cond.editor.unix">
+      <os family="unix"/>
+    </condition>  
+  </target>
+
+  <!-- Checks whether the chosen editor supports X by itself or
+       needs to be wrapped inside xterm. Also checks if the X
+       connection is available and fails, if not. -->
+  <target name="commit.geteditor.checkX"
+          if="cond.editor.unix"
+          depends="configure, commit.geteditor.guess">
+    <condition property="cond.editor.needsxterm">
+      <not>
+        <or>
+          <!-- Add editors with known X capabilities here. -->               
+          <equals arg1="emacs" arg2="${bin.editor}" />
+          <equals arg1="xemacs" arg2="${bin.editor}" />
+          <equals arg1="emacsclient" arg2="${bin.editor}" />
+          <equals arg1="gnuclient" arg2="${bin.editor}" />
+          <equals arg1="nedit" arg2="${bin.editor}" />
+          <equals arg1="dtpad" arg2="${bin.editor}" />
+        </or>
+      </not>
+    </condition>
+  
+    <echo level="verbose" message="Checking X connection..."/>
+    <exec executable="/bin/sh"
+          resultproperty="temp.editor.Xavailable">
+      <arg value="-c"/>
+      <arg value="xprop -root &gt; /dev/null 2&gt;&amp;1"/>
+    </exec>
+    <condition property="temp.editor.noX">
+      <not>
+        <equals arg1="${temp.editor.Xavailable}" arg2="0"/>
+      </not>
+    </condition>
+    <fail if="temp.editor.noX">
+The X connection is broken, which would be needed to edit the commit message.
+As a workaround, please use 'ant precommit' to check all commit conditions, 
+followed by 'cvs commit' (only if all conditions are satisfied).
+    </fail>
+
+    <!-- Set up xterm wrapper if needed -->
+    <condition property="bin.editor.wrapper" value="xterm">
+      <isset property="cond.editor.needsxterm"/>
+    </condition>
+    <condition property="bin.editor.wrappedline" value='-e "${bin.editor}"'>
+      <isset property="cond.editor.needsxterm"/>
+    </condition>
+<!--     <fail if="cond.editor.needsxterm"> -->
+<!-- Your editor '${bin.editor}' is not known to open its own X window. -->
+<!-- This will cause problems because Ant does not provide terminal input. -->
+<!-- (If your editor does not need a terminal, add it to ant/commonproperties.xml, target "commit.geteditor.checkX".) -->
+<!--     </fail> -->  
+  </target>

@@ -1,0 +1,45 @@
+<html>
+  <body>
+    Provides the database-backed simulation feature.
+
+    <H2></h2>
+    <table BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+      <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+	<td COLSPAN=4><font SIZE="+2"><b>Used properties</b></font></td>
+      </tr>
+      <tr>
+	<td>de.renew.simdb.driver</td>
+	<td>class name</td>
+	<td><i>not set</i></td>
+	<td>This property is mandatory to enable database support.</td>
+      </tr>
+      <tr>
+	<td>de.renew.simdb.dialect</td>
+	<td>class name</td>
+	<td>{@link de.renew.database.entitylayer.SQLDialect}</td>
+	<td>The named class must be a subclass of {@link de.renew.database.entitylayer.SQLDialect}.</td>
+      </tr>
+      <tr>
+	<td>de.renew.simdb.url</td>
+	<td>URL</td>
+	<td><i>not set</i></td>
+	<td>This property is mandatory to enable database support.</td>
+      </tr>
+      <tr>
+	<td>de.renew.simdb.user</td>
+	<td>string</td>
+	<td><i>not set</i></td>
+	<td>The user account to use for database login. If not
+	  set, the database is used without an user account.</td> 
+      </tr>
+      <tr>
+	<td>de.renew.simdb.password</td>
+	<td>string</td>
+	<td><i>not set</i></td>
+	<td>The password for the user login. If
+	  <code>de.renew.simdb.user</code> is not set, this
+	  property is not used.</td>
+      </tr>
+    </table>
+  </body>
+</html>

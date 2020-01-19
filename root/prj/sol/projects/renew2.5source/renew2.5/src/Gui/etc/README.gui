@@ -1,0 +1,100 @@
+The gui package provides user interaction for drawing and simulating petri nets.
+The main class, GuiPlugin, contains a number of interface methods that
+can be used by other plugins to extend the functionality and to access data.
+It serves as a Facade for the whole plugin; this has the advantage that
+the functionality can be provided even if no window is shown.
+
+
+1. menus:
+The menu handling has changed! It is now under control of the ch.ifa.draw-Plugin.
+You can find the documentation for menu access in its README.
+#menus are added by obtaining a MenuHolder object via the getMenuHolder() method.
+#It provides the following methods:
+#
+#addMenu(JMenuItem menu)		- add the given JMenuItem to the "plugins" menu.
+#							It is the responsibility of the caller to create the menu
+#							entries and functionality.
+#addMenuItem(String menu, JMenuItem added)
+#							- add the given JMenuItem to the menu designated by the given menu String.
+#								The Menu names that can be used are available as static final
+#								class variables in the MenuHolder class.
+#								The menu items are added first come first serve;
+#								an ordering is not enforced.
+#removeMenuItem(JMenuItem menu)
+							- remove the given menu item.
+
+
+
+2. palettes:
+Palettes are sometimes also called "toolbars";
+they contain image buttons which invoke a special command.
+They can be torn off the gui and be placed whereever needed.
+To add palettes to the gui, obtain a PaletteHolder object via the getPaletteHolder() method
+which provides the following interface:
+
+addPalette(Palette palette)	- adds the given palette to the frame.
+createToolButton(javax.swing.Icon icon, Icon selectedIcon, String toolName, ch.ifa.draw.framework.Tool tool)
+							- creates a button for a desired palette.
+createToolButton(String path, String toolName, Tool tool)
+							- creates a button for a desired palette, trying to get the image info
+								from the given path.
+removePalette(Palette p) 	- removes the given palette from the gui.
+
+
+3. drawing and window access
+getGuiFrame()				- returns the application frame window.
+								It should not be stored for later use since the window may
+								be disposed in between;
+								it can be used for creating dialogs that need a parent window object.
+getView(Drawing d)			- returns the window in which the given drawing is edited.
+promptNew()					- create a new drawing and show it in editor
+promptNew(Drawing d)		- creates a new editor for the given drawing
+showStatus(String st)		- show the given String in the main window's status line.
+
+
+4. load and save support
+To extend the functionality of renew regarding its load/save capabilities,
+obtain a ImportExportHolder object by calling the gui's getImportExportHolder() function.
+It implements both the ImportHolder and ExportHolder interfaces, providing:
+
+addImportFormat(ImportFormat format)	- register the ImportFormat that can be used to load nets from file
+removeImportFormat(ImportFormat format)	- guess!
+allImportFormats()						- returns all ImportFormats available (array)
+
+all methods are available for ExportFormat, respectively.
+
+
+
+5. figure creation
+To tweak the way the gui creates figures during net design time, a FigureCreationHolder object
+can be obtained from the GuiPlugin, making available the following methods:
+
+registerCreator(FigureCreator)
+							- register the FigureCreator object. This will be used to display
+								tokens in a running simulation.
+unregisterCreator(FigureCreator)
+							- remove the FigureCreator
+registerCreator(TextFigureCreator)
+							- register the TextFigureCreator object. This will be used to create a
+								standard inscription for a figure when drawing the net.
+unregisterCreator(TextFigureCreator)
+							- remove the TextFigureCreator
+
+6. Renew-specific operations
+processSyntaxException(SyntaxException ex)
+							- handles the given exception
+
+
+
+included packages:
+	de.renew.ant (1 class)
+	de.renew.gui
+	de.renew.gui.maria
+	de.renew.gui.pnml
+	de.renew.gui.xml
+	de.renew.io
+provided commands:
+	gui	- open the gui window
+properties:
+	gui.shutdownOnClose - set to true to exit jvm when gui window is closed.
+	gui.autostart		- set to true to start the gui on loading

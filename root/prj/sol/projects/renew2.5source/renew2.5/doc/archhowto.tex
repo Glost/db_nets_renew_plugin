@@ -1,0 +1,190 @@
+\chapter{How to Extend Renew}
+
+This chapter provides some hints that you might find useful
+when extending Renew. Some obvious extensions that might have
+to be introduced are sketched.
+
+\section{Adding a New Arc Type}\label{sec:addarctype}
+
+Renew provides many arc types already, but there are other
+possible arc types. If you want to add an arc type,
+have a look at the \texttt{DoubleArcConnection}
+class. This is a special variant of the \texttt{ArcConnection} class.
+It gives a good impression how a new connector shape is
+created.
+
+You will have to extend the shadow API at least by adding a
+new arc type constant in \texttt{ShadowArc}. Your new figure class
+must correctly create shadow arcs with the new type.
+
+You must now create a new Renew mode that can interpret your
+net formalism. Look at \texttt{SequentialJavaMode}
+to see how to add new tools in the
+\texttt{createAdditionalTools(...)} method.
+Modify the method \texttt{getCompiler()} to create a new shadow
+compiler object for your net formalism.
+
+In the simplest case, this might be subclass of \texttt{JavaNetCompiler}
+that simply overrides the method \texttt{getArcFactory(ShadowArc)}
+by a method that returns an instance of a new subclass of
+\texttt{ArcFactory}.
+
+An arc factory is given an already compiled place and a transition
+of the static net layer. It is also provided with the
+type of the place, a flag that indicates whether trace messages
+should be generated for this arc, and a \texttt{TimedExpression}.
+If a time annotation in the form \texttt{expr@time} is present,
+the timed expression will report \texttt{isTimed()} as true.
+The timed expression can report the expression itself and the time
+annotation separately, if present.
+
+On the static net layer, arcs are considered special
+transition inscriptions. The arc factory has to generate
+one or more inscriptions and add them to the transition that was passed
+to the factory. You might want to modify the class \texttt{Arc} or to
+create another implementation of \texttt{TransitionInscription}.
+
+See the following section on details, how to create
+transition inscriptions. In that course of events, you might have
+to extend the functionality of the \texttt{TokenReserver} class
+and possibly that of the \texttt{PlaceInstance} class.
+
+
+\section{Adding New Transition Inscriptions}
+
+Unlike arcs, which were discussed in the previous section, 
+textual annotations do not require special
+figures, so that you can start immediately by creating
+a new mode and a new compiler class.
+The compiler, if derived from the \texttt{JavaNetCompiler},
+can override the method \texttt{makeInscriptions(...)},
+which takes a single textual inscription and parses
+it into a collection of semantic inscriptions.
+Often, this is not even required. Instead, the compiler can simply
+provide a specialized parser implementation via the method
+\texttt{makeParser(String)}. This parser can then implement
+the method \texttt{TransitionInscription(...)} accordingly.
+
+The method should return a collection of objects
+implementing \texttt{TransitionInscription}.
+In some cases, a new inscription is merely a shorthand
+and can be composed of existing transition inscriptions,
+but sometimes a specialized implementation has to be generated.
+
+That implementation must be able to build object of the type
+\texttt{TransitionOccurrence} at the beginning of the search for a 
+binding. An occurrence may create binder objects, which can guide the
+search process by providing binding information.
+A transition occurrence must also be able to create
+\texttt{Executable} objects, if the search for a binding succeeds.
+
+Input arcs and any transition inscription whose actions can be easily undone
+will typically require an \texttt{EarlyExecutable},
+whereas output arcs and inscriptions with irreversible
+effects will typically require a \texttt{LateExecutable}.
+
+\singlediagram{inscription}{Handling of textual inscriptions}
+
+Fig.~\ref{fig:inscription} summarizes the flow of information
+through the various classes involved in the translation and execution of
+a textual transition inscription. Essentially, you see a chain of 
+factories that starts from the graphical figures and
+ends at the executable objects that are created after
+the search for a binding succeeded.
+
+
+\section{Adding a New Inscription Language}
+
+By default, Renew uses an inscription language that is very 
+similar to Java. If it is desired to use an entirely different
+inscription language, a new parser must be written, but the existing
+arc types and inscriptions types might be sufficient.
+
+You will need a new implementation of \texttt{RenewMode},
+which you can probably derive from \texttt{JavaMode}.
+That implementation can supply a \texttt{ShadowCompiler} of its own,
+possibly a subclass of \texttt{JavaNetCompiler}. The compiler
+is responsible for converting shadow net into semantical nets.
+
+If you choose to work from \texttt{JavaNetCompiler},
+you must override \texttt{makeParser(String)}
+and write a parser that can handle your net formalism.
+
+Since the parser need to create transition inscriptions that
+will typically use \texttt{Expression} object, if the net formalism
+handles colored nets, you need to create expressions or at least
+implementations of \texttt{Function} that supply all operations
+needed for your net formalism. The parser can then build
+expressions using the supplied function objects and
+the \texttt{CallExpression} class.
+
+When your net formalism requires unifiable objects or objects
+that support pattern matching, which are not directly
+supported by the classes in \texttt{de.renew.unify},
+you need to create additional implementations of \texttt{Unifiable}.
+Look at \texttt{Tuple} for the prototypical unifiable
+object. You might want to extend the class \texttt{TupleIndex}
+to handle also your additional unifiable objects, so that
+a fast access to matching tokens in a place becomes possible.
+
+
+\section{Adding Graphical Figures and Tools}
+
+Section~\ref{sec:addarctype} already contained information
+about modifications to the existing graphical figures.
+If you need to add entirely different figures, e.g.~for
+illustration purposes, you should start from
+\texttt{AttributeFigure} as provided by JHotDraw and add
+own drawing routines.
+
+You might want to create a specialized creation tool for
+your figures, which should be derived from \texttt{AbstractTool}
+or \texttt{CreationTool}.
+
+Your figure should provide handles to allow direct manipulations.
+
+
+\section{Adding Simulation Statistics}
+
+The event mechanism of Renew as implemented in the package
+\texttt{de.renew.event} is quite suitable to gather
+statistics about a simulation run. It is possible
+to use a specialized shadow compiler that compiles a shadow net system
+by delegating to a different compiler, but sets up event handlers
+for simulation statistics afterward, when the net is fully 
+compiled. 
+
+It is also possible to integrate such support directly in the
+\texttt{Place} and \texttt{Transition} classes, but that might 
+be more difficult, although more flexible.
+
+
+\section{Adding Import and Export Filters}
+
+When importing or exporting Petri net formats, you may either
+program a standalone converter that would typically exploit
+the XML file format of Renew, or you can integrate the
+converted in Renew, which is preferred.
+
+Graphical imports and exports will typically use the
+JHotDraw framework to create or analyse a drawing.
+
+Exports to a 
+non-graphical format can also access the drawings, 
+but they can also convert the nets into the shadow format,
+which is somewhat simpler to use, and build the export
+at that level. 
+
+Imports from a non-graphical format may
+either create figures directly or create a shadow net
+system first and use a \texttt{ShadowNetSystemRenderer}
+afterward to create the actual drawing. In both cases,
+it should be considered to use the automated net layout to
+make the nets more readable.
+
+If a certain layout can be inferred from the logical structure
+of the imported net, then the import method should exploit
+that information to create figures with the appropriate
+position directly.
+
+

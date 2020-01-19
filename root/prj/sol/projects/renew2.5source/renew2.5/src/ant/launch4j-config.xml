@@ -1,0 +1,56 @@
+<!-- Bold elements are required -->
+<launch4jConfig>
+  <headerType>console</headerType>
+  <outfile>renew.exe</outfile>
+  <jar>../../loader.jar</jar>
+  <dontWrapJar>true</dontWrapJar>
+  <errTitle>Renew</errTitle>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>http://www.renew.de/</supportUrl>
+  <cmdLine>gui</cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <customProcName>false</customProcName>
+  <stayAlive>true</stayAlive>
+  <icon>RENEW.ico</icon>
+  <singleInstance>
+    <mutexName>Renew</mutexName>
+    <windowTitle>Reference Net Workshop</windowTitle>
+  </singleInstance> 
+  <jre>
+    <minVersion>1.6.0</minVersion>
+    <!--<maxVersion>x.x.x[_xx]</maxVersion>-->
+  </jre>
+  <classPath>
+    <mainClass>de.renew.plugin.Loader</mainClass>
+    <cp>../../loader.jar</cp>
+  </classPath>
+  <!--
+  <splash>
+    <file>file</file>
+    <waitForWindow>true|false</waitForWindow>
+    <timeout>seconds [60]</timeout>
+    <timeoutErr>true|false</timeoutErr>
+  </splash>
+  -->
+  <versionInfo>
+    <!--<fileVersion>x.x.x.x</fileVersion>-->
+    <!--<txtFileVersion>text</txtFileVersion>-->
+    <fileDescription>Reference Net Workshop executable</fileDescription>
+    <copyright>Renew is protected by LGPL and comprises code with other licenses.  See the license section of the Renew User Guide for details.</copyright>
+    <!-- <productVersion>x.x.x.x</productVersion> -->
+    <!-- <txtProductVersion>text</txtProductVersion> -->
+    <productName>Renew</productName>
+    <companyName>The Renew developer team at TGI, University of Hamburg</companyName>
+    <internalName>loader</internalName>
+    <originalFilename>renew.exe</originalFilename>
+  </versionInfo>
+  <!--
+  <messages>
+    <startupErr>text</startupErr>
+    <bundledJreErr>text</bundledJreErr>
+    <jreVersionErr>text</jreVersionErr>
+    <launcherErr>text</launcherErr>
+  </messages>
+  -->
+</launch4jConfig>

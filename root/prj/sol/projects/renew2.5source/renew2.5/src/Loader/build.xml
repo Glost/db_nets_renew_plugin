@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+<!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+<!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+<!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+<!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+<!ENTITY renewtargets     SYSTEM "../ant/renewtargets.xml">
+]>
+
+<project name="Renew Plugin Loader" default="dist" basedir=".">
+    <description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+The Renew Plugin Loader provides the glue between all other
+components. In contains the main executable class.
+    </description>
+
+    <!-- makes some checks. (internal). -->
+    <!-- if there is something to initialise, insert here -->
+    <target name="configure">
+        <property name="plugin.name" value="loader" />
+  
+    &commonproperties;
+
+    <!-- As an exception from all other plugin components, the
+         loader component jar file has to be put into the root of
+         the distribution directory. -->
+        <property name="file.dist.loader.jar" location="${dir.renew.dist}/loader.jar" />
+
+        <path id="ref.classpath">
+            <path refid="ref.sharedlibs" />
+        </path>
+    </target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+
+  <target name="compile" depends="init, javac" description="Compiles the renew plugin loader with all dependencies (default).">
+    </target>
+
+    <target name="dist" depends="init, compile, jar, copytodist.loader" description="Builds this project resulting in a 'loader.jar'. Prepend 'clean' to build from scratch.">
+    </target>
+
+
+    <target name="clean" depends="configure" description="Removes all generated code/classes/doc.">
+        <delete includeEmptyDirs="true" failOnError="false">
+            <fileset dir="${dir.build}" defaultexcludes="false" followsymlinks="false" />
+            <fileset file="${file.dist.loader.jar}" />
+        </delete>
+    </target>
+
+    <!-- copies all non source files from src to build -->
+    <target name="prepare" depends="init">
+        <copy todir="${dir.build.classes}">
+            <fileset file="${dir.etc}/loader.cfg"/>
+            <fileset dir="${dir.src}" >
+                <include name="**/*.gif"/>
+                <include name="**/*.png"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- creates a plugin jar file including all libraries and classes -->
+    <target name="jar" depends="compile, prepare">
+        <jar destfile="${file.build.jar}">
+            <fileset dir="${dir.build.classes}" />
+            <manifest>
+                <attribute name="Main-Class" value="de.renew.plugin.Loader" />
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Copies the plugin jar and config files to the global Renew
+       distribution directory (internal). -->
+    <target name="copytodist.loader" depends="init">
+        <mkdir dir="${dir.renew.dist}" />
+        <copy tofile="${file.dist.loader.jar}" file="${file.build.jar}" />
+        <copy todir="${dir.renew.dist}/config">
+            <fileset dir="${dir.etc}">
+                <include name="**/*.properties" />
+            </fileset>
+        </copy>
+    </target>
+
+    &renewtargets;
+
+    <target name="configure.export" depends="configure">
+       <path id="ref.classpath.renewtasks">
+  	  <path refid="ref.classpath"/>
+  	  <path location="${file.dist.loader.jar}"/>
+  	  <fileset dir="${dir.renew.dist.plugins}">
+  	      <include name="renewant-*.jar"/>
+  	      <include name="ch-*.jar"/>
+  	      <include name="gui-*.jar"/>
+  	      <include name="export-*.jar"/>
+  	      <include name="simulator-*.jar"/>
+  	      <include name="misc-*.jar"/>
+  	      <include name="util-*.jar"/>
+  	  </fileset>
+       </path>
+    </target>
+
+</project>

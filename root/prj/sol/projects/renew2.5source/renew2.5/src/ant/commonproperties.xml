@@ -1,0 +1,178 @@
+<!-- commonproperties.xml
+
+     This file can be included in the build.xml of all Renew
+     components or plugins. 
+
+     Some properties have to be set before this file is included:
+     - ${plugin.name} - one-word lowercase identifier
+-->
+
+<!-- The Renew checkout directory is usually located immediately
+     above the plugin directory. -->
+<property name="dir.renew.checkout" location=".."/>
+
+<!-- Local properties can be conveniently configured using
+     a file ant/local.properties. In case this file does not
+     exist, we copy a template file now. -->
+
+<!-- All of the following properties can be overridden by the
+     values from a property file. The default location of the
+     file is ant/local.properties in your cvs project directory. 
+     To use a different property file, set the property 
+     local.properties.file before this file gets parsed.
+     We go at some lengths to ensure that an already existing
+     file is never clobbered.
+
+     All properties already set when this file gets parsed
+     override the values given here and in the property file. -->
+<available property="example.local.properties.mask"
+           file="${dir.renew.checkout}/ant/local.properties"
+           value="DONOTMAKEAFILEWITHTHISNAME"/>
+<property name="example.local.properties.mask" value="local.properties"/>
+<copy todir="${dir.renew.checkout}/ant">
+  <fileset dir="${dir.renew.checkout}/ant/example">
+    <include name="${example.local.properties.mask}"/>
+  </fileset>
+</copy>
+<property name="local.properties.file" value="${dir.renew.checkout}/ant/local.properties"/>
+<property file="${local.properties.file}"/>
+
+<!-- Display warnings for deprecated properties -->
+<fail if="jar.jalopy.log4jlib" >
+The property jar.jalopy.log4jlib has been renamed to file.log4j.jar.
+Please adjust your configuration in ${local.properties.file}.
+(However, you probably do not need to configure this property at all, since the library is included in the Renew libs.) 
+</fail>
+<fail if="bin.javacc" >
+The property bin.javacc has been renamed to dir.javacc.
+Please adjust your configuration in ${local.properties.file}.
+</fail>
+
+<!-- *************************************************
+     *** Renew version information                 ***
+     ***                                           ***
+     *** This is the next expected version until   ***
+     *** the final release.                        ***
+     ************************************************* -->
+<property name="renew.version" value="2.5custom"/>
+<property name="renew.version.numeric" value="2.5.0.0"/>
+
+<!-- Default behaviour when constructing classpaths for 
+     compilation is to ignore the settings from outside ant. -->
+<property name="build.sysclasspath" value="ignore"/>
+
+<!-- Default directory and file structure for the cvs directory -->
+<property name="dir.renew.lib" location="${dir.renew.checkout}/lib"/>
+<property name="dir.renew.dist" location="${dir.renew.checkout}/dist"/>
+<property name="dir.renew.dist.libs" location="${dir.renew.dist}/libs"/>
+<property name="dir.renew.dist.plugins" location="${dir.renew.dist}/plugins"/>
+
+<!-- Default directory and file structure for the individual plugins -->
+<property name="dir.src" location="src"/>
+<property name="dir.etc" location="etc"/>
+<property name="dir.doc" location="doc"/>
+<property name="dir.lib" location="lib"/>
+<property name="dir.build" location="build"/>
+<property name="dir.build.gensrc" location="${dir.build}/gensrc"/>
+<property name="dir.build.classes" location="${dir.build}/classes"/>
+<property name="dir.javadoc" location="${dir.build}/javadoc"/>
+<property name="file.build.jar" location="${dir.build}/${plugin.name}.jar"/>
+<property name="file.src.cfg" location="${dir.etc}/plugin.cfg"/>
+<property name="file.build.cfg" location="${dir.build}/plugin.cfg"/>
+
+<property name="dir.src.test" location="testsrc"/>
+<property name="dir.build.gensrc.test" location="${dir.build}/testgensrc"/>
+<property name="dir.build.classes.test" location="${dir.build}/testclasses"/>
+<property name="dir.build.testreports" location="${dir.build}/testreports"/>
+<property name="dir.build.instrumented-classes" location="${dir.build}/instrumented-classes" />
+<property name="dir.cobertura" location="/local/tgi/java/lib/cobertura" />
+<property name="dir.build.cobertura-reports" location="${dir.build}/cobertura-report" />
+<property name="file.build.cobertura.ser" location="${dir.build.testreports}/cobertura.ser" />
+
+<!-- There are two alternatives for a distribution plugin:
+     a) Either the ${file.build.jar} file is copied to ${file.dist.plugin}.
+        In this case, ${file.src.cfg} must be included at the main level in the jar.
+        This is accomplished by the common target "copytodist.jar".
+     b) Or ${file.build.jar} and ${file.src.cfg} are both copied to
+        ${dir.dist.plugin} as separate files. This is done by the common
+        target "copytodist.dir".
+     In some plugins, special variants of copytodist are used and provided
+     by the respective build.xml files. 
+     The code has been moved to commontargets @ target computefilenames.
+     Only the prefix of the file/folder name, which is commen to a) and b) and which 
+     also sufficient for the deletion of the files / folders, remains here.
+     Please note that a dependency to target computeFilenames is mandatory for all 
+     targets that use the properties: file.dist.plugin, dir.dist.plugin or file.dist.cfg
+     e.g: the copytodist.* targets -->
+
+<property name="dist.plugin.prefix" location="${dir.renew.dist.plugins}/${plugin.name}"/>
+
+<!-- Default locations for external package links in JavaDoc --> 
+<!-- do not change the paths!
+     see comment at beginning of this file!!!-->
+<property name="link.javadoc.java" value="http://docs.oracle.com/javase/6/docs/api/"/>
+<property name="link.javadoc.junit" value="http://junit.sourceforge.net/javadoc/"/>
+<property name="link.javadoc.xerces" value="http://xerces.apache.org/xerces2-j/javadocs/api/"/>
+<property name="link.javadoc.collections" value="file:/local/tgi/java/lib/collections/javadoc"/>
+<property name="link.javadoc.ant" value="file://${ant.home}/docs/manual/api"/>
+<property name="option.javadoc.access" value="package"/>
+
+<!-- Compilation flags and compiler locations -->
+<!-- do not change the paths!
+     see comment at beginning of this file!!!-->
+<property name="dir.javacc"  location="/local/tgi/java/lib/javacc"/>
+<property name="option.compile.deprecation" value="false"/>
+<property name="option.compile.debug" value="true"/>
+<property name="option.compile.optimize" value="false"/>
+<property name="option.compile.target" value="1.7"/>
+<property name="option.compile.source" value="1.7"/>
+<property name="option.compile.encoding" value="utf-8"/>
+<property name="dir.jalopy.lib"  location="/local/tgi/java/lib/jalopy/lib"/>
+<property name="file.jalopy.convention" location="${dir.renew.checkout}/ant/jalopy-pref.xml"/>
+<property name="file.eclipseformat.config" location="${dir.renew.checkout}/ant/renew-eclipse-format.prefs"/>
+<property name="option.jalopy.fileformat" value="UNIX"/>
+<property name="option.jalopy.force" value="false"/>
+<property name="file.jarbundler.jar" value="/local/tgi/java/lib/jarbundler/jarbundler.jar"/>
+<property name="file.appbundler.jar" value="/local/tgi/java/lib/appbundler/appbundler-1.0ea-renew.jar"/>
+<property name="file.log4j.jar" value="${dir.renew.lib}/log4j/log4j-1.2.12.jar"/>
+<property name="option.sns.compile" value="true"/>
+<property name="dir.launch4j" location="/local/tgi/java/lib/launch4j"/>
+<property name="dir.launch4j.bin" location="${dir.launch4j}/bin"/>
+
+<!-- Location of ant classes (needed to generate special tasks). -->
+<property name="ant-javacc_jar" value="ant-nodeps.jar"/>
+
+<path id="ref.antclasspath">
+    <!-- We rely on the fact that the system class path contains all ant
+         libraries (it's just executing, isn't it?) -->
+    <path path="${java.class.path}"/>
+<!--   <pathelement path="${ant.home}/lib/ant.jar"/> -->
+<!--   <pathelement path="${ant.home}/lib/${ant-javacc_jar}"/> -->
+</path>
+
+<!-- path to the shared libs -->
+<path id="ref.sharedlibs">
+  <fileset dir="${dir.renew.lib}">
+     	<include name="**/*.jar"/>
+  </fileset>
+</path>
+
+<!-- default path to external petri net code for sns compilation,
+     should be overridden in plug-ins that use the sns target. -->
+<path id="ref.netpath">
+</path>
+
+<!-- path to the Apache Velocity libs -->
+<path id="ref.velocityclasspath">
+    <fileset dir="${dir.renew.dist.plugins}">
+        <include name="velocity-**/lib/**/*.jar"/>
+    </fileset>
+</path>
+
+<!-- Properties without default values (because it only matters
+     whether they are set or not, the value is irrelevant):
+
+<property name="dont.format" description="Disables the format target when set." />
+<property name="option.include.rnws" description="Includes drawings along with shadow nets in jars."/>
+<property name="option.exclude.sns" description="Excludes shadow nets from build tree and jars."/>
+-->

@@ -1,0 +1,189 @@
+% Set paper to a4paper using class option.
+% Use package graphicx.
+
+\addtolength{\textwidth}{0,8in}
+\addtolength{\oddsidemargin}{-0,4in}
+\addtolength{\evensidemargin}{-0,4in}
+\addtolength{\topmargin}{-3\baselineskip}
+\addtolength{\textheight}{4\baselineskip}
+
+\renewcommand{\topfraction}{0.7}
+\renewcommand{\textfraction}{0.3}
+
+\newcommand{\renewversion}{2.5}
+\newcommand{\renewyear}{2016}
+
+%plugin-versions
+\usepackage{./plugindefs}
+\newcommand{\LibLogFourJ}{log4j-1.2.12.jar}
+
+% use backslash symbol in environment alltt
+\newcommand\bslash{\symbol{`\\}}
+
+
+\newenvironment{licensequote}{%
+  \begin{quotation}\parindent 0pt \noindent\ignorespaces
+}{%
+  \end{quotation}%
+}
+
+\newcommand\iconscale{0.7}
+
+%\newcommand\bugtip[2]{%
+%  \par\bigskip\hrule height 0pt\noindent
+%  \parbox[t]{0.1\textwidth}{%
+%    \hrule height 0pt
+%    \includegraphics[scale=\iconscale]{#1}%
+%  }%
+%  \parbox[t]{0.9\textwidth}{
+%    \hrule height 0pt
+%    \noindent\ignorespaces #2%
+%  }%
+%  \par\addvspace{\bigskipamount}%
+%}
+
+\newcommand\hangitemize[2]{%
+  \par
+  \begin{list}{\parbox[t]{0.1\textwidth}{%
+    \hrule height 0pt
+    \vskip -0.5\baselineskip
+    #1%
+    \vskip -1.5\baselineskip
+  }}{%
+    \listparindent 0pt
+    \parsep 0pt
+    \leftmargin 0.1\textwidth
+    \rightmargin 0\textwidth
+    \labelsep 0pt
+    \labelwidth 0.1\textwidth
+  }\item\leavevmode\vadjust{\nobreak}\ignorespaces #2
+  \end{list}
+  \par
+}
+
+\newcommand\bugtip[1]{%
+  \hangitemize{%
+    \includegraphics[scale=\iconscale]{#1}%
+  }
+}
+
+\newcommand\bug{\bugtip{bug}}%
+
+\newcommand\tip{\bugtip{bulb}}%
+
+\newcommand\newinversion[1]{%
+  \hangitemize{%
+    \noindent\vbox{%
+      \hbox{\hspace{1pt}\textbf{\tiny Renew}}%
+      \vskip 2pt
+      \hbox{\textbf{\LARGE #1}%
+    }}%
+  }
+}
+
+\newcommand\newoptional[2]{%
+  \hangitemize{%
+    \noindent\vbox{%
+      \hbox{\hspace{1pt}\textbf{\tiny Renew}}%
+      \vskip 2pt
+      \hbox{\textbf{\LARGE #1}%
+      }\vskip -5pt
+      \hbox{\hspace{1pt}\textbf{\tiny #2}}%
+     }%
+  }
+}
+
+\newcommand\newonedotsix{\newinversion{1.6}}
+
+\newcommand\newtwodotzero{\newinversion{2.0}}
+
+\newcommand\newtwodotzerodotone{\newinversion{2.0\small .1}}
+
+\newcommand\newtwodotone{\newinversion{2.1}}
+
+\newcommand\newtwodotonedotone{\newinversion{2.1\small .1}}
+
+\newcommand\newtwodottwo{\newinversion{2.2}}
+
+\newcommand\newtwodotthree{\newinversion{2.3}}
+
+\newcommand\newtwodotfour{\newinversion{2.4}}
+
+\newcommand\newtwodotfive{\newinversion{2.5}}
+
+\newcommand\newtwodotthreeoptional{\newoptional{2.3}{Plugin}}
+
+\newcommand\newtwodotfouroptional{\newoptional{2.4}{Plugin}}
+
+\newlength{\oldfboxsep}
+
+\newcommand\toolicon[1]{%
+  \setlength{\oldfboxsep}{\fboxsep}
+  \setlength{\fboxsep}{0pt}  
+  \marginpar{\vbox{\vskip-0,5\baselineskip
+      \fbox{\includegraphics[scale=\iconscale]{#1}}}}
+  \setlength{\fboxsep}{\oldfboxsep}%
+}
+
+\newcommand\hangtoolicon[1]{%
+  \setlength{\oldfboxsep}{\fboxsep}
+  \setlength{\fboxsep}{0pt}  
+  \marginpar{\vtop{\vskip0,5\baselineskip
+    \fbox{\includegraphics[scale=\iconscale]{#1}%
+  }}}%
+  \setlength{\fboxsep}{\oldfboxsep}%
+}
+
+\newcommand\netscale{0.7}
+\newcommand\makenetcaption[1]{The net \texttt{#1}}
+
+\newcommand\screenshotscale{0.6}
+
+\newcommand\singlediagramplaced[3]{%
+  \begin{figure}[#3]
+    \centerline{%
+      \includegraphics[scale=\netscale]{#1}%
+    }
+    \caption{\label{fig:#1}#2}
+  \end{figure}%
+}
+
+\newcommand\singlediagram[2]{%
+  \singlediagramplaced{#1}{#2}{htbp}%
+}
+
+\newcommand\singlenetplaced[2]{%
+  \singlediagramplaced{#1}{\makenetcaption{#1}}{#2}
+}
+
+\newcommand\singlenet[1]{%
+  \singlenetplaced{#1}{htbp}%
+}
+
+\newcommand\doublenet[2]{%
+  \begin{figure}[htbp]
+    \begin{minipage}{0,5\textwidth}
+      \centerline{%
+        \includegraphics[scale=\netscale]{#1}%
+      }
+    \end{minipage}%
+    \begin{minipage}{0,5\textwidth}
+      \centerline{
+        \includegraphics[scale=\netscale]{#2}%
+      }
+    \end{minipage}
+
+    \begin{minipage}{0,5\textwidth}
+      \caption{\label{fig:#1}\makenetcaption{#1}}
+    \end{minipage}%
+    \begin{minipage}{0,5\textwidth}
+      \caption{\label{fig:#2}\makenetcaption{#2}}
+    \end{minipage}
+  \end{figure}%
+}
+
+\def\see{\ensuremath{\rightarrow}\,}
+
+\newcommand\TODO[1]{%
+\marginpar[\vspace{1ex}\raggedleft\scriptsize{#1}]{\vspace{1ex}\raggedright\scriptsize{#1}}%
+}

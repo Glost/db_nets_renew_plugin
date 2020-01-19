@@ -1,0 +1,4 @@
+11 
+    de.renew.fa.FADrawing 1 
+        de.renew.fa.figures.FAStateFigure "attributes" "attributes" 3 "FigureWithID" "Int" 25 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 255 255 255 255 15 7 40 40 NULL 
+            de.renew.fa.figures.StartDecoration  "de.renew.fa.figures.StartDecoration"  NULL  114 300 598 600 

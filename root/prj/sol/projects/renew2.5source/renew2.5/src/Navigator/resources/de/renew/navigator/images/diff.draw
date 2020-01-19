@@ -1,0 +1,10 @@
+11 
+    CH.ifa.draw.standard.StandardDrawing 6 
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 307 89 298 298  
+        CH.ifa.draw.figures.ImageFigure "no_attributes" 184 87 16 16 "eclipse-icons/elcl16/home_nav.gif"  
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 311 136 124 182  
+        CH.ifa.draw.figures.RectangleFigure "attributes" "attributes" 1 "FillColor" "Color" 255 255 255 255 477 155 124 182  
+        CH.ifa.draw.figures.LineFigure "attributes" "attributes" 1 "LineWidth" "Int" 10 2 350 195 531 195 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip"  
+        CH.ifa.draw.figures.LineFigure "attributes" "attributes" 1 "LineWidth" "Int" 10 2 363 274 544 274 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  NULL "CH.ifa.draw.figures.ArrowTip"   0 158 888 617 

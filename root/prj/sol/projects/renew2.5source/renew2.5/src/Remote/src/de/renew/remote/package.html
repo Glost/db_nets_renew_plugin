@@ -1,0 +1,55 @@
+<html>
+  <body>
+    Provides interfaces and implementations to allow remote
+    access and control of a simulation. 
+    <p>
+    All interfaces and classes can be used locally as well. This
+    allows to hide the distinction between local and remote
+    access throughout the application.
+    </p>
+    The availability of the remote access to a running simulation
+    is provided through the class {@link de.renew.remote.RemoteExtension}.
+    A default server implementation is provided by
+    {@link de.renew.remote.ServerImpl}.
+
+    <H2></h2>
+    <table BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+      <tr BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+        <td COLSPAN=4><font SIZE="+2"><b>Used properties</b></font></td>
+      </tr>
+      <tr>
+        <td>de.renew.remote.enable</td>
+        <td>boolelan</td>
+        <td>false</td>
+        <td>Controls whether the remote access to local
+          simulations should be allowed or not.</td>
+      </tr>
+      <tr>
+        <td>de.renew.remote.publicName</td>
+        <td>String</td>
+        <td><i>(not set)</i></td>
+        <td>Specifies the name part of the URL under which the
+          remote server will be announced at the RMI registry.
+          If not set, the
+          {@link de.renew.remote.Server#DEFAULT_SERVER_NAME default name}
+          will be used. <br/>
+      </tr>
+      <tr>
+        <td>de.renew.remote.serverClass</td>
+        <td>class name</td>
+        <td><i>(not set)</i></td>
+        <td>Specifies a custom {@link de.renew.remote.Server}
+          implementation to use. If not set, the default
+          {@link de.renew.remote.ServerImpl} is used. <br/>
+      </tr>
+      <tr>
+        <td>de.renew.remote.socketFactory</td>
+        <td>class name</td>
+      <td><i>(not set)</i></td>
+        <td>Specifies a custom {@link java.rmi.server.RMISocketFactory}
+          implementation to use. If not set, the default RMI socket
+          factory is used.</td>
+      </tr>
+    </table>
+  </body>
+</html>

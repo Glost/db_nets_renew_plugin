@@ -1,0 +1,20 @@
+<html>
+  <body>
+    This package contains the basic algorithms that are
+    used during the search for an activated binding.
+    Classes and interfaces remain very abstract here:
+    We talk about things that may be searched and things
+    that may be executed, but do not give any concrete
+    examples.
+    <p>
+    The main class here is the <tt>Searcher</tt>, which
+    coordinates various <tt>Binder</tt>s and notifies a
+    <tt>Finder</tt> once a suitable binding of a
+    <tt>Searchable</tt> is found.
+    Then <tt>Executable</tt>s are built from the
+    <tt>Occurrence</tt>s that are involved in the binding.
+    <p>
+    All classes in this package are expected to be called within
+    simulation threads.</p>
+  </body>
+</html>

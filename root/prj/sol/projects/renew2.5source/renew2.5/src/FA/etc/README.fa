@@ -1,0 +1,8 @@
+known properties of the fa plugin:
+de.renew.fa.init		: (boolean) if true the palette is loaded on startup,
+						: if the gui.autostart is not set to false
+de.renew.fa.mode		: (text) if 'alternative' international style nodes are used,
+						: if 'standard' Jantzen style nodes are used
+de.renew.fa.useindices	: (boolean) if true appending an inscription with '_<index>'
+						: the inscription will have a subscript '<index>'
+de.renew.fa.state-prefix: (text) denotes the standard state name

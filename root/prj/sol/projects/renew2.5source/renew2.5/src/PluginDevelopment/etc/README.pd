@@ -1,0 +1,31 @@
+PluginDevelopment for Renew (Beta)
+
+Menu Command extends Plugin menu by entry 
+Plugin Development >> Create Renew Plugin Folder
+
+Use as follows.
+
+1. Create a new text file "name.plg" (properties-like file) and save it at any place you want and remember
+1.1 add the entry (key value) "appName = <YourPluginName>" to the newly created file and save it
+
+2. Compile PluginDevelopment if necessary by calling >> Run as: Ant Build on the build.xml file in the PluginDevelopment folder
+
+3. Start Renew (did you run the Renew build process before? yes? nice!) at commandline by calling: >> java -jar loader.jar gui
+
+4. If Renew has successfully been started, go to:
+4.1 Menu > Plugin > PluginDevelopment >> Create Renew Plugin Folder
+-> A file chooser menu will be opened
+4.2 Choose/search your "name.plg" file which you created at step 1. and confirm
+-> Another file chooser menu will be opened
+4.3 Select Renew Plugin Source Folder
+4.3.1 If you want to create a new Renew plugin choose <path/to/Renew>/Renew
+4.3.2 If you want to create a new Mulan plugin choose <path/to/Mulan>/Mulan
+
+5. If you were able to proceed until here, you will get the following:
+- src folder
+- etc/README.<name>
+- etc/plugin.cfg
+- build.xml
+at the <location given at step 4.3>/appName
+
+6. Any problems? Call our help desk in Bavaria or support@renew.de 

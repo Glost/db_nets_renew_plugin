@@ -1,0 +1,206 @@
+A plugin is a collection of Java classes that can be loaded and unloaded dynamically
+into and out of the system.
+This is the loader component; it represents the core of the plugin system.
+It is responsible for
+1. locating plugins that may be loaded
+2. load the plugins that were found
+3. control the plugins' life cycle.
+
+This documentation will cover all three points;
+it contains also sections about the configuration of plugins
+and user interaction.
+
+
+0. Starting the plugin system
+=============================
+The main class of the Renew loader is de.renew.plugin.Loader.
+It contains the main method which will create an instance of the class 
+de.renew.plugin.PluginManager that starts the loading process.
+For this, the loader.jar file in the Renew distribution is needed to be in the class path;
+so, the command line needed to run Renew is
+java -classpath loader.jar de.renew.plugin.Loader
+A simpler possibility would be
+java -jar loader.jar
+which will use the manifest information contained in the jar file.
+
+0.1 System variables on startup
+-------------------------------
+There are system variables available that control the way plugins are
+loaded. These can be set either in the .renew.properties in your home
+directory or on the command line by using the java "-D" option, as in
+  java -Ddebug=true -jar loader.jar
+
+The available variables are:
+"de.renew.plugin.noLoad"  - contains a comma-separated list of plugin names
+                            that will not be loaded into the system.
+                            Consequently, all depending plugins will not be loaded
+                            if no other plugin provides the required capability.
+
+"pluginLocations" - contains a comma-separated list of additional 
+                    plugin search paths for the plugin manager 
+                    (use the "\" sign to break up your 
+                    configuration file into several lines 
+                    for readability).
+
+"de.renew.classPath"  - works like the usual Java classpath. Classes
+                        found in this Renew classpath are able to access
+                        plugins and their services. Classes loaded by the
+                        system class loader (using the standard CLASSPATH
+                        variable or -classpath option of the Java VM) are
+                        *not* able to access plugin classes!
+
+
+1. Locating plugins
+===================
+The PluginManager will need to look for plugins that can be loaded.
+The Java interface used for this is de.renew.plugin.locate.PluginLocationFinder.
+It provides a method findPluginLocations() that returns a Collection of PluginProperties;
+each one of these properties will contain the information necessary to create one plugin.
+
+The actual implementor of this interface used by the PluginManager is the 
+  de.renew.plugin.locate.PluginLocationFinders
+class, a Composition class of PluginLocationFinder objects with a Singleton access interface
+(so only one instance is present in the system).
+Other PluginLocationFinder instances can be added to this Singleton by add/removeLocationFinder methods.
+The PluginManager itself adds instances of two classes to the Composition:
+- de.renew.plugin.locate.PluginSubDirFinder objects and
+- de.renew.plugin.locate.PluginJarLocationFinder objects.
+Both are configured with the same start URL to look for plugins:
+- the plugins/ directory beneath the directory of the location where the PluginManager was loaded from
+	(i.e., usually the loader.jar). If that cannot be determined, the present directory will be used.
+- any configured pluginLocations_<i> property, where <i> is an integer number, 0 and larger.
+
+1.1 PluginSubDirFinder search strategy
+--------------------------------------
+The de.renew.plugin.locate.PluginSubDirFinder is instantiated with an URL.
+It assumes this to be a File URL, or a Directory URL to be more precise.
+It will locate all subdirectories of it and look for plugin.cfg files in that directory.
+If one is found, it is used to create a result PluginProperties object.
+The containing directory will be the URL assumed to contain the class code for the plugin.
+
+1.2 PluginJarLocationFinder search strategy
+-------------------------------------------
+The de.renew.plugin.locate.PluginJarLocationFinder is also created with an URL which it assumes
+to be a directory.
+It locates all jar files in that directory and checks if these contain a plugin.cfg file.
+These are used to construct the PluginProperties objects, with its URL property set
+to the jar file URL.
+
+
+2. Loading plugins
+==================
+After the PluginProperties objects have been created, they are used to construct instances of the
+plugins they refer to.
+This is done by delegating the loading to the de.renew.plugin.load.PluginLoaderComposition,
+a composition object to and from which implementors of the PluginLoader interface can be added and removed.
+These loaders will, for each PluginProperties object,
+- add the plugin byte code to the class loader
+- create an IPlugin object if applicable.
+Because they instantiate the main class of the plugin, it depends on them to decide how 
+to do this, especially which constructor is called.
+
+In the present setup, only one loader class is available, the SimplePluginLoader.
+It uses reflection to invoke a constructor with the given PluginProperties as an argument, 
+creating a IPlugin object.
+This facilitates the use of the de.renew.plugin.PluginAdapter class.
+
+Since most plugins rely on other plugins' classes to work, it is necessary to load
+the plugins in the correct order, first the relayee, then the relayer.
+This order must be given by the plugin's developer in the plugin.cfg file.
+It uses the notion of "services" to designate which other components are needed.
+Each plugin defines a list of services it provides,
+each service a string solely used to tell it apart from other services so
+it can be rather freely chosen;
+only name conflicts need to be prevented;
+most of the time, the name of the most important package within the component will work.
+These provisions are listed, comma-separated, in the "provides" property.
+On the other hand, a list of services required to start this component must be given
+in the "requires" property.
+As an example, the "Core" component provides de.renew.core and requires de.renew.util
+as well as the collections package. 
+Its plugin.cfg file therefore contains the lines
+provides = renew.core
+requires = renew.util,collections
+
+If all dependencies are declared correctly, the order of dependencies will be established by
+the plugin system and used to load the components.
+Be aware that circular dependencies are NOT allowed!
+
+
+3. Plugin life cycle
+====================
+Analogous to the Java constructor, the plugin system uses a life cycle management system for
+the loaded components.
+The methods used for this are declared in de.renew.plugin.IPlugin and are called
+init() and cleanup().
+The init() method is used to notify the plugin object that it has been loaded into
+the system.
+At that time, the dependencies of this plugin are guaranteed to be fulfilled; this may
+not be the case when the constructor is called!
+The cleanup() method notifies the plugin that it is being unloaded and should free any resources
+it locks, unregister menu entries it provides etc.
+Note that calling cleanup() and removing this plugin from the dependency list 
+are the only action the plugin system takes when unloading a plugin;
+it does not remove the provided classes from the class loader.
+
+
+4. Plugin configuration
+=======================
+To configure plugins in a unified way, the de.renew.plugin.PluginProperties class is provided.
+It is a subclass of the java.util.Properties class and provides the following benefits:
+- It contains getProperty methods for boolean and int property values,
+  parsing the String property to create a correctly typed result
+- The boolean get will return false ONLY if the property contains the string "false".
+  The rationale behind this is to reflect the fact that the property is set at all.
+- The user has two different possibilities to change the default value of properties
+  (which should be given by the plugin developer in the plugin.cfg file):
+  1. by setting the property in the .renew.properties file in her home directory
+     or in the installation directory (config/renew.properties).
+     (e.g. my.property = false)
+  2. by setting a system property via the command line
+     (e.g. in the startup Java call: java -Dmy.property=false -jar loader.jar)
+
+When a developer creates the plugin's original plugin.cfg file, he must include
+all properties used thoughout the plugin, along with their default values. The
+plugin.cfg file is used to determine the set of "known" properties of the plugin
+at runtime. If a property should not be set by default, the special keyword
+"<not set>" can be used for the property's value (this works only with plugin.cfg,
+not with any of the other configuration possibilites available to the user!)
+
+
+5. Commands
+===========
+To be able to interact with the user, the plugin system defines the Java interface 
+  de.renew.plugin.command.CLCommand
+(for command line command).
+These follow the Command design pattern and provide a method execute which takes a String array as arguments.
+It is possible for plugins to add additional commands provided by the plugin
+by notifying the PluginManager via its addCLCommand method;
+to remove a command, a analogous removeCLCommand is available.
+Every command is identified by a name given in the addCLCommand call.
+If two commands of the same name are added, the second one will overwrite the first one.
+CLCommand also defines a getDescription which should return a String that describes the
+functionality of the command to the user.
+
+CLCommand implementations are advised to provide feedback to the user
+neither by using System.out nor through the Logging API.  Instead they
+should use the PrintWriter stream given to the execute method.
+
+
+6. Logging
+==========
+The first action of the Loader class is to load non-plugin libraries such
+as log4j and configure the logging framework.  The configuration of the
+logging framework is done thorugh separate configuration files, please read
+the Renew user's guide for details.
+
+All plugins are advised to use the log4j framework instead of System.out
+messages.  There are different log levels available, namely:
+
+ERROR   - Information about severe problems that prevent operation.
+WARN    - Minor problems (that may indicate misconfiguration).
+INFO    - Output intended for users during normal operation.
+DEBUG   - Debug output, for users and developers.
+
+Simulation step trace logging should go to the INFO level to the
+simulation-specific logger instance (see the "Renew Simulator" plug-in).

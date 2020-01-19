@@ -1,0 +1,497 @@
+\section{Semantic Level}
+
+Now we investigate the data structures of the semantic level where textual
+annotations have already been resolved, but no instances 
+have yet been built.
+
+\subsection{Net Structure}
+
+Whenever possible, we prefer a component-oriented 
+architecture in the following sense:
+The functionality of an object results substantially from
+aggregated sub-objects and attribute values, where the allocation of the
+sub-objects and the values occurs at run-time, but it remains constant for
+the life span of the aggregate. The opposite of this would be an architecture,
+in which the functionality of a class is
+adapted by the creation of sub classes. 
+This would not be so flexible, because it would make
+independent variations of different aspects more difficult,
+as Java does not allow multiple inheritance.
+
+Since no code is generated for a net, all semantic information about a net
+has to be represented in a data structure. The application domain
+naturally suggests the classes \texttt{Place}, \texttt{Transition},
+and \texttt{Net}. A net must know about all its net
+elements, so that places and transitions can be taken into account during
+the generation of a net instance.
+
+Places possess an initial marking. This is represented by an
+arbitrary number of objects of the type \texttt{TokenSource}.
+Each of these objects
+produces a token for the place during initialization. In the simplest case,
+a token source could simply return a constant during a call to the method
+\texttt{createToken()} as done by the class \texttt{ConstantTokenSource}.
+Alternatively, it might be required to evaluate an expression,
+as in the class \texttt{ExpressionTokenSource}.
+
+Now arcs and transition inscriptions must be represented. We
+observe that these two groups of objects are quite similar, because they
+influence the enabledness and the effect of a transition. 
+Therefore, we want to abstract from the graphical difference
+of arcs and inscriptions at this point, so that both can be treated
+as special transition inscriptions. 
+The class \texttt{TransitionInscription} is 
+the common superclass of all transition
+inscriptions. A transition can aggregate as many objects of
+this class as necessary.
+
+Thus a certain asymmetry in the handling of places and transitions
+develops, since arcs are mainly associated with transitions.
+This view is to be found however not so rare at all. Even with S/T nets
+arcs are occasionally represented by pre-and post- region functions for
+transitions. Further there are the transitions, which must consider at one
+time all their arcs, while this is not the case with places, so that due
+asymmetry already exists in the formalism.
+
+\singlediagram{simdata}{Static net data}
+
+In Fig.~\ref{fig:simdata} you 
+can see a class diagram for the semantic layer of the
+net representation.
+Most of the transition inscriptions are listed, where three
+of them require special handling: \texttt{UplinkInscription}, 
+\texttt{CreationInscription} and \texttt{Arc}. 
+In the implementation, the class \texttt{Arc} is divided into a
+number of specialized classes that takes care of the different arc types.
+
+
+\subsection{Transition Inscriptions}
+
+In the following, we give an overview of all transition inscriptions that
+were shown in Fig.~\ref{fig:simdata} All transition inscriptions implement the
+interface \texttt{TransitionInscription}.
+
+\begin{description}
+\item[Uplinks] An \texttt{UplinkInscription} determines on which
+channel incoming synchronisation requests must appear. Since
+this information is referred to frequently, 
+each transition stores a reference to
+its unique uplink explicitly, if such a reference exists. 
+Each uplink has a name and an
+expression, which is evaluated during a synchronisation in order to
+determine the channel data.
+
+\item[Downlinks] Additionally to the attributes
+of an uplink, a \texttt{DownlinkInscription} 
+possesses another expression, which is evaluated to the object that
+has to provide the uplink for the synchronisation.
+
+\item[Net creation] \texttt{CreationInscription}-objects 
+reference the net that is supposed to be instantiated
+It would also be possible to store only the
+name of the net, but that would introduce the possibility
+to interchange the implementation of a net dynamically, 
+which might be dangerous.
+
+\item[Expressions] An \texttt{ExpressionInscription}
+object encapsulates an expression,
+which should be evaluated during the search for an enabled
+binding. The result of the evaluation is discarded.
+
+\item[Guards] \texttt{GuardInscription} 
+objects behave like expressions, but they force
+the evaluation result to be \texttt{true}.
+
+\item[Actions] \texttt{ActionInscription} 
+objects behave like expressions, but they are
+evaluated only while the transition fires.
+
+\item[Arcs] All arc types reference a place and an
+arc expression, and pay attention to whether the movement of tokens is to
+be logged. Additionally, the class \texttt{Arc} 
+can distinguish different types of
+arcs, so that we do not need to implement different
+classes for input, output, test, and reserve arcs.
+On top of that, the class \texttt{ClearArc} manages a type
+for the array that is created during the processing of the arc. The
+class \texttt{FlexibleArc} adds knowledge about
+two conversion functions, with which
+the values supplied at the arc are converted into concrete tokens.
+\end{description}
+
+A couple of times we mentioned expressions in this section.
+Expressions allow to parameterize inscriptions.
+
+\subsection{Expressions}
+
+Expressions can occur in two contexts:
+\begin{itemize}
+\item in action inscriptions, where no 
+  evaluation is to take place immediately,
+  but a registration of the pending calculation is required, and
+\item in other transition inscriptions like guards, where the result
+  is required as soon as possible.
+\end{itemize}
+
+\singlediagram{expressions}{Expressions}
+
+Even in the first case the expression has to be
+evaluated during the firing of the transition in exactly the same manner
+as it would be necessary for the second case. Hence we suggest
+to treat both types of evaluation in a single class. With the use
+an expression in a general transition inscription a part of that functionality
+lies idle, but a consistent handling is guaranteed in both cases.
+
+For the internal representation of expressions the interface
+\texttt{Expression} is defined. Together with some
+implementations this class 
+belongs to the package \texttt{de.renew.expression}. The most
+important methods are the registration of an evaluation during
+an action and the actual evaluation.
+
+Both of the two methods \texttt{registerCalculation} and
+\texttt{startEvaluation} need three arguments:
+\begin{itemize}
+\item a \texttt{VariableMapper}-object, which maps the name of a
+  variable onto the associated variable of the unification algorithm,
+\item a \texttt{StateRecorder} object, which can undo all
+  modifications executed during the evaluation of this expression,
+\item a \texttt{CalculationChecker} object, with which late
+  calculations and requirements for the early availability of a result
+  can be announced.
+\end{itemize}
+
+The different implementations do not always use all arguments for
+their evaluation. For example the evaluation of a variable or a constant
+does not need a \texttt{StateRecorder}, because only read accesses
+occur on unifiable objects.
+
+On the other hand the \texttt{VariableMapper}-object is necessary only for the
+evaluation of a variable. Its responsibility is to return
+for a given \texttt{LocalVariable}
+object a variable of the unification algorithm. It has to ensure that
+the mapping from \texttt{LocalVariable}
+objects to variable is consistent for different branches of 
+an expression.
+
+An expression can be used with different
+\texttt{VariableMapper}-objects each time it is evaluated.
+The algorithm ensures that no variable is reused from 
+earlier evaluations.
+
+However, most expressions are associated to subexpressions that must be
+evaluated first, 
+before they themselves can be evaluated. Such expressions
+aggregate other expressions and pass on their arguments to the
+sub-expression with the call of the evaluation methods.
+
+Each evaluated expression returns the result object immediately, even if
+it is a unifiable object that is not yet fully evaluated. 
+An evaluation might even return an \texttt{Unknown}-object to signal
+a totally unbound variable. 
+Therefore all assembled expressions must expect
+that their arguments, which were returned by the subexpressions,
+are not yet ready and that the computation
+of the expression must be deferred. Therefore the concrete calculation is
+encapsulated in
+an object of the type \texttt{Notifiable}, which is registered
+with the unification algorithm. As soon as all arguments are fully
+bound, the object is notified and can evaluate the expression
+an unify the result with its result variable.
+If all subexpressions result in definite values, the notification 
+is send immediately.
+
+Caution is necessary if more than one sub-expression is analysed. The
+return value of the first sub-expression could be an \texttt{Unknown}.
+This \texttt{Unknown} could be unified
+with a value during the evaluation of the second expression.
+Although this is a quite unusual case, which arises almost only with
+artifacts like \texttt{[x,x=1]}, it has to be considered.
+
+We store therefore first the \texttt{Unknown} in a
+variable, because variables automatically take care of unknown values that
+acquire a value through unification. A normal Java reference
+could not achieve this. This is the price which we must pay for the
+usage of the unification algorithm.
+
+Since both Java references and primitive objects can result from the
+evaluation, a suitable result type has to be chosen. The decision
+was to encapsulate primitive Java values in objects of the class
+\texttt{Value}.
+The solution used in the Java reflection API
+(\texttt{java.lang.reflect} package) to convert primitive types into their
+object counterparts without wrapping does not preserve the distinction
+between the different types.
+Although one of the advantages of primitive types, namely their run time
+efficiency, is no more given, this approach enables the
+type-correct handling of primitive values. Since \texttt{Value} is a reference
+type, \texttt{Object} can generally serve as return type for expressions.
+
+Apart from the calculation methods two query methods are to be
+implemented. An \texttt{Expression}-object can specify a result type,
+in order to permit a type check.
+It is guaranteed that every result of a successful
+expression evaluation belongs to this result type.
+
+After the evaluation of an expression the result may be undetermined,
+because the evaluation is deferred at least partly due to unbound variables. 
+The method \texttt{isInvertible()} indicates whether
+variables occurring in the expression
+can be bound by unifying the incomplete result with a
+fixed value. This applies in particular when the
+expression only consists of one variable at all, but also in the case
+of tuples that are built from subexpressions.
+
+This concept of invertibility is naturally related to the mathematical
+invertibility, but here it refers to the concrete operational feasibility.
+Additionally, we will not inversely calculate some expressions, if thereby
+the clarity of the formalism would suffer.
+
+This query on invertibility is used  by input arcsin particular, since the
+possible result values in form of the tokens in the place are already
+certain in this case. Here it is sensible to try all possible values one after
+the other, but only if this could lead to variable bindings
+based on the structure of the expression at the input arc.
+
+
+\subsection{Some Expressions}
+
+Not all expressions are to be discussed in detail, since they are to a
+large extent straightforwardly coded, but some classes are exceptional.
+
+An \texttt{EqualsExpression} possesses two sub-expressions, which are
+to be unified during the actual calculation.
+It would be possible to unify them already during the
+registration of a subsequent calculation, like in
+\texttt{action x=y}. The only question is whether this would be the intended
+semantics. Because in \texttt{action}-inscriptions 
+we would like to achieve a value transfer that is close to 
+the evaluation rule of Java,  we prescribe a value transfer from the
+right to the left. This is achieved by unifying the left side with 
+a calculation object that references the result of the right side's
+registration, where the latter result is possibly unknown
+during registration.
+
+\texttt{TupleExpression}-objects aggregate a sequence of
+expression-objects, and can generate and return tuples.
+In a very similar way, lists are generated by 
+\texttt{ListExpression}-objects, so that a common super class,
+\texttt{AggregateExpression} can be found.
+
+As indicated, \texttt{VariableExpression}-objects draw their
+results from the \texttt{VariableMapper}-object released during the
+evaluation. Noteworthy is it here, that variables produce the only
+communication possibility between different inscriptions.
+
+Method invocations are administered by \texttt{CallExpression}-objects.
+Method invocations often have many different arguments and are
+sometimes static and sometimes dynamic.
+It would thus appeal to have a flexible approach that delays
+an evaluation until a multitude of expressions has been
+completely evaluated.
+
+The situation becomes simpler, if \texttt{CallExpression}-objects
+aggregate only a single object of type 
+\texttt{TupleExpression}, which summarizes all
+arguments into one, so that only one argument, which arises
+out of one subexpression, must be processed by
+the \texttt{CallExpression}-objects.
+
+During the evaluation this sub-expression is evaluated and the
+result is stored in a variable. Likewise for the result of the
+\texttt{CallExpression}-object a variable is produced, which contains
+an \texttt{Unknown} initially.
+
+If by means of \texttt{registerCalculation()} only the registering of a late
+calculation is required on the basis of an action inscription,
+a \texttt{Calculator}-object of the
+unification algorithm is generated.
+
+On the other hand, the method \texttt{startEvaluation()} forces the
+calculation of the function as soon as its argument tuple becomes known.
+To this end, an observer object is registered at the argument variable.
+The observer object will be notified as soon as the result of the
+sub-expressions is completely determined. It calculates the function and
+unifies it with the result variable.
+
+If the result variable is already bound 
+at the point of time when the function is evaluated,
+it will be checked by the unification algorithm,
+whether the newly calculated result corresponds with this value.
+
+In order to abstract from different ways of calling a method or
+a constructor, the core functionality is shifted into objects of the type
+\texttt{Function}. During its evaluation a function receives exactly one
+object and returns one object. The \texttt{CallExpression}-object can
+be limited to the supporting activities: the construction of the
+argument and the registration for notification.
+
+The contents of the result variable are finally returned to the higher
+expression and can be further used there, no matter whether the function
+could be evaluated already or not.
+
+One version of the \texttt{CallExpression} is the \texttt{NoArgExpression}.
+This needs no argument values and aggregates no sub-expressions either.
+This is typically used to read a static attribute of a class.
+Such an expression aggregates no ordinary function, but a
+\texttt{NoArgFunction}-object.
+
+Casts are implemented invertible, as far as it is possible. 
+To achieve this, the class \texttt{InvertibleExpression} can
+calculate at the same time two functions during the evaluation. The first
+function is handled as by a \texttt{CallExpression}-object.
+The second function
+will be calculated, as soon as a notification queues up, that the result
+of the expression is known and the result is unified with the argument
+value.
+
+
+\subsection{Some Functions}
+
+The presented \texttt{Function}-concept can even be expanded onto other
+calculations. Here we want to list some possible functions.
+
+\singlediagram{functions}{Functions}
+
+\begin{description}
+\item[Dynamic method invocations.] These require a pair of an object and an
+argument tuple.
+
+\item[Static method invocations and constructor calls.] Here only the argument
+tuple is important.
+
+\item[Reading and writing of attributes.] During the writing it is to be noted
+that a side effect evolves, so that these operations are only meaningful
+in action-inscriptions.
+
+\item[Calculation of operators.] Also primitive operators such as addition or
+multiplication can be regarded as special functions. Here finally there
+are (only) many function objects, which were implemented as singletons.
+
+\item[Casts.] Some of the previous operations could fail, if an exception is
+thrown by the calculation, this is however particularly obvious with
+casts. Functions can release therefore the exception Impossible. Usually
+this brings the caller to the stage, in which the last operation, which
+has bound a variable, is recognized as illegal and a backtracking sets in.
+\end{description}
+
+Other functions are conceivable and easy to set up. The advantage of this
+approach over the programming of a subclass of \texttt{Expression} is that for
+functions no knowledge about the unification algorithm or the simulation
+algorithm is necessary.
+
+The Reflection API of Java is used for the execution of many functions. Hereby
+the method signatures of each desired class are inspected and method
+invocations are issued. In order to find an appropriate method for given
+parameter types, all methods must be checked whether their signature matches
+the argument types and the most specific method must be found from the 
+appropriate methods. This happens at run-time in the untyped formalism 
+or at compilations time for the typed formalism.
+
+As mentioned earlier, primitive values are always encapsulated
+in \texttt{Value}-objects, both on the level of expressions and
+on the level of functions. 
+This is to be taken into account during the implementation of the functions.
+
+
+\section{Dynamic Level}
+
+Apart from the static aspects of a net, the dynamic state
+of net instances must also be
+stored, so that all required information is available
+during the search for an enabled binding.
+Normal Petri nets only need the current marking,
+which could always be stored together with the static
+information about the places.
+
+\singlediagram{instdata}{Simulation state}
+
+As for reference nets however, several net instances are to be built from
+each net, so that the markings of the different net instances must be managed
+separately from each other. For this an interface \texttt{NetInstance} with a
+standard implementation \texttt{NetInstanceImpl} 
+is created, in order to handle the state of a net. 
+In addition, a \texttt{NetInstance} object denotes the identity of
+a net instance. The net is associated to the net instance during the
+entire life-time of the net instance. It contains a unique ID
+for the net, so as to generate readable trace outputs.
+
+It is one responsibility of a \texttt{NetInstance} object to enable
+places to produce place instances by means of the method
+\texttt{getInstance(Place)}. Each place instance contains a multi-set of free
+tokens and a multi-set of tested tokens, which are tested by means of a
+test arc. Since the firing duration of transitions is not limited, we
+cannot expect that tested tokens become free again quickly. Rather they
+must be handled explicitly in the search algorithm for test arcs.
+
+For each place instance there are two tuple indices: one for the free tokens
+and another for the testable tokens. To this end, all tokens that
+either lie free in the place or are already tested are regarded as
+testable. Both indices are implemented by the class
+\texttt{TupleIndex}.
+
+The reason to indicate not only the tested tokens, is that then for test arcs
+both indices would have to be queried and the results would have to
+be combined. Instead
+we rather invest into the modification of two indices during the movement of
+free tokens. The place instance is responsible for the correct update
+of the indices during each modification of the marking.
+
+Each place instance contains a lock mechanism, which protects it
+against parallel accesses. 
+Before each access that concerns a variable attribute of the
+place the caller must make a call on \texttt{lock()}. It is necessary
+that the caller controls the lock, because it happens that multiple tokens
+must be moved, which is best achieved by locking first and then doing
+a sequence of updates.
+
+\singlediagram{placeevent}{Place event handling}
+
+It is also possible that two threads operate jointly, but not concurrently
+on a place instance. This might happen if remote methods are invoked
+during an operation. Because both threads need access to the
+place and only one can acquire the lock, it must be allowed
+that a thread accesses the place instance without having gained the
+lock. That means the access methods must not lock themselves.
+
+
+\section{Event Handling}
+
+The event mechanism allows event listeners to monitor the current 
+state of a place or transition. Whenever a token is moved
+into a place or out of a place instance or becomes tested or
+untested, the place instance sends events to all those
+listeners that were previously added to it.
+
+Similarly a transition instance sends events at the start and at 
+the end of every firing. Currently transition instances do not send 
+event when their enabledness changes, because the computational cost
+associated to this operation would be prohibitive.
+
+Not only place instances and transition instances, but also the
+places and transitions themselves accept listeners.
+These listeners are notified about all events within all
+instances associated to this net element.
+
+Unless a listener is deregistered from an event producer,
+it will receive all future events. No listeners are automatically
+removed.
+
+Events are delivered synchronously, i.e.\ the simulation blocks while
+an event is processed by the listener. That means that listeners
+should typically terminate quickly. During the notification,
+the place instance is locked by the notifying thread.
+
+It is safe to query the current marking of the place instance
+that produced the current event,
+but it is not allowed to modify its marking.
+While querying, it is not required to relock the place instance.
+
+\singlediagram{transevent}{Transition event handling}
+
+Producers are the interfaces of classes that keep track of listeners.
+Listeners receive events. Events carry attributes that specify
+the precise kind of action that triggered the event.
+Adapters are standard implementations of listeners. Listeners
+receive events. See Figs.\ \ref{fig:placeevent}~and~\ref{fig:transevent}
+for detailed class diagrams.

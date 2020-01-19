@@ -1,0 +1,83 @@
+The Renew Simulator component comprises the simulation engine, its
+database connectivity and the interfaces/classes needed to feed
+and watch the simulation.
+
+Used Properties:
+================
+(For default values, see plugin.cfg)
+
+NAME				TYPE		DESCRIPTION
+----				----		-----------
+de.renew.simulatorMode		int		Specifies simulator class and multiplicity to use.
+						- Negative values:
+						  Use multiple sequential simulators. The absolute
+						  value determines the number of simulators.
+						- 0:
+						  Same as -1: Use one sequential simulator.
+						- 1 (default):
+						  Use one concurrent simulator.
+						- Positive values:
+						  Use multiple concurrent simulators. The absolute
+						  value determines the number of simulators.
+de.renew.eagerSimulation	boolean		Specifies whether the simulator should use eager
+						simulation. 
+de.renew.netPath		path		Specifies the search path of net loaders (like the
+						Java CLASSPATH). If not set, the current directory
+						is used.
+de.renew.classReinit		boolean		Specifies whether custom classes (those known by
+						the property de.renew.classPath) should be reloaded
+						on each simulation run.
+de.renew.remote.enable		boolean		Controls whether the remote access to local
+						simulations should be allowed or not.
+de.renew.remote.publicName	String		Specifies the name part of the URL under which the
+						remote server will be announced at the RMI registry.
+de.renew.remote.serverClass	Class		Specifies the de.renew.remote.Server implementation
+						to use.
+de.renew.remote.socketFactory	Class		Specifies the java.rmi.server.RMISocketFactory
+						implementation to use. If not set, the default RMI
+						socket factory is used.
+de.renew.simdb.driver		Class		This property is mandatory to enable database
+						support. There are no type restrictions on the
+						class.
+de.renew.simdb.url		URL		This property is mandatory to enable database
+						support.
+de.renew.simdb.dialect		Class		The named class must be a subclass of
+						de.renew.database.entitylayer.SQLDialect.
+de.renew.simdb.user		String		The user account to use for database login. If not
+						set, the database is used without an user account.
+de.renew.simdb.password		String		The password for the user login. If the property
+						de.renew.simdb.user is not set, this property is
+						ignored.
+
+Included Packages:
+==================
+	de.renew.application		- plugin facade of this component
+	de.renew.database			- database back for persistent simulations
+	de.renew.database.entity	- object/relational-mapping
+	de.renew.engine.common		- reusable occurrences and executables
+	de.renew.engine.searcher	- algorithms for searching for enabled bindings
+	de.renew.engine.searchqueue	- central queue for possibly enabled transitions
+	de.renew.engine.simulator	- execution algorithms
+	de.renew.event				- listener interfaces to simulation events
+	de.renew.net				- basic Petri net classes
+	de.renew.net.arc			- various arc types
+	de.renew.net.inscription	- various inscriptions types
+	de.renew.net.event			- net events
+	de.renew.remote				- remote-capable wrappers for simulation objects
+	de.renew.shadow				- serializable net definition structures
+
+Provided Commands:
+==================
+	de.renew.application.StartSimulationCommand	- starts a simulation
+	de.renew.application.SimulationControlCommand	- controls the simulation
+
+Public Interfaces:
+==================
+	de.renew.application.SimulatorPlugin (and related classes, especially
+			SimulatorExtension and SimulationEnvironment)
+	de.renew.engine.simulator.Simulator
+	de.renew.engine.searcher.TracerFactory (and related classes)
+	de.renew.remote.Server (and related classes, including all Accessor
+			interfaces)
+	de.renew.remote.ShadowNetSystem (and related classes)
+	de.renew.remote.RemoteServerRegistry (and related classes)

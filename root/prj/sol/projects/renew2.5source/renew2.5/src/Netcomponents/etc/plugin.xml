@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin 
+	name="Net-Components" 
+	className="de.renew.netcomponents.ComponentsToolPlugin">
+
+<!-- The description of the plugin's menu.
+     It will appear in the "plugins"-menu under the plugin's name.-->
+<menu>
+
+  <!-- creates a menuitem with the label "item" which will result
+  	   in calling the given class' execute()-method when clicked
+  	   (class must be an instance of de.renew.PluginCommand).-->
+  <menuitem
+	label="default (toggle on/off)"
+	command="de.renew.netcomponents.ShowNetComponentsToolCommand"/>
+  <menuitem
+	label="select from directory"
+	command="de.renew.netcomponents.SelectNetComponentsToolCommand"/>
+  <menuitem
+	label="remove pallette(s)"
+	command="de.renew.netcomponents.RemoveNetComponentsToolCommand"/>
+  <menuitem
+	label="remove last"
+	command="de.renew.netcomponents.RemoveLastNetComponentsToolCommand"/>
+</menu>
+
+</plugin>

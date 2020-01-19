@@ -1,0 +1,211 @@
+\chapter{Glossary}
+
+A number of terms are used in this manual to describe the 
+architecture of Renew and its functionality.
+
+\begin{description}
+\item[Action Inscription] An \see inscription of a \see transition
+  that may invoke a complex operation during the \see firing
+  of a transition.
+\item[Activated] Synonymous with \see enabled.
+\item[Attribute] Any of a number of modifiers for figures in
+  the graphics editor. Most attributes influence the graphical appearance
+  of \see figures, but some attributes apply only
+  to the behaviour of a \see net during a \see simulation.
+\item[Arc] An arrow between a \see place and a \see transition that
+  indicates the movement of a \see token while the \see transition
+  \see fires. In so far as the arc can be interpreted as an effect
+  of the \see transition, arcs are quite more similar to inscriptions.
+\item[Binder] An object that can contribute knowledge about possible
+  bindings of variables during a search. Typically, a binder
+  checks multiple possibilities.
+\item[Binding] A binding characterizes a mode of operation
+  for a \see transition.
+  Bindings are typically characterized by associating values to variables.
+  If \see synchronous channels are present, a binding is
+  also characterized by the invoked \see transition occurrences.
+\item[Bound] An object of the \see unification algorithm
+  that is complete and does not contain any \see calculator objects.
+\item[Calculator] An object of the \see unification algorithm
+  that represents a possible future computation. This is used
+  to represent \see action inscriptions during the
+  search for an \see activated binding.
+\item[Child] A \see figure that must be associated to a \see parent figure.
+  Changes to a child do not necessarily affect the \see parent.
+\item[Compiler] A compiler converts a \see net drawing into a \see net.
+  Note that a compiler does not, in this context, need to create
+  machine code or virtual machine code, but that an intermediate
+  representation is sufficient.
+\item[Confirmation] After the creation of a \see net instance,
+  the \see net instance is not yet fully available. Especially,
+  the transitions are not yet entered into the \see search queue.
+  Only the confirmation of a \see net instance ensures the
+  full operability.
+\item[Drawing] A collection of \see figures which are stored and
+  edited jointly.
+\item[Drawing Context] A drawing context can influence the way in which
+  a \see drawing is displayed on the screen. Thus it is possible to
+  display the same drawing in many contexts at the same time.
+\item[Editor] An editor is a program that allows the creation and
+  modification of \see drawings. An editor provides \see tools
+  and menu commands and provides \see views on the drawings.
+\item[Enabled] A \see transition instance is called enabled if it can behave
+  in a way that is allowed by the \see net formalism. Among the many 
+  possible behaviors of a \see transition, the enabled behaviors
+  characterized by the means of an enable binding. A single enabled 
+  \see transition may allow multiple enabling \see bindings.
+  Only \see spontaneous transitions are said to be enabled.
+\item[Event] Typically a change of the state of an object that must
+  be propagated to all \see listeners. Also those special objects 
+  that are used as arguments during a notification method call.
+\item[Event Listener] An object that wants to be informed about
+  certain \see events. The listener will typically register itself
+  at the \see event producer.
+\item[Event Producer] An object that can send an \see event to a
+  \see listener.
+\item[Executable] An object that encapsulates one effect of
+  a firing transition, e.g., moving a token or executing some code.
+\item[Expression] A formula that can compute values using the assignment
+  of variables. An expression can also have side effects.
+\item[Factory] An object that is responsible for the creation
+  of other objects. See the factory pattern in \cite{Gamma95}.
+\item[Figure] A graphical object within a \see drawing that is characterized
+  by its shape and \see attri\-butes. A figure may possess an \see ID.
+\item[Fire] An \see enabled
+  \see transition instance is said to fire if the behavior
+  designated by a \see binding is enacted. The firing typically results
+  in the movement of \see tokens and sometimes in other changes.
+\item[Guard] A \see transition \see inscription that computes
+  a boolean condition that may inhibit the transition's
+  \see firing.
+\item[Handle] A tiny icon that is associated to a \see figure.
+  Handles are only displayed if the current \see selection
+  is non-empty. Clicking and possibly dragging a handle
+  modifies the figure in a way that depends on the type
+  of handle.
+\item[ID] An ID, i.e.~an identifier, is a value that is associated
+  to an object during its life time. IDs should be unique within
+  a certain domain, but not necessarily globally unique.
+  In fact, if one object is created from a source object, that object
+  may inherit the source's ID.
+  IDs of \see figures are natural numbers. Other objects may
+  have more complex IDs.
+\item[Inscription] A textual annotation of a \see net or a net element.
+\item[Instance] Each semantics object, e.g.~a net or a place, may be
+  instantiated in the same manner that classes are instantiated giving
+  objects. Instances of semantic objects are mutable. Their identity
+  may or may not be externally visible.
+\item[Listener] See \see event listener.
+\item[Lock] A lock ensures reentrant mutual exclusion. Reentrant
+  means that one Java thread may access the critical section during
+  recursion.
+\item[Marking] A marking of a place instance or a net instance
+  associates a single place or all places of a net with
+  a \see multiset of \see tokens.
+\item[Mode] A mode controls the operation of Renew. It specifies the
+  \see net formalism used. It may also provide additional \see tools
+  and menu entries for editing a \see net.
+\item[Multiset] Unlike a set, a multiset may contain a single element
+  more than once. A multiset is typically represented by an assignment
+  of the number of occurrences to each element.
+\item[Net] A template for the creation of \see net instances.
+  A net conforms to the semantics of a \see net formalism. It is immutable
+  and does not have a state. A net is typically derived from
+  a \see net drawing, but it is possible to generate nets non-graphically.
+\item[Net Drawing] A \see drawing that represent a \see net. The
+  associated \see net may depend on the \see mode.
+\item[Net Formalism] A net formalism describes the constructs allowed
+  within a \see net and their semantics. A net formalism is realized
+  by a \see compiler and supported by a \see mode in Renew.
+\item[Net Instance] A net instance consists of a \see net together with a
+  marking and an identity. There may be many instances of a
+  single \see net. Depending on the \see net formalism, there may be
+  additional \see net elements besides \see places, \see transitions,
+  and \see arcs.
+\item[Net Stub] A special \see stub that converts Java method calls
+  to itself to synchronous channel invocations of a \see net instance.
+\item[Occurrence] An \see instance that is about to become active.
+  An instance may become active multiple times during one step of
+  the simulator, hence more than one occurrence of an \see instance
+  may be contained in a \see binding.
+\item[Occurrence Check] A part of the unification algorithm that
+  makes sure that no object is part of itself. This has no relation
+  whatsoever with the term \emph{occurrence} at the level of nets.
+\item[Place] A place provides the ability to associate state information
+  with a net. When a distinction is not necessary,
+  \see place instances are referred to as places.
+\item[Place Instance] An instance of a \see place in a \see net instance.
+  At each point of time there is a \see marking associated to a
+  place instance.
+\item[Parent] A figure that may contain \see child figures. Moving
+  or discarding a parent moves or discards all \see children in the
+  same way.
+\item[Search Queue] The search queue keeps track of all possibly
+  enabled \see transition instances.
+\item[Searcher] An object that controls the search for an
+  activated \see binding of a \see transition.
+\item[Selection] In an \see editor there may be a set of
+  selected \see figures. Typically, these figures were previously
+  accessed by a \see tool. Menu commands typically operate on
+  the selected \see figures. For a selected \see figure,
+  its \see handles are displayed.
+\item[Shadow] The shadow layer separates the GUI from the
+  execution layer. Shadow nets represent the net drawings, 
+  but they abstract from all information that does not influence
+  the simulation, like position, size, or color of the net elements.
+\item[Simulation] The act of putting the intended behavior of a
+  system of \see nets into practice. This is synonymous with execution,
+  which would be the common idiom outside the Petri net world.
+\item[Simulator] A simulator is responsible for controlling a
+  \see simulation. Technically, the simulator uses a
+  \see searcher to search for activated \see bindings and
+  executes them afterward.
+\item[Spontaneous] A transition is said to be spontaneous, if
+  it does not contain an \see uplink.
+\item[Synchronous Channel] A synchronous channel connects two
+  two active entities and forces them to operate jointly, 
+  e.g.~two transitions would have to \see fire at the same time.
+  Synchronous channels come in two flavors: \see uplinks and
+  \see downlinks.
+\item[Strategy] An object that is responsible for the execution
+  of some algorithm. Typically, a strategy is immutable.
+  See the strategy pattern in \cite{Gamma95}.
+\item[Stub] An object that forwards all incoming calls in a appropriate
+  way to another object.
+\item[Token] An elementary object that is associated to a \see place
+  or \see place instance by a \see marking.
+\item[Tool] An editing procedure for \see drawings that typically
+  requires multiple interactions on the side of the user. The currently
+  active tool determines the reaction of the \see editor
+  to clicks within a \see drawing.
+\item[Transaction] A transaction groups a number of actions into an
+  atomic block. A \see binding should execute its effects in a
+  transaction.
+\item[Transition] A transition provides the ability to associate
+  possible behavior with a \see net. When a distinction is not necessary,
+  \see transition instances are referred to as transitions.
+\item[Transition Instance] An instance of a \see transition in
+  a \see net instance. Transition instances may be \see enabled
+  by a \see binding.
+\item[Transition Occurrence] One activation of a \see transition
+  instance. A single \see transition
+  instance may give rise to multiple concurrent transitions
+  occurrences in the same or in different \see bindings.
+\item[Tuple] A tuple is a \see unifiable object the aggregates a number
+  of other objects.
+\item[Unifiable Object] An object that is handled by the unification
+  algorithm. All unifiable objects are subject to the \see
+  occurrence check.
+\item[Unknown] A tuple is a \see unifiable object about which 
+  absolutely nothing is known except for its identity.
+  Further unifications may make an unknown complete or even bound.
+\item[Uplink] An uplink constitutes one end of a synchronous channel.
+  A \see transition instance with an uplink cannot 
+  \see fire on its own, but must wait until the uplink is
+  invoked by a different transition.
+\item[Uplink Provider] An object that owns one or more \see uplinks
+  that can be accessed via a \see synchronous channel.
+\item[View] A view displays a \see drawing or a part thereof.
+  One \see drawing may possibly be shown in multiple views,
+  perhaps using different \see drawing contexts.
+\end{description}

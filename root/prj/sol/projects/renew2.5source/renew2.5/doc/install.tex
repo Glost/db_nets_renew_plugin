@@ -1,0 +1,1725 @@
+\chapter{Installation}
+\label{ch:install}
+
+In this chapter we will give a short overview of the installation
+process. It is not difficult especially if you are already at
+ease with the Java environment. But even as a novice you should
+be able to complete the process successfully.
+
+
+\section{Prerequisites}\label{sec:prereq}
+
+Before you proceed, make sure to have a system backup available
+on the off-chance that an error occurs during the installation 
+procedure.
+
+You must have Java 1.7 or higher installed.
+If you have not done this yet, we
+suggest that you get the latest Java Runtime Environment from 
+Oracle (\url{http://www.oracle.com/technetwork/java/})
+where versions for Windows, Linux, Mac OS and Solaris are available. 
+%%If you use
+%%OS/2, have a look at some 3rd party Java implementations at
+%%\url{http://www.goldencode.com/company/software/} or
+%%\url{http://www.innotek.de/products/javaos2/}
+%For Apple Macintosh you can use the Java runtime build into
+%MacOS X, as described on
+%\url{http://www.apple.com/}
+%without any additional installation.
+%You need at least MacOS X 10.5.
+All runtime environments are available free of charge for
+personal use.
+We recommend the latest version of JDK 1.7, which at this point of time 
+should be JDK 1.7.0, depending on the operating system.
+
+If you intend to do a source installation, you also need 
+to install a couple of software packages from third parties.
+See Section~\ref{subsec:sourceinst} for details.
+
+
+\section{Possible Collisions}
+
+While Renew is based on the 
+%% \texttt{collections} package by Doug Lea \cite{Lea98} and the
+\texttt{JHotDraw} package by Gamma \cite{Gamma98},
+the package is distributed 
+with Renew. 
+%% In the case of the \texttt{collections} package, this is done for
+%% convenience, but the \texttt{JHotDraw} 
+The package has been
+substantially improved, so that it is impossible to substitute
+a different version for it. If you have the original \texttt{JHotDraw}
+installed, this might result in a problem.
+
+
+\section{Upgrade Notes}\label{sec:upgrade}
+
+These notes are supposed to help you when you have already
+installed an earlier version of Renew. In Section~\ref{sec:history}
+you can find a list of differences, if you are interested in
+further details.
+
+\subsection{General}
+
+Note that you cannot usually read nets created with a later
+version by older versions of Renew. However, newer versions of
+Renew can read older files without problems.
+I.e., an upgrade to the current
+version is simple, but irreversible. 
+
+
+\subsection{Upgrade from Renew 1.5 or earlier}
+
+Serialized shadow net systems exported by Renew~1.5 or earlier
+cannot be used with any later versions. You can simply re-export
+the net system.
+
+A new keyword \texttt{manual} was added to the inscription
+language. In rare cases, you will have to rename a variable
+or package to account for this change.
+
+\subsection{Upgrade from Renew 1.6 or earlier}
+
+The required Java version has changed, you need at least
+Java~1.4 to run newer versions of Renew.
+
+You do not any longer need to install a separate XML parser (like
+Xerces) because Renew now uses the built-in parser of Java~1.4.
+
+Saved simulation states exported by Renew~1.6 cannot be used with 
+the current version of Renew.
+
+Stubs compiled with Renew~1.6 or earlier cannot be used with 
+the current version. You can simply recompile the stubs and the
+resulting Java files.
+
+Several classes of the Renew framework were moved or renamed.
+In particular, the class \texttt{de.renew.simulator.NetInstance} has now
+become \texttt{de.renew.net.NetInstance}. If you use typed
+variables for net references in your nets, you must adapt
+the variable declarations or package imports.
+
+When a new net is created, the \texttt{:new()} is no longer
+implicitly invoked. It is only invoked when you create
+the net using the notation \texttt{n:new NetName()} as opposed 
+to \texttt{n:new NetName}. You might have to rewrite some
+nets as a result of this change.
+
+The way of including custom classes in a Renew simulation has changed,
+please read Section~\ref{subsec:classLoading} for more details.
+
+\subsection{Upgrade from Renew 2.0/2.0.1 or earlier}
+
+The main application class has been changed from
+\texttt{de.renew.plugin.PluginManager} to \texttt{de.renew.plugin.Loader}.
+There are now two configuration file locations: 
+first, the per-installation configuration file
+\texttt{renew\renewversion{}/config/renew.properties} is read, then
+the user-specific file \texttt{\~{}/.renew.properties} is consulted.
+The property \texttt{pluginLocations} has been changed to a classpath-like
+syntax (see Section~\ref{subsec:installPlugins}).
+
+The net loader priorities have changed: 
+instead of preferring \texttt{.sns} files over \texttt{.rnw} files
+regardless of the order of their directories in the
+\texttt{de.renew.netPath} property, now the order of directories is
+considered first, while the order of file types is undetermined.
+
+The Renew code has been modified to compile without warnings under
+Java~1.5, but we still use Java~1.4.2.
+The conformity with Java~1.5 also implies the use of an up-to-date version
+of JavaCC during compilation.
+The old \texttt{collections} package has been removed from all components
+except FS.
+The package is no longer distributed with the base archive, but included in
+the FS plug-in.
+
+\subsection{Upgrade from Renew 2.1/2.1.1 or earlier}
+
+The required Java version has changed, you need at least
+Java~1.5 to run newer versions of Renew.
+
+Saved simulation states exported by Renew~2.1.1 or earlier cannot be used
+with the current version of Renew.
+The Drawing Load Server (see \ref{subsec:drawingloadserver} now accepts
+connections from the local loopback interface only (this has been
+introduced as a security measure).
+
+The JUnit test classes that were sparsely scattered in the Renew code have
+been migrated from JUnit 3.x to JUnit 4.x architecture.
+
+\subsection{Upgrade from Renew 2.2 or earlier}
+
+The required Java version has changed, you need at least
+Java~6 to run newer versions of Renew.
+
+\subsection{Upgrade from Renew 2.3 or earlier}
+
+Files exported to the experimental \texttt{.xrn} format cannot be used
+anymore. Its support has been discontinued. We encourage the use of
+PNML, instead.
+
+\subsection{Upgrade from Renew 2.4.3 or earlier}
+
+The logging configuration files and the default logging directory moved from the home folder to a
+subdirectory \texttt{.renew} in the home folder. In order to use your
+old configuration, you should move the \texttt{.log4j.properties} file
+to the \texttt{.renew} subdirectory in your home folder (you may need
+to create the directory first). 
+For the logs you now have to look in \texttt{.renew/renewlogs} in your home folder (if not configured differently).
+
+
+\section{Installing Renew}
+\label{sec:install}
+
+The two \texttt{zip}-files \texttt{renew\renewversion base.zip} and
+\texttt{renew\renewversion source.zip} form the standard 
+Renew distribution. While the former file contains all
+files that are required for the operation of Renew, the latter file
+includes the source files, which are generally \emph{not} needed 
+unless you intend to modify Renew or learn about its algorithms. 
+In addition to the base distribution, we provide some plug-ins
+at our web page.
+
+The base Renew distribution consumes about 5~MByte. 
+The source distribution consumes about 18~MByte.
+Compiling the source will additionally generate 5~MByte of executables
+for the main distribution and the compilation of all available plug-ins
+will consume another 30~MByte for additional libraries and
+executables.  
+The full JavaDoc will occupy between 45~and 57~MByte.
+
+%If you use an Apple Macintosh, refer to Subsection~\ref{subsec:applemac},
+%where we provide special installation notes.
+
+\subsection{Base Installation}
+
+In the following, we assume Unix filename conventions, i.e.,
+directories separated by \texttt{/}~(slash). For other
+operating systems you might need to change it to
+\verb:\:~(backslash).
+Also, the list separation character differs:
+In Unix-based environments, \texttt{:} is used, while in
+DOS-based environments, the \texttt{:} is reserved for drive
+letters, so \texttt{;} is used for lists.
+
+Extract the base distribution to a directory of your choice.
+A directory \texttt{renew\renewversion} will be created
+in the current directory. Documentation files, 
+for example this manual,
+are placed in the subdirectory 
+\texttt{renew\renewversion/doc}. The subdirectory 
+\texttt{renew\renewversion/samples} contains
+example nets. 
+The functionality of Renew has been decomposed into several
+plug-ins which reside as \texttt{jar} files in the subdirectory
+\texttt{renew\renewversion/plugins}. This is also the place where
+you can add extra plug-ins (see Section~\ref{sec:plugins}).
+
+The file 
+\texttt{renew\renewversion/loader.jar} is a
+\texttt{jar}-file that could be used to execute Renew
+e.g., by saying
+\begin{lstlisting}[style=xnonfloating]
+  java -jar /some/where/renew§\renewversion§/loader.jar gui
+\end{lstlisting}
+if you extracted the \texttt{zip}-file into \texttt{/some/where}.
+In a DOS-based environment, this would look something like
+\begin{lstlisting}[style=xnonfloating]
+  java -jar C:\some\where\renew§\renewversion§\loader.jar gui
+\end{lstlisting}
+(mind the drive letter and the use of backslash instead of slash).
+The \texttt{gui} part at the end of the line is a command that
+tells the loader to start the graphical user interface of Renew.
+
+Note that for
+Unix, and Windows
+we provide ready-made startup scripts already.
+They will be generated when Renew is installed. 
+In that case, you do not have to provide a loader command
+manually, and some classpath-related issues (see
+Section~\ref{subsec:classLoading}) are handled more
+conveniently for most use cases.
+See Section~\ref{sec:plathints} for details.
+
+
+\subsection{Source Installation}\label{subsec:sourceinst}
+
+Usually there is no need to do a source installation.
+If you feel confused by this section, simply skip it.
+
+Extracting the source distribution will put files into the directories
+\texttt{renew\renewversion/src} and \texttt{renew\renewversion/doc}.
+
+The sources are accompanied by \texttt{build.xml}
+files for the Apache Ant tool.
+You should install Ant to build Renew from sources, it is available at
+\url{http://ant.apache.org/}.
+Further you will need the parser generator JavaCC to compile the sources.
+The unit testing package JUnit and the code beautifier Jalopy are used for the development of Renew but optional for the compilation.
+
+See the file \texttt{renew\renewversion/src/README} that lists the
+software packages and versions you need and gives some hints on how
+to compile and run the application.
+
+After you have successfully built Renew, you can test your compilation
+result.
+Just follow the instructions in the previous section, but replace any
+reference to
+\texttt{renew\renewversion/loader.jar} by 
+\texttt{renew\renewversion/src/dist/loader.jar}.
+The plugins directory is relocated from
+its distribution position to
+\texttt{renew\renewversion/src/dist/plugins}, too.
+
+If you succeed to run the compiled Renew, you can delete the file
+\texttt{renew\renewversion/loader.jar} and the directory
+\texttt{renew\renewversion/plugins} with
+the original \texttt{class}-files.
+You should then consider to edit the start scripts for your
+platform, so that they become aware of the file location changes.
+
+Please note that the \texttt{clean} target defined in the Ant
+\texttt{build.xml} file completely removes the
+\texttt{renew\renewversion/src/dist} directory tree.
+Therefore any modifications (like installed plug-ins) made in
+that directory tree get lost every time you run \texttt{ant clean}.
+
+\section{Platform-specific Hints}\label{sec:plathints}
+
+For a few platforms we provide special installation support.
+Even in these cases you could install Renew as described above,
+but your task will be easier if you read this section.
+
+The installation script is typically called
+\texttt{installrenew} or similar. Start this script to install
+Renew. The script will create the actual startup scripts
+for Renew. You have to start the one called \texttt{renew} or similar
+to get the basic version of Renew running. 
+Other scripts allow you to load drawings into a running Renew editor or
+provide help for the generation and compilation of stubs, as summarized in
+Table~\ref{tab:startupmodes}.
+
+In the next subsections we will only describe the usage of the
+basic script.
+The other scripts have a similar behavior when it comes to the
+interpretation of environment variables, while their specific effects are
+explained in other Sections of this manual.
+
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{l|l}
+      script name & use \\
+      \hline
+      \texttt{renew} & starts the Renew editor \\
+      \hline
+      \texttt{loadrenew} & Java drawing load client \\
+                         & (see Subsection~\ref{subsec:drawingloadserver}
+                         for details) \\
+      \hline
+      \texttt{makestub} & generates a net stub from a Java interface \\
+      \texttt{compilestub} & compiles a net stub to Java code \\
+      \texttt{jcompile} & wrapper for \texttt{javac} that includes some \\
+                        & Renew classes in the \texttt{CLASSPATH}\\
+                        & (see Subsection~\ref{subsec:netmethods} for
+                        details) \\
+    \end{tabular}
+  \end{center}
+  \caption{The startup and stub scripts.}\label{tab:startupmodes}
+\end{table}
+
+
+\subsection{Mac OS X}\label{subsec:applemac}
+
+From version~2.4.3 onward, Renew requires at least Java~1.7.
+
+Since Mac OS X is built upon a Unix core, 
+you can follow the installation directions for Unix.
+To do so, open the Terminal application which can be found in
+\path{/Applications/Utilities}.
+
+We provide an experimental AppleUI
+plug-in as optional download.
+This plug-in adds rudimentary support for native Mac OS look\&feel to
+Renew.
+It allows the \texttt{cmd-q} (or \texttt{apple-q}) shortcut to close the
+editor properly (with safety questions for unsaved changes) and it
+slightly modifies the Mac OS menu bar.
+See Section~\ref{subsec:installPlugins} on how to install the plug-in.
+
+We also provide an experimental Mac OS X
+application bundle for download which can replace the Unix-style
+installation of Renew.
+The application is configured in GUI-only mode without console
+output or prompt capabilities.
+Since release 2.2, it also provides Finder integration for Renew
+drawing files.
+
+Shortcuts listed in this manual with the \texttt{Ctrl} modifier key should be
+used on computers running Mac OS X with the \texttt{Cmd} modifier key
+instead .
+Some reserved shortcuts differ slightly under Mac OS X (see Appendix~\ref{sec:keyboard-shortcuts}).
+
+\subsection{Unix}
+
+We supply a simple install script
+at \texttt{renew\renewversion/bin/unix/installrenew}
+that will handle the installation on most flavors of Unix.
+Run that script with
+\begin{lstlisting}[style=xnonfloating]
+  cd renew§\renewversion§/bin/unix
+  sh installrenew
+\end{lstlisting}
+and it will create the shell scripts
+\texttt{renew}, \texttt{loadrenew}, \texttt{compilestub}, \texttt{makestub},
+and \texttt{jcompile}
+in the same directory (see Table~\ref{tab:startupmodes}).
+
+However, you must make sure that \texttt{java} can be
+called with your current setting of the \texttt{PATH}
+environment variable. It is also required that you start
+the installation script from the \texttt{bin/unix} directory,
+otherwise it cannot find the location of the package.
+
+We distribute some files to support desktop integration in
+FreeDesktop-based environments like Gnome.
+In the directory \texttt{renew\renewversion/bin/unix/freedesktop},
+there is a \texttt{README} file that explains how such desktop integration
+can be achieved.
+However, desktop integration still requires a manual configuration
+process. The \texttt{installdesktop} and \texttt{uninstalldesktop} scripts automatically install and uninstall the desktop integration in the FreeDesktop environment.
+
+We also provide experimental deb packages for Debian-based
+distributions. Just add the following lines to your
+\texttt{/etc/apt/sources.list}:
+\begin{lstlisting}[style=xnonfloating]
+## The Renew Repository
+deb http://www.informatik.uni-hamburg.de/TGI/renew/debian renew stable
+\end{lstlisting}
+  
+Download the public key for the Renew repository with:
+\begin{lstlisting}[style=xnonfloating]
+  wget http://www.informatik.uni-hamburg.de/TGI/renew/renew.gpg
+\end{lstlisting}
+  
+add the key to the trusted keys and install Renew by running the following commands as superuser:
+\begin{lstlisting}[style=xnonfloating]
+  apt-key add renew.gpg
+  apt-get update
+  apt-get install renew
+\end{lstlisting}
+
+
+\subsection{Windows}
+
+For Windows we provide an installation script
+in the directory \texttt{renew\renewversion}\verb|\bin\win|
+for your convenience.
+This batch file has to be started from its own directory.
+\begin{lstlisting}[style=xnonfloating]
+  cd renew§\renewversion§\bin\win
+  installrenew
+\end{lstlisting}
+This will create the batch files \texttt{renew.bat},
+\texttt{loadrenew.bat}, \texttt{makestub.bat},
+\texttt{compilestub.bat} and \texttt{jcompile.bat}
+in the same directory (see Table~\ref{tab:startupmodes}).
+
+However, you must make sure that \texttt{java} can be
+called with your current setting of the \texttt{PATH}
+environment variable. It is also required that you start
+the installation script from the \verb|bin\win| directory,
+otherwise it cannot find the location of the package.
+
+Please check your classpath variable for any unquoted whitespace 
+in it because batch scripts will interpret paths with it as two 
+arguments.
+
+The \texttt{installrenew} script additionally creates some registry files for the file type association of Renew files (\texttt{addregistry.reg} and 
+\texttt{removeregistry.reg}).
+\texttt{addregistry.reg} contains the registry entries to associate
+Renew file types (\texttt{.rnw}, \texttt{.draw}, \texttt{.aip}, \texttt{.sns}) with the \texttt{loadrenew.bat} script.
+You can perform this association by double clicking \texttt{addregistry.reg}.
+With \texttt{removeregistry.reg} you can remove the corresponding entries from the 
+registry.  Admin rights are required to edit registry 
+entries. The update of the icons for the Renew file types may need a restart to take effect.
+
+
+\section{Special Configuration Options}
+\label{subsec:options}
+
+There are several options that can help to adapt Renew to
+your specific needs. Usually you should not need
+to use these options, so it is best to skip this
+section on the first reading.
+
+
+\subsection{Ways of configuring Renew}
+\label{subsec:configMethods}
+
+There are at least two ways to configure any of the
+options mentioned in the following sections.
+In Java terminology, an option is configured by setting a property
+to a value.
+
+\paragraph{At startup.}
+You can supply property values on the Java command line with the \texttt{-D}
+option when you start Renew (this is the way you could configure
+previous Renew releases). 
+For example, to configure that Renew uses a sequential simulator
+instead of the default concurrent one, you can set the property
+\texttt{de.renew.simulatorMode} to the value \texttt{-1}.
+This is done by starting Renew with the command line:
+\begin{lstlisting}[style=xnonfloating]
+  java -Dde.renew.simulatorMode=-1 -jar loader.jar gui
+\end{lstlisting}
+It is important that you do not insert any spaces between the
+\texttt{-D} option, the property, the \texttt{=} sign and the value.
+Also, property names are case sensitive.
+
+This way, you can configure any property for just one run of Renew. 
+However, you lose the simplicity provided by the platform-dependent
+startup scripts.
+You will have to enter the Java command line directly, including the
+full path to \texttt{loader.jar} and the initial command \texttt{gui}
+for the loader.
+
+\paragraph{Permanently.}
+To configure properties permanently, you can create or edit either the file
+\texttt{renew.properties} in the installation directory
+\texttt{renew\renewversion/config} or the \texttt{.renew.properties} file (note the initial dot!) in your home
+directory.
+The former configures the Renew installation, while
+the latter provides configuration on a per-user basis.
+The user settings may override installation-wide values.
+In the following, the text \texttt{.renew.properties} refers to both
+files. A template for a \texttt{.renew.properties} file can be found
+in the \texttt{config} directory of your Renew installation. The file
+contains several out-commented properties. %Furthermore, it contains
+%key bindings for English and German keyboard layouts.
+
+The location of your home directory depends on the operating system
+(for Windows, it even differs between versions).
+If you do not know where it is, just run Renew.
+The first two lines of the application log (that is usually printed
+to the Java console) tell you where Renew
+expects the configuration files.
+
+One note for Windows users: The Explorer will not allow you to
+create a file name with an initial dot. But you can create such a
+file via the command line interface (DOS window) and then edit it
+as usual.
+
+In the \texttt{.renew.properties} file, you can for example add the
+line
+\begin{lstlisting}[style=xnonfloating]
+de.renew.simulatorMode=-1
+\end{lstlisting}
+and Renew uses the sequential simulation engine by default on every 
+run.
+Of course, values taken from the \texttt{.renew.properties} file can
+always be overridden by a \texttt{-D} command line option at startup.
+
+\paragraph{At runtime.}
+A third way for some (not all) of the configuration options is
+provided by menus or dialogues in the net editor.
+To stick with our example, the dialog opened by the menu entry
+\texttt{Simulation}/\texttt{Configure Simulation\dots{}}
+contains a checkbox named \texttt{Sequential mode} and a box where you
+can change the engine multiplicity (for details, see
+Section~\ref{subsec:configureSimulation}).
+These two elements in combination represent the current value of the
+property \texttt{de.renew.simulatorMode} and its value is changed
+when you press the \texttt{Apply} or \texttt{OK} buttons.
+
+As a fourth way to set properties, the plug-in system provides a
+\texttt{set} command.
+This command comes in useful in combination with the \texttt{script}
+command (see Section~\ref{sec:plugins}) or if you installed one of the
+prompt plug-ins (Console or GUIPrompt).
+Although this command allows to set values for any known and unknown
+property at runtime, it is not guaranteed that the value change has any effect.
+In fact, many properties are evaluated only once at startup time.
+
+As a rule of thumb, all options that affect the simulation behavior
+are evaluated at each simulation setup.
+For example, the command
+\begin{lstlisting}[style=xnonfloating]
+set de.renew.simulatorMode=-1
+\end{lstlisting}
+has no effect on a simulation currently active (if there is any).
+But the next time you start a simulation from within the running
+application, it will be sequential.
+
+When you configure properties at runtime, any setting of that property
+from the command line or the configuration file is overridden.
+Runtime settings are not stored permanently.
+
+
+\subsection{Drawing Load Server}
+\label{subsec:drawingloadserver}
+
+Many users like to load documents into the corresponding
+application just by double-clicking the document in
+the file manager. A typical problem is that this starts
+a new instance of the whole application. This is extremely
+nasty when using a Java application, since a new Java Virtual
+Machine is started every time.
+To avoid this problem with Renew, we added a simple server
+function to Renew (the Drawing Load Server). 
+This server function is automatically configured to use with the \texttt{loadrenew} script. You probably do not need to do the manual configuration if you just want to pass files into a running Renew instance.
+
+
+%You probably do not need to do the following configuration by hand. The \texttt{loadrenew} script, generated by the installation script (see Section~\ref{}), uses a preconfigured Drawing Load Server
+%
+%The loadrenew scripts (see 
+%
+%The Drawing Load Server is automatically configured 
+%
+%You may omit the following 
+
+
+\subsubsection{loadrenew script}
+
+You can use the script \texttt{loadrenew} provided
+by the installation process (see Section~\ref{sec:install}) to connect to a running Renew instance and pass over the names of the files to open. The \texttt{loadrenew} script starts a regular Renew instance,
+if the connection to a Drawing Load Server was not possible (e.g. if Renew is not already running). So this script can 
+be used as default command to load Renew.
+The script uses the port configured in the \texttt{.renew.properties}
+file (property \texttt{de.renew.loadServerPort}) or the default port 65111 if the property is not set.
+
+The idea is to associate the \texttt{loadrenew} script to the Renew file extensions (dependent on the installed plug-ins but at least \texttt{rnw}).
+When a drawing is double-clicked in the file manager,
+the client is invoked and can transmit the drawing's file
+name, which is then received and loaded by the single
+Renew application.
+This is really a nice feature, because it offers
+a rudimentary operation system integration.
+
+
+\subsubsection{manual configuration}
+
+
+By setting the property \texttt{de.renew.loadServerPort} to a port
+number, you can tell Renew to listen for local requests to load
+a certain drawing on a TCP/IP socket. Just specify an unused
+TCP/IP port number, say 65111, either on the command line or in the
+configuration file (see Section~\ref{subsec:configMethods}).
+When Renew is started with this property,
+the ``Drawing Load Server'' is set up on the given
+port and waits for clients to connect and transmit the
+full filename of a drawing to open (followed by an
+end-of-line).
+Changing this property's value at runtime has no effect.
+The port 65111 is used by default. If you do not want to start
+a ``Drawing Load Server',' you can set the property to \texttt{-1}.
+
+We provide a generic client application written in
+Java that can be used as a Drawing Load Client. In the meantime,
+Java Virtual Machines and computers have become much faster, but it
+is still questionable whether it is a good idea to start a JVM each
+time you want to load a drawing into Renew.
+%To conclude, we still encourage some brave people to write system
+%specific Drawing Load Clients (e.g. in C) and make them available
+%for the next Renew release!!
+%All you need is such a simple client application that
+%opens a socket to the server (using the same port number
+%as above), transmits its parameter, and closes the
+%socket again.
+
+Our Java client is started by
+(this example is again given in Unix syntax, the \verb:\: is used to
+indicate that the three printed lines should be combined into one
+command line)
+\begin{lstlisting}[style=xnonfloating]
+  java -Dde.renew.loadServerPort=65111 -cp "*:plugins/*:libs/log4j/*" CH.ifa.draw.application.DrawingLoadClient <file name>
+\end{lstlisting}
+
+where 65111 is an example for the port number on which the server
+is running 
+(if you decided to configure the property in the
+\texttt{.renew.properties} configuration file, the \texttt{-D} part of
+the command can be omitted).
+
+
+
+
+% \subsection{Redraw Strategy}\label{subsec:redraw}
+
+% By default, Renew uses a double buffering algorithm to perform
+% display updates, in order to reduce flickering of the screen.
+
+% In some cases, this can expose a Java~1.2 bug that leads to bad screen
+% output. Therefore, the double buffering should be disabled for
+% Java~1.2 and later versions of Java. Usually, this is done automatically
+% but you can force this behavior using
+% \begin{lstlisting}[style=xnonfloating]
+%   java -DCH.ifa.draw.specialUpdate=true ...
+% \end{lstlisting}
+% if you experience redraw problems under Java~1.1. If this is the case, 
+% please let us know.
+
+% If you want to try buffered display updates using Java~1.2, issue the
+% command
+% \begin{lstlisting}[style=xnonfloating]
+%   java -DCH.ifa.draw.specialUpdate=false ...
+% \end{lstlisting}
+% and in many cases the flickering will reduce without any negative
+% effects.
+
+
+% \subsection{Resizable Main Window}\label{subsec:resizebug}
+
+% If your Renew window looks quite different than in
+% Figure~\ref{fig:renewWindow}, you probably encountered
+% a Java bug in the \texttt{pack()} method of \texttt{java.awt.Frame}
+% present in (most?) MS Windows Java versions.
+% Since the Renew window normally is not resizable, this bug
+% can be quite annoying.
+% But we provide a workaround: On MS Windows systems, the Renew
+% window should automatically be resizable, so that you can
+% adjust its size yourself.
+% If the bug is not detected automatically, you can start Renew with the
+% additional command line parameter
+% \begin{lstlisting}[style=xnonfloating]
+%   java -Dde.renew.windowResizable=true ...
+% \end{lstlisting}
+% If the bug is detected mistakenly, i.e.,~the window is displayed correctly,
+% but is still resizable, use
+% \begin{lstlisting}[style=xnonfloating]
+%   java -Dde.renew.windowResizable=false ...
+% \end{lstlisting}
+% Some X-window managers ignore the setting of a window to not be
+% resizable, so we can't do anything about this bug there.
+
+% On some X-Window managers it has been observed that the main window
+% jumps off the visible screen area after its creation, so that its cannot be
+% accessed. This behavior, too, disappears when you use the option
+% \begin{lstlisting}[style=xnonfloating]
+%   java -Dde.renew.windowResizable=true ...
+% \end{lstlisting}
+% to make the main window resizable. Regarding the explanation of this Java
+% bug, we have no clue.
+
+
+%\subsection{Size and position of windows}
+%If you get annoyed by a menu window that ``jumps'' after resizing
+%it, drawing windows that pop up in different places with
+%different sizes each time a drawing is opened or loaded,
+%or dialogues that don't display their (full) contents, you probably
+%encountered a Java bug related to resizing and positioning of
+%windows. We encountered it in the combination Java 1.3.0 with
+%the twm window manager on Solaris.
+%
+%We provide the following workaround: When you set the property
+%\texttt{de.renew.avoidFrameReshape} to the value \texttt{true},
+%all calls that would set size or position of any window will be
+%omitted. This avoids the errors mentioned above in most cases,
+%but as a tradeoff all windows will initially pop up in the upper
+%left corner of the screen, so that the menu gets covered.
+%Since you can move the window away by using the mouse, this
+%behavior should be less annoying than the original bug.
+
+\subsection{Multiprocessor Mode}
+\label{subsec:concsim}
+
+Renew provides support for shared-memory multiprocessors.
+Depending on your specific application and hardware, 
+this can significantly speed up the
+simulation engine. But note that this feature is
+still experimental and has not been tested across platforms
+due to lack of funds. It should not be used for critical 
+applications at the present time. We would be very glad to 
+receive experience reports, so that the code can become more 
+stable.
+
+%In order to run Renew on a multiprocessor
+%hardware you need a Java implementation that supports native 
+%threads. Note that there exist Java implementations that support only
+%so-called green threads, which cannot exploit hardware
+%parallelism. 
+
+You must set the property \texttt{de.renew.simulatorMode}
+to the number of concurrent simulation threads you want.
+Note that it will usually be detrimental to
+performance, if you configure a number of threads that exceeds the number of
+physical processors.
+This property is evaluated each time a simulation is started.
+It can also be configured in the \texttt{Configure Simulation}
+dialog (see Section~\ref{subsec:configureSimulation}).
+
+Before using multiple processors, you should probably try
+to optimize performance with other means. You should configure Log4j to
+discard log events (alternatively you can disable the generation of
+trace events for all or most net elements). You should open
+only very few net instance windows, so that the graphical
+representation of the markings does not need to be updated.
+
+
+
+If you configure a negative number for the property
+\texttt{de.renew.simulatorMode}, sequential simulators are used
+instead of the default concurrent one.
+Although Renew will do that, it is kind of weird to configure multiple
+concurrent instances of the sequential simulator.
+Only the special case of exactly one sequential simulator is of use and
+explained in the next section.
+
+
+\subsection{Sequential Mode}\label{subsec:seqmode}
+
+By setting the property \texttt{de.renew.simulatorMode} to the value \texttt{-1},
+you can request a sequential mode where transition
+firings are no longer concurrent.
+There is usually little reason to do so, but sometimes
+concurrently executed transition inscription might
+lead to strange results. You can then select the sequential 
+mode to check your nets.
+
+Please note that net methods as described in
+Section~\ref{sec:netcall} cannot be used in this mode.
+
+As you might have noted, the property used to configure sequential
+mode is the same as for multiprocessor mode.
+So the configuration and evaluation notes given in the previous
+section still apply to this property.
+
+If we restrict the Petri net formalism to purely
+sequential behavior, we can add certain Petri net extensions 
+that were not suitable for a true concurrency formalism.
+Most notably, we can use inhibitor arcs and clear arcs. 
+These extensions will be described in Subsections
+\ref{subsec:clearArcs}~and~\ref{subsec:inhibArcs}.
+
+The sequential arc types can now be added to and removed from the
+tool bar via the menu entry
+\texttt{Simulation}/\texttt{Show sequential-only arcs}
+(see Section~\ref{subsec:sequentialTools}).
+
+If you try to simulate nets that contain sequential-only features
+and the simulation is configured to use a concurrent engine, you
+will encounter an error message.
+In this case, you just need to set the \texttt{Sequential mode}
+in the \texttt{Configure Simulation} dialog (see
+Section~\ref{subsec:configureSimulation}) and restart the
+simulation.
+
+%% commented until final release of Maria mode
+%\subsection{Maria Mode}\label{subsec:mariamode}
+%
+%\newTODO{Renew provides an 
+%experimental export facility to the Petri net
+%analyzer Maria \cite{Maria00}. Because Maria needs to distinguish certain
+%net inscriptions graphically instead of syntactically,
+%additional functionality was added to the graphical user interface.}
+%
+%The Maria mode is invoked using
+%\begin{lstlisting}[style=xnonfloating]
+%  java -Dde.renew.mode=de.renew.gui.maria.MariaMode ...
+%\end{lstlisting}
+%This mode does \emph{not} allow any simulation of the
+%created nets. It is only useful for graphically creating
+%Maria nets and exporting them in Maria's own file format
+%as described in Subsection \ref{subsec:mariaexp}.
+
+\subsection{Class Loading (and Reloading)}
+\label{subsec:classLoading}\label{subsec:classReinit}
+
+When you are developing an application that consists
+of Java code and net drawings, or if you want to extend some Renew
+plug-in by supplying custom Java classes, then you need to make your
+classes known to Renew.
+The Java way of doing this is to add your classes to the Java
+classpath either by setting the environment variable
+\texttt{CLASSPATH} or by providing an appropriate \texttt{-classpath}
+option to the \texttt{java} command.
+
+With the plug-in system (see
+Section~\ref{sec:plugins}), providing custom classes via the
+Java classpath option or variable has some issues.
+First, our suggested startup command line uses the \texttt{-jar}
+option, which simply overrides any supplied classpath (see the Java
+tool documentation for details).
+Second, the plug-in system uses its own class loader to find plug-ins.
+Due to the Java class loader concept, the plug-in class loader hides
+all plug-in classes from any class that is loaded via the system
+classpath.
+This means that Renew can load and use your custom classes from the
+classpath, but your classes cannot refer to any Renew class.
+This problem especially affects net stubs -- they need to refer
+the \texttt{NetInstance} class of the simulator plug-in.
+To work around this, the plug-in system provides the property
+\texttt{de.renew.classPath}.
+
+You can set the property \texttt{de.renew.classPath} to any value that
+follows the syntax and semantics of the Java classpath (which depends
+on the operating system you use).
+The property is evaluated once at startup time to configure the class
+loader of the plug-in system (changes at runtime are not recommended by
+Java's class loader concept).
+All classes available through \texttt{de.renew.classPath} can be used
+in simulations and as plug-in extensions.
+However, if a class with the same qualified name exists in a plug-in
+and in the \texttt{de.renew.classPath}, the plug-in class takes
+precedence.
+
+For your convenience, the \texttt{renew} and \texttt{loadrenew} startup scripts automatically
+transfers the value of the \texttt{CLASSPATH} environment variable to
+the \texttt{de.renew.classPath} property at startup.
+As long as you stick to these scripts, you should be able
+to stick to the classical method of configuring the \texttt{CLASSPATH}
+variable to include your custom classes and stubs.
+
+When you are developing an application that consists
+of Java code and net drawings, you might want to modify and
+recompile your own classes and use them in your nets without
+restarting Renew. 
+Therefore, we provide a class reloading mechanism to simulations
+in Renew.
+
+By setting the property \texttt{de.renew.classReinit} to
+\texttt{true},
+you can request that all user classes that are referenced by
+a net are reloaded before every compilation of a net.
+When the class reloading feature is enabled, the
+\texttt{de.renew.classPath} property is re-read at each
+simulation setup, but changes to the classpath do not affect the
+plug-in system.
+
+However, there is a nasty caveat with this feature:
+Even without changing the classpath, you can have two instances of the
+same class in the Java VM: 
+Both are loaded from \texttt{de.renew.classPath}, but one is known
+to the plug-in system while the other one is known to the current
+simulation only. 
+These classes are never identical or equal, if they are compared (for
+example when the \texttt{instanceof} operator is applied to an object
+of the other class)!
+Note that this mechanism may result in some 
+problems when you access the Java reflection API, too.
+
+This property can also be changed from the \texttt{Configure
+Simulation} dialog (see Section~\ref{subsec:configureSimulation}).
+It is evaluated each time a simulation is set up.
+If no simulation is running, the graphical editor evaluates it before
+each compilation.
+
+Because the reloading of classes might affect performance,
+it is disabled by default.
+
+
+\subsection{Net Loading}\label{subsec:netLoading}
+
+When you are using many nets referencing each other,
+you might want to try the net loading mechanism. When nets
+are missing during a syntax check, compilation or simulation,
+the engine will look for matching drawing (\texttt{.rnw}) or
+shadow net (\texttt{.sns}) files and automatically load,
+compile and include them into the net system.
+
+The net loader is configured using the property 
+\texttt{de.renew.netPath},
+where the value is a list of directories specified in
+the same syntax as the \texttt{CLASSPATH} environment variable
+used by Java. Currently, the net path can comprise directories 
+only, \texttt{.jar} or \texttt{.zip} files are not
+supported. Subdirectories of the given directories are not
+searched, either. The order of directories in the path list
+matters, the first directory containing a net will be used.
+
+It is possible to specify netpath directories
+relative to the classpath.
+This is done by prepending the directory entry with the (reserved)
+directory name \texttt{CLASSPATH}.
+For example, if you include the directory (in Unix syntax, Windows
+users should replace the slash by a backslash)
+\texttt{CLASSPATH/nets}
+in the \texttt{de.renew.netPath} property, then the 
+net loader would look for a missing net file throughout all
+\texttt{nets} directories relative to all classpath entries.
+The searched classpath includes everything from the Java system
+classpath, all loaded plug-ins, and the \texttt{de.renew.classPath}
+property (see Section~\ref{subsec:classLoading}), in that order.
+When they are included in the classpath, \texttt{.jar} and
+\texttt{.zip} files are searched, too.
+
+The behavior of the net loader differs depending on the type of
+file it finds when looking for a net. If it encounters a shadow
+net system (\texttt{.sns}) file, the net will be loaded into the
+simulation or used for a syntax check, but it will not show up in
+a drawing window on the screen.
+Matching shadow net system files must contain a single net with the same
+name alone.
+If more than one net is found in the shadow net system file, it is rejected
+to avoid confusion about the source of compiled nets.  
+There is a command in the menu \texttt{File}/\texttt{Export}/\texttt{Export
+  all (single file each)} to generate such single-net shadow net system
+files for all open drawings (see Subsection \ref{subsec:expshadow}).
+
+When the simulation has been started via the \texttt{Simulation} menu in
+the editor (and \emph{only} then!), the net loader will also look for
+(\texttt{.rnw}) files in the \texttt{netPath}.
+If it finds a matching drawing file, the drawing shows up in an editor
+window and is immediately compiled into the running simulation.
+
+If a net can be obtained from several different sources at the same time,
+the net loader takes the first one in the order of the \texttt{netPath}
+entries.
+If it encounters \texttt{.sns} files in the same directory as
+\texttt{.rnw} files with the same name, it is not defined which one gets
+loaded.
+
+The editor also uses the net loader during simulation to open drawings
+from \texttt{.rnw} files that are needed to display net instances.
+But you should be aware that the net loading feature comes with a big
+pitfall:
+If \texttt{.sns} files and \texttt{.rnw} files are not kept up-to-date,
+compiled nets in the running simulation \emph{may} have a different
+structure than the nets shown in the editor!
+Since the mapping from a simulated net to its drawing is based solely on
+the net name, it is possible that transitions and places in a net instance
+window do not fire in accordance to the visible net structure.
+
+The \texttt{de.renew.netPath} property is re-read every
+time a simulation is started.
+It is configurable at runtime in the editor's \texttt{Configure
+Simulation} dialog (see Section~\ref{subsec:configureSimulation}).
+
+\subsection{Database Backing}
+
+You can run Renew using a database that keeps a persistent
+copy of the current simulation state. 
+In the case of a system crash, this allows 
+you to continue the simulation from a valid state just before 
+the crash when Renew is restarted.
+Database backing is only supported when the simulation
+is started from the command line (see Section~\ref{sec:simulationServer} for information on controlling a simulation from command line).
+Using database backing in gui mode may lead to unexpected behavior
+But note that this feature is
+still experimental and has not been tested across platforms
+due to lack of funds.
+
+The setup of the persistent database backing
+is definitely more tricky than the
+other Renew options, but it is supported by some predefined 
+scripts. The source package contains among others the
+SQL script \texttt{initTable.sql} which can be found in
+\path{Simulator/src/de/renew/database/entitylayer/}.
+
+It creates the required database tables for an Oracle server. For
+other databases, the script will need some changes, but even the
+various versions of Oracle differ enough to cause minor problems. A
+database backend, which supports transactions is required (e.g.\ MySQL
+does not support transactions when using the default MyISAM engine;
+use InnoDB instead).
+
+Having created the tables, you should configure a set of properties to
+enable the database backing feature (see
+Table~\ref{tab:simdbProperties}).
+These properties are evaluated each time a simulation is set up.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{llp{7cm}}
+    Property name                    & Type   & Comment\\
+    \hline
+    \texttt{de.renew.simdb.driver}   & class  & JDBC driver class (mandatory).\\
+    \texttt{de.renew.simdb.url}      & URL    & JDBC connection URL (mandatory).\\
+    \texttt{de.renew.simdb.dialect}  & class  & Subclass of \texttt{de.renew.database.entitylayer 
+                                                .SQLDialect} (optional).\\
+    \texttt{de.renew.simdb.user}     & string & User account for database login (optional).\\
+    \texttt{de.renew.simdb.password} & string & Password for database login.
+                                                (ignored when \texttt{de.renew.simdb.user} is not set).
+  \end{tabular}
+  \caption{Properties to configure database backing}
+  \label{tab:simdbProperties}
+\end{table}
+The class names specified for the \texttt{driver} and \texttt{dialect}
+properties should be accessible via the \texttt{de.renew.classPath}
+(see Section~\ref{subsec:classLoading}).
+The \texttt{dialect} class is an internal class that adapts
+Renew to the SQL dialect of your database.
+The default is the generic \texttt{SQLDialect}, but for some databases
+we already provide experimental implementations like
+\texttt{OracleDialect}, \texttt{MySqlDialect} or \texttt{MSqlDialect}.
+
+When using the database backing, your nets must conform
+to certain restrictions. Unfortunately, these restrictions
+cannot be checked by Renew automatically, so that you must take
+special care when preparing your net. 
+
+All tokens used in your net must be serializable, i.e.,
+custom classes must implement \texttt{java.io.Serializable}.
+Typically, all tokens are also immutable \emph{value objects},
+which acquire their state once during creation, before these 
+objects are used as tokens in the net.
+For value objects, the \texttt{equals()} method must not be based on
+object identity, but on the represented value. 
+Similarly, the \texttt{hashCode()} method
+must also be properly defined.
+
+If you use mutable, stateful objects in your nets, you
+must observe further restrictions. Contrary to value object,
+stateful objects must preserve the original implementations
+of \texttt{Object.equals()} and \texttt{Object.hashCode()}.
+Furthermore, the stateful objects must either
+occur directly as tokens in the net or there must be exactly
+one token by which a given stateful object is reachable.
+Failure to do so will result in a corrupted simulation
+state when restoring the simulation from the database.
+
+There is no garbage collection when using the database-backed
+simulation.
+
+\subsection{Remote Simulation Access}
+\label{subsec:remoteSetup}
+
+Any Renew simulation, regardless whether it is
+started from the command line or within the graphical editor,
+can be published via Java's Remote Method Invocation (RMI)
+technique.
+Any Renew editor can then connect to the published remote
+simulation, display the token game, and control the firing of
+transitions.
+See Section~\ref{subsec:connectToServer} about how to connect to
+a running remote simulation.
+This section focuses on how to configure the simulation engine
+for remote access.
+
+The first step is that you start an RMI registry on the machine where
+the server will be running. This is a program distributed together
+with Java that stores RMI objects and makes them accessible to other
+VMs. Simply run the program \texttt{rmiregistry}
+(e.g.\ as a background task).
+Note that the \texttt{rmiregistry} process either needs a
+classpath with \texttt{renew\renewversion/plugins/\PluginRemote{}}
+included or that the simulation server has to be configured with
+the \texttt{java.rmi.server.codebase} property (see Java RMI docs
+for details).
+
+%rmiregistry -J-Djava.rmi.server.codebase="file:<path/to/>\PluginRemote{}"
+%de.renew.remote.enable=true
+%de.renew.remote.rmi-host-name=<IPthisComputer>
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{llp{6cm}}
+    Property name                          & Type    & Comment\\
+    \hline
+    \texttt{de.renew.remote.enable}        & boolean & Enables remote access
+                                                       (defaults to \texttt{false}).\\
+    \texttt{de.renew.remote.publicName}    & string  & Name to use for RMI registration
+                                                       (defaults to \texttt{default}).\\
+    \texttt{de.renew.remote.serverClass}   & class   & Implementation of the interface
+                                                       \texttt{de.renew.remote.Server}
+                                                       (defaults to \texttt{de.renew.remote.ServerImpl}).\\
+    \texttt{de.renew.remote.socketFactory} & class   & Implementation of the interface 
+                                                       \texttt{java.rmi.server.RMISocketFactory}
+                                                       (defaults to RMI's default factory).\\
+    \texttt{de.renew.remote.rmi-host-name} & string   & the rmi server hostname to the correct ip if 
+the remote server cannot be found. It is similar to the java property 
+\texttt{java.rmi.server.hostname}\\                                                     
+  \end{tabular}
+  \caption{Properties to configure a remote simulation}
+  \label{tab:remoteProperties}
+\end{table}
+
+The remote simulation can be configured by using the properties
+listed in Table~\ref{tab:remoteProperties}.
+The defaults are suitable for most cases, so you just need to
+enable the remote access by setting the property
+\texttt{de.renew.remote.enable} to true.
+
+The \texttt{publicName} property is required, if you intent to
+run several servers on one machine. When connecting from an
+editor, you can specify the server to connect to by its name.
+
+The \texttt{serverClass} and \texttt{socketFactory} properties
+are normally not needed.
+Plug-in developers may use these properties to replace the default
+implementations by enhanced versions.
+The server class determines the simulation control features which
+are remotely accessible.
+The socket factory may enhance RMI transmissions by compression
+and/or encryption of the network traffic.
+
+All properties except \texttt{socketFactory} are re-evaluated at
+each simulation setup.
+They are configurable at runtime in the editor's \texttt{Configure
+Simulation} dialog (see Section~\ref{subsec:configureSimulation}).
+
+\subsection{Logging}
+\label{subsec:log4jConfiguration}
+
+Renew uses the Log4j package (in version~1.2.x) from the Apache
+Logging Services project \cite{Log4j12} to give detailed feedback about
+its activities.
+The Log4j framework allows users to tailor the logging output to fit
+their needs.
+The level of detail can be configured for every application package or
+class individually.%
+
+The Renew base installation contains a binary distribution of Log4j in the
+\texttt{renew\renewversion{}/libs} directory.  
+The package is loaded immediately at application startup, before any
+configuration of the plug-in system is done.
+The early load time of this package has the consequence that the enhanced
+configuration methods mentioned at the beginning of this Section are
+\emph{not applicable} to configure the logging system.
+
+\subsubsection{Configuration mechanism}
+The configuration options of Log4j would occupy to much space in this
+manual, please have a look at the documentation section of the Log4j
+homepage \cite{Log4j12}.
+With the Renew distribution comes a commented default configuration file
+\texttt{renew\renewversion/config/log4j.properties}.
+
+Renew looks for Log4j configuration files at similar locations like its own
+\texttt{.renew.properties} files (see Section~\ref{subsec:configMethods}).
+The configuration files can be in XML syntax or in the Java properties
+format and must carry appropriate file extensions.
+The first file found in the following list of candidates is used:
+\begin{enumerate}
+\item A file named in the system property \texttt{log4j.configuration} at
+  the \texttt{java} command line with the \texttt{-D} option.
+\item \texttt{.log4j.xml} in the \texttt{.renew} subdirectory of your home directory.
+\item \texttt{log4j.xml} in the installation directory \texttt{renew\renewversion/config/}.
+\item \texttt{.log4j.properties} in the \texttt{.renew} subdirectory of your home directory and
+  \linebreak \texttt{log4j.properties} in the installation directory
+  \texttt{renew\renewversion/config/}.  
+  If both files exist, individual settings in the user file take precedence
+  over settings in the installation file.
+\item A failsafe setup with a simple console logger is used if all
+  configuration files are missing.
+\end{enumerate}
+
+Renew provides the \texttt{logs.home} property that can be referred from
+within the configuration files.
+This property by default points to the directory \texttt{.renew/renewlogs} in your
+home directory, but you can override that setting with the \texttt{-D}
+option on the \texttt{java} command line.
+
+\newtwodotfive{%
+With Renew 2.5 the user configuration files \texttt{.log4j.properties} and \texttt{.log4j.xml} as well as the \texttt{logs.home} default location moved from the home directory to the \texttt{.renew} subdirectory in your home directory.
+}
+
+
+\subsubsection{Default configuration}
+The default configuration file
+\texttt{renew\renewversion/config/log4j.properties} uses the
+\texttt{logs.home} property (see above) so that you get two log files
+(\texttt{renew.log} and \texttt{simulation.log}) in that directory.
+The former comprises application messages while the latter stores
+simulation traces.
+In the default configuration, application log messages are also printed to
+the Java console, but the simulation trace is not.
+The logging plug-in provides a graphical user interface that displays the
+simulation trace and allows flexible configuration of logged events (see
+Section~\ref{subsec:loggingPlugin}).
+
+
+\section{Plug-ins}
+\label{sec:plugins}
+As of Renew 2.0, the application is controlled by
+a plug-in system.
+The system is started through the class
+\texttt{de.renew.plugin.Loader}.
+The loader sets up some class libraries and then loads the main plug-in
+manager.
+The plug-in manager finds, loads, initializes and terminates
+plug-ins, but it knows nothing about Petri nets.
+The Renew functionality is provided by a set of plug-ins.
+More plug-ins can be installed to extend Renew.
+
+In this section, there will be a lot of examples with file names and
+directories.
+These are all given in Unix syntax.
+Users of other operating systems: please transform these
+examples to your appropriate syntax.
+
+\subsection{Install Plug-ins}
+\label{subsec:installPlugins}
+There are two ways to install a plug-in.
+If it comes in one single \texttt{.jar} file which includes a file
+named \texttt{plugin.cfg}, you can just copy the file in the
+\texttt{renew\renewversion/plugins} directory
+(if you use the Mac OS X application bundle, this directory is located
+\emph{inside} the application package at the path
+\texttt{Contents/Resources/Java/plugins}).
+If the plug-in comprises several files, one of which is the file
+\texttt{plugin.cfg}, then you can create a subdirectory below
+(e.g. \texttt{renew\renewversion/plugins/myplugin} and copy all
+files in this directory.
+
+On the next startup, the plug-in system will find and include the
+plug-ins automatically.
+If you want to include the plug-in in the running system, use the
+\texttt{load} command (see Section~\ref{subsec:pluginCommands})
+in addition.
+
+If you do not want to install the plug-in to your renew
+distribution directory, you can install it to some other
+directory, let's say 
+\texttt{/home/myself/devel/myplugin.jar} (as single-jar plug-in)
+or \texttt{/home/myself/devel/myplugin/} (as multi-file plug-in).
+Then you again have two possibilities:
+To make the plug-in system aware of the plug-in at the next
+startup, add the line
+\begin{lstlisting}[style=xnonfloating]
+  pluginLocations=/home/myself/devel
+\end{lstlisting}
+to your \texttt{.renew.properties} file (see
+Section~\ref{subsec:configMethods} for details).
+When entering multiple paths, they must be separated by the
+system's path separator (which is ";" on Windows and ":" on Unix systems).
+To load the plug-in immediately but temporarily into a running
+plug-in system, use the \texttt{load} command:
+Depending on the number of files comprising the plug-in, it's
+one of the following commands:
+\begin{lstlisting}[style=xnonfloating]
+  load file:/home/myself/devel/myplugin.jar
+  load file:/home/myself/devel/myplugin/plugin.cfg
+\end{lstlisting}
+
+\subsection{Exclude Plug-ins Temporarily}
+\label{subsec:excludePlugins}
+To hide installed plug-ins from the plug-in finder at startup, you
+can specify the property \texttt{de.renew.plugin.noLoad} either
+via \texttt{-D} command line option or the
+\texttt{.renew.properties} file (see
+Section~\ref{subsec:configMethods} for details).
+The value of the property is a comma separated list of plug-in
+names.
+For example, the line
+\begin{lstlisting}[style=xnonfloating]
+  java -Dde.renew.plugin.noLoad="Renew JHotDraw" -jar renew§\renewversion§/loader.jar gui
+\end{lstlisting}
+will start the plug-in system, but terminate with the complaint that the
+\texttt{gui} command is unknown.
+Because the JHotDraw plug-in has not been loaded, all dependent
+plug-ins can also not be loaded.
+This affects the Renew Gui plug-in which would otherwise have provided
+the \texttt{gui} command.
+Of course it would make more sense to use some non-graphical
+command like \texttt{startsimulation} instead.
+
+Alternatively it is possible to specify only the plug-ins you want to load at startup. For that you have to set the property \texttt{de.renew.plugin.autoLoad} to \texttt{false}. And specify the plug-ins you want to load with the \texttt{de.renew.plugin.load} property. The following line will also start the plug-in system and terminate, because of the missing \texttt{gui} command. 
+
+\begin{lstlisting}[style=xnonfloating]
+  java -Dde.renew.plugin.autoLoad=false -Dde.renew.plugin.load="Console,Renew Simulator,Renew Formalism,Renew Util" -jar renew§\renewversion§/loader.jar gui
+\end{lstlisting}
+
+\subsection{System Termination}
+\label{subsec:systemExit}
+The plug-in system tries to detect the situation where no plug-in
+is active and therefore the system can be shut down.
+Plug-ins are ``active'' if they have some long-term work to do.
+This always holds for the windows of the graphical editor.
+A running simulation also counts as active.
+The Console plug-in has a special keep-alive flag which marks it
+as active (see Section~\ref{subsec:consolePlugin}).
+
+Besides automatic termination, the plug-in system can be
+terminated by request.
+The \texttt{exit} command (see
+Section~\ref{subsec:pluginCommands}) has just that purpose.
+The editor may also terminate the plug-in system when it's main
+window is closed. 
+The editor does this not by default, you have to set the property
+\texttt{de.renew.gui.shutdownOnClose} to \texttt{true}.
+
+The property \texttt{de.renew.gui.autostart} automatically starts
+the editor without the need for an initial \texttt{gui} command,
+when set to \texttt{true}.
+The combination of these two gui properties frees users of the
+pure graphical editor of most complications introduced by the
+plug-in system.
+
+
+\subsection{Commands}
+\label{subsec:pluginCommands}
+
+As mentioned in Section~\ref{sec:install}, the plug-in system
+needs an initial command to start some plug-in.
+Any plug-in can provide such commands (although the \texttt{gui}
+command is the one that you will use most of the time). In the
+following, we present the basic commands provided by the plug-in
+manager itself and some additional commands provided by other
+plug-ins. Note that it is also possible to define a chain of commands
+by separating the commands with \texttt{---}. Most of the commands
+presented here you will typically not use on Renew start-up, but
+rather in combination with the Console plug-in described in the
+following Section~\ref{subsec:consolePlugin}.
+
+A basic set of commands is provided by the plug-in manager itself:
+\begin{description}
+\item[\texttt{help}]
+  prints a list of all available commands.
+  Due to the addition or removal of plug-ins, this list may vary from
+  time to time.
+\item[\texttt{get}]
+  prints the value of a property. The property name has to be given as
+  an argument.
+  \begin{itemize}
+  \item[\texttt{-a}] shows all known property keys.
+  \end{itemize}
+\item[\texttt{set}]
+  sets the value of a property (as explained in
+  Section~\ref{subsec:configMethods}).
+  This command accepts multiple arguments of the form
+  \texttt{key=value}.
+  It is important that no spaces are included in the key, the
+  value, or in between.
+\item[\texttt{list}]
+  prints a list with the names of all loaded plug-ins.
+  The command respects some mode switches:
+  \begin{itemize}
+  \item[\texttt{-l}] (or \texttt{--long}) shows date and version
+    information of plug-ins (if available).
+  \item[\texttt{-j}] (or \texttt{--jar}) shows the jar file locations of
+    plug-ins and libraries.
+  \item[\texttt{-o}] (or \texttt{--ordered}) shows an alphabetically ordered list of plug-in names.
+  \end{itemize}
+\item[\texttt{info}]
+  prints information about one plug-in.
+  The plug-in's name has to be specified as command argument (use
+  \texttt{list} to see the plug-in names).
+\item[\texttt{load}]
+  loads one plug-in dynamically, if possible.
+  The argument to this command is a URL specifying the plug-in's
+  location.
+  The plug-in location can be given relative to the
+  \texttt{de.renew.pluginLocation} directories.
+  For example, \texttt{load file:gui.jar} would load the gui
+  plug-in from the renew distribution
+  \texttt{renew\renewversion/plugins/gui.jar}. You can use wildcards (e.g. \texttt{load gu*}), if there is an ambiguity the alternatives are prompted for selection of the correct one.
+  
+  
+\item[\texttt{unload}]
+  terminates and unloads a plug-in, if possible.
+  The plug-in's name has to be specified as command argument (use
+  \texttt{list} to see the plug-in names).
+  If other plug-ins depend on the given plug-in, the plug-in system
+  will complain.
+  You can add the argument \texttt{-v} to see a list of
+  dependent plug-ins, or the argument \texttt{-r} to unload all
+  recursively dependent plug-ins.
+  \bug{Although the plug-in is terminated and all dependencies are
+    cleaned, its classes are still accessible.
+    Fixing this bug requires a different plug-in class loader,
+    which will hopefully be written in some future release.}
+\item[\texttt{packageCount}] prints the packages and the total number
+  of packages in the class loader.
+\item[\texttt{exit}]
+  terminates the plug-in system, and in consequence the whole
+  application.
+  If some plug-in hangs during termination, you can use
+  \texttt{exit force} to kill the Java VM abruptly or \texttt{exit ifidle} to exit only if all plug-ins are inactive.
+\item[\texttt{gc}] triggers the Java garbage collector.
+\item[\texttt{script}]
+  loads commands from a text file and executes them.
+  The file name has to be given as argument, it can be specified
+  relative to the current directory.
+  This command is especially useful as initial command, when you
+  in fact need to issue several commands at startup of the plug-in
+  system.
+\item[\texttt{sleep}] This command waits for a given time until the next command is executed. The time to wait is given as argument in seconds.
+\end{description}
+
+The following commands are not provided by the plug-in manager,
+but by some Renew plug-ins.
+So they are available only when the respective plug-in is loaded.
+\begin{description}
+\item[\texttt{gui}]
+  starts the graphical editor and/or passes its arguments to the
+  editor. 
+  The arguments are supposed to be drawing file names.
+  This command is provided by the Gui plug-in.
+\item[\texttt{demonstrator}] opens a window with a list of drawing
+  file names. This plug-in is provided by the Gui plug-in.
+\item[\texttt{ex}] exports a drawing into various formats. The usage
+  of the command is \texttt{ex <type> <drawing>} where
+  \texttt{<type>} may be (but may vary
+  depending on the installed plug-ins):
+  \begin{itemize}
+  \item \texttt{PNG}
+  \item \texttt{PNML-RefNet}
+  \item \texttt{PNML-http://www.informatik.hu-berlin.de/top/pntd/ptNetb}
+  \item \texttt{SVG}
+  \item \texttt{ShadowNetSystem}
+  \item \texttt{Woflan}
+  \end{itemize} 
+  This command is provided by the Export plug-in which
+  in turn uses the FreeHEP project for graphical exports. The command respects some mode switches:
+    \begin{itemize}
+  \item[\texttt{-a}] (or \texttt{--accumulate}) n-to-1 export (only available for some formats, e.g. ShadowNetSystem).  
+  \item[\texttt{-o}] (or \texttt{--output}) specify the output file.
+  \end{itemize}
+  You can type just \texttt{ex} without any options to see the available formats.
+\item[\texttt{startsimulation}]
+  starts a simulation without using the graphical editor. 
+  See Section~\ref{sec:simulationServer}.
+  This command is provided by the Simulator plug-in.
+\item[\texttt{simulation}]
+  controls a running simulation without using the graphical
+  editor.
+  Use one of the subcommands \texttt{help}, \texttt{run},
+  \texttt{step}, \texttt{stop} or \texttt{term} as argument.
+  See Section~\ref{sec:simulationServer}.
+  This command is provided by the Simulator plug-in.
+\item[\texttt{setFormalism}]
+  chooses the formalism given as argument as current formalism.
+  This is equivalent to selecting a formalism in the menu (see 
+  Section~\ref{subsec:formalismgui}).
+  This command is provided by the Formalism plug-in.
+\item[\texttt{listFormalisms}]
+  lists all installed formalisms.
+  The names listed by this command can be used as argument to the
+  \texttt{setFormalism} command or as value for the
+  \texttt{renew.compiler} property.
+  This command is provided by the Formalism plug-in.
+\item[\texttt{keepalive}]
+  displays and manipulates the keep-alive feature of the Console
+  plug-in (see Section~\ref{subsec:consolePlugin}).
+\item[\texttt{guiprompt}] 
+  opens a graphical prompt dialog (see Section~\ref{subsec:consolePlugin}),
+  if the Gui Prompt plug-in is installed.
+\item[\texttt{navigator}]
+ opens the Navigator window.  
+\end{description}
+
+\subsection{Console}
+\label{subsec:consolePlugin}
+
+The Console plug-in is part of the base distribution.
+It enhances the plug-in system by an interactive command shell in
+the Java console window and allows to
+issue commands to the plug-in system at runtime.
+
+\newtwodotfive{
+ With Renew 2.5 the old prompt plug-in is replaced by the new Console plug-in. It utilizes JLine2 as library and provides editable command lines, tab-based command and argument completions as well as searchable and persistent command history. 
+}
+
+If you start the renew from a shell, you will be presented
+with the prompt \texttt{Renew >} at the Java console.
+Here you can enter any of the commands mentioned in the previous
+subsection.
+The Console plug-in itself offers one command with two alternative
+arguments:
+\begin{description}
+\item[\texttt{keepalive on}]
+  enables the keep-alive feature.
+  As long as this feature is on, the plug-in system will not
+  terminate automatically because there is no active plug-in (see
+  Section~\ref{subsec:systemExit}).
+  However, an explicit termination request will still be
+  executed.
+\item[\texttt{keepalive off}]
+  turns the keep-alive feature off.
+\item[\texttt{keepalive}]
+  without argument displays the current state of the keep-alive
+  flag.
+\end{description}
+The initial state of the keep-alive flag is determined from the
+value of the property \texttt{de.renew} \texttt{.console.keepalive}.
+If you tend to use the Console plug-in as your only active plug-in most of
+the time, you should consider adding the line
+\texttt{de.renew.console.keepalive=true} to your
+\texttt{.renew.properties} configuration file. 
+
+As an alternative to the Console plug-in, there also exists a
+gui prompt plug-in for download.
+This plug-in adds a small dialog to the \texttt{Plugins} menu of
+the editor which accepts commands to the plug-in system.
+The graphical prompt automatically keeps the plug-in system alive as long
+as its dialog is open.
+The dialog can also be opened by the command-line command
+\texttt{guiprompt}.
+The command feedback is now visible in the dialog instead of the Java
+console window.
+
+It is possible to escape whitespace characters by surrounding double quotes 
+or with a preceding backslash (e.g. \texttt{gui "foo bar/file.rnw"} or  
+\texttt{gui foo\char`\\{} bar/file.rnw}).
+
+\subsection{Net Components}
+\label{sec:net-components}
+
+Net Components (NC) are sets of net elements (Figures) that are
+grouped in a flat and weak fashion.
+%
+The aim is to be able to allow to move the whole set of net elements
+(the net component) in convenient way.
+%
+\emph{Weak} means that, although the net component can be moved by
+clicking and dragging the mouse in between the net elements, they can
+each individually be manipulated. Individual net elements can be
+dragged resulting in a manipulated layout of the net component. It is
+also possible to edit inscriptions of elements belonging to the net
+component.
+%
+\emph{Flat} means that grouping is not hierarchical.  
+%
+In order to provide the functionality a new Figure has been added,
+which has no graphical representation of its own.
+
+The Net Component Plugin provides two basic functionalists. 
+%
+The grouping and ungrouping of a selection of net elements and the
+management of tool palettes, which represent a repository of (pre-)
+defined sets of net components.
+%
+A repository consists in a folder that holds several Renew net
+drawings, an images folder and a configuration file (\emph{.sequence}).
+%
+The images folder should contain icons in gif format (24$\times$24
+pixels), which are used to fill the tool buttons of the palettes.
+%
+If no image is defined for a specific net component a generic image
+(\emph{generic.gif}) will be used instead.
+%
+Names of net drawings and icon images should correspond.
+%
+The \emph{.sequence} file contains the names of the drawings (without
+extensions) and define the sequence in which the buttons are shown in
+the palette.
+%
+The file may be empty but has to be present in order for the directory
+to be recognized as net component repository.
+%
+Further, non-listed drawings are included in the palette without
+specific order.
+
+There are two ways to use the net component repositories within the
+plug-in.
+%
+First, repository folders can be opened directly using the menu command.
+%
+Second, plug-ins can extend the functionality of the NC plugin by
+providing a repository.
+%
+Such a plugin can use the provided generic plugin facade
+\emph{PalettePlugin} or a customized facade class can be provided.
+% 
+In the latter case also other tool buttons and command line commands
+can be added to the system.
+%
+Plugins using the \texttt{PalettePlugin} class must provide two
+properties for the definition of the directory and two for the
+automatic initialization switch: \texttt{de.renew.nc.dir-prop-name},
+\texttt{de.renew.nc.init-prop-name}.
+%
+A minimal example for a plugin configuration file (\emph{plugin.cfg})
+is presented below.
+%
+More information about the concept and the tool can be found
+in~\cite{Cabac09c}.
+
+\begin{lstlisting}[style=xnonfloating]
+    mainClass = de.renew.netcomponents.PalettePlugin
+    name = Renew ExampleComponents
+    provides = com.example.nc
+    requires = de.renew.util,de.renew.gui,de.renew.nc
+    de.renew.nc.dir-prop-name=com.example.nc.dir
+    de.renew.nc.init-prop-name=com.example.nc.init
+    com.example.nc.dir=tools
+    com.example.nc.init=false
+\end{lstlisting}
+
+\section{Troubleshooting}
+
+A few possible problems and their solutions are described here.
+If you have problems, contact us. If you have solutions,
+contact us, too.
+
+\begin{itemize}
+\item I cannot extract the files from the archives.
+
+Maybe the files got corrupted on their way to you?
+Maybe you are using an old version of \texttt{unzip}?
+If you have a version of the JDK that does not support zipped
+\texttt{jar} archives, please let us know.
+
+Note that you must use Java~1.1 or newer to use \texttt{jar} archives
+and that Renew requires Java 1.7 for different reasons anyway.
+
+\item Java is not found.
+
+Probably the shell scripts try to look for Java in the wrong places.
+
+\item Under Windows, the installation or the start of Renew
+terminates with a message regarding missing space for environment
+variable.
+
+Enlarge the environment space for the command window.
+
+\item Java cannot find the class \texttt{de.renew.plugin.Loader}.
+
+This should not happen if you use \texttt{-jar renew\renewversion/loader.jar}
+at the Java command line.
+If you want to use the environment variable \texttt{CLASSPATH}
+instead, check if it includes \texttt{loader.jar}.
+
+\item Renew starts, but the window titles are incorrect under
+the X Windows System.
+
+Try a different window manager, e.g., \texttt{mwm} is known to work
+correctly.
+This is a general Java problem and not related to Renew, so we cannot do
+anything about it.
+
+\item When I switch to a window of a different application while the
+Renew menu is open, the menu stays visible in front of all other windows.
+
+This is a general Java (more concrete: Swing) problem and not related
+to Renew, so we cannot do anything about it.
+With Java 1.5, the bug has been fixed.
+
+% \item My Renew window is too large or too small, so that it consumes too
+% much space or (even worse) the tools are not reachable.
+
+% See Subsection~\ref{subsec:resizebug} for a workaround.
+
+% \item The Renew window does not appear or it does appear, but
+% jumps off the screen after a short time.
+
+% See Subsection~\ref{subsec:resizebug} for a workaround.
+% Alternatively, under Unix you might try a different window manager.
+
+% \item Renew does not properly display the contents of a drawing.
+% Renew redraws only part of the screen.
+
+% See Subsection~\ref{subsec:redraw} for a workaround.
+
+%\item When I drag around text figures, Renew displays some spurious
+%dots on the screen.
+
+%We encountered this when working with certain Java 1.2
+%virtual machines under Solaris. This seems to be a Java bug.
+%The only known remedy is to use another virtual machine.
+
+\item I cannot open the sample files.
+
+Sometimes you need to add the root directory~\texttt{/}
+(or~\verb:\:, depending on your operating system) to your class path.
+
+\item Under Mac OS X, using \texttt{cmd-Q} (\texttt{apple-Q})
+to quit the application will not give you the opportunity
+to save changes, even if the document has recently been modified.
+
+The optional AppleUI plug-in (see
+  Section~\ref{subsec:applemac}) solves that problem.
+\end{itemize}
+
+\input{history}
+
+
+% Local Variables:
+% mode: latex
+% TeX-master:"renew.tex"
+% End:
+
+
+% LocalWords:  Runtime Solaris runtime MacOS JDK JHotDraw Petri API
+% LocalWords:  classpath CLASSPATH startup instanceof VM netpath
+% LocalWords:  formalisms failsafe boolean serializable stateful
+% LocalWords:  backend Subdirectories prepending whitespace

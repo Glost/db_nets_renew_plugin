@@ -1,0 +1,11 @@
+#!/opt/bin/tcsh
+set filename=LICENSE
+
+echo Renew - The Reference Net Workshop >$filename
+echo ================================== >>$filename
+echo "" >>$filename
+echo Renew is a high-level Petri net simulator written in Java. >>$filename
+echo This file tells you about license terms and disclaimer. >>$filename
+echo "" >>$filename
+
+cat license.tex | gawk -f makereadme.awk >>$filename

@@ -1,0 +1,12 @@
+The FormalismGui plugin provides a gui interface for the Formalism Component.
+It offers a Menu in which the currently active formalism can be chosen.
+A Plugin that adds its own formalism to the Formalism Component may also
+add a FormalismGuiCreator object to the FormalismGui Component.
+The FormalismGuiCreator may provide menus and palettes specific to the added
+compiler that may offer new drawing tools or can be used to configure the Plugin.
+A FormalismGuiCreator should be registered before adding the formalism;
+this is in order to ensure that should that formalism be used as default compiler at
+startup, the appropriate gui elements can be provided.
+
+included packages:
+	de.renew.gui extension

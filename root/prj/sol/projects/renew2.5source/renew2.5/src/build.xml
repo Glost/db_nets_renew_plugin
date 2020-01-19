@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "ant/commontargets.xml">
+   <!ENTITY cvstargets       SYSTEM "ant/cvstargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "ant/optionaltasks.xml">
+   <!ENTITY renewtargets     SYSTEM "ant/renewtargets.xml">
+]>
+
+<project name="Renew-Meta" default="dist" basedir=".">
+    <description>
+This is Renew's meta build.xml file. It facilitates the
+invocation of ant on each plugin or other Renew subproject.
+    </description>
+
+  <!-- makes some checks. (internal). -->
+  <!-- if there is something to initialise, insert here -->
+  <target name="configure">
+    <property name="plugin.name" value="NOPLUGIN"/>
+    <property name="dir.renew.checkout" location="."/>
+    &commonproperties;
+    <property name="plugin.version" value="${renew.version}"/>
+
+    <echo>JAVA_HOME = ${java.home}</echo>
+    <echo>Java version = ${java.version}</echo>
+
+    <path id="ref.classpath">
+      <path refid="ref.antclasspath"/>
+    </path>
+  </target>
+
+  <!-- This target denotes a dependency for the build process of a plugin
+       to any ant task provided by another Renew plugin.  All plugins whose
+       build process uses the entity "renewtargets" should include a
+       dependency on this target in their target definition below. -->
+  <target name="depend.renewtasks"
+          depends="RenewAnt, Export, Gui, Misc">
+     <!-- Nothing to do here, the dependency is important. -->
+  </target>
+
+  <!-- configures the classpath for Renew-specific Ant tasks (internal) -->
+  <target name="configure.renewtasks"
+          depends="configure, init, depend.renewtasks">
+    <path id="ref.classpath.renewtasks">
+      <path refid="ref.antclasspath"/>
+      <fileset dir="${dir.renew.dist}">
+              <include name="**/*.jar"/>
+      </fileset>
+    </path>
+  </target>
+
+  &cvstargets;
+
+  <!-- Includes common task definitions in this build.xml. In
+       most subprojects this inclusion is done in the 'init'
+       target, but on this main level we cannot be sure that all
+       needed classes have already been compiled before. -->
+  <target name="init"
+          depends="configure, RenewAnt">
+    &commontasks;
+
+    <path id="ref.fullclasspath">
+      <path refid="ref.antclasspath"/>
+      <fileset dir="${dir.renew.dist}">
+              <include name="**/*.jar"/>
+      </fileset>
+    </path>
+
+    <path id="ref.fullsourcepath">
+      <dirset dir="${dir.renew.checkout}">
+        <include name="*/src/"/>
+        <include name="*/build/gensrc/"/>
+      </dirset>
+    </path>
+  </target>
+
+  &optionaltasks;
+  &renewtargets;
+
+  <!-- generates XML DTD (document type definition) for all
+       build.xml files of all Renew plugins and other subprojects.
+       All task and type definitions given in any build.xml must
+       be included in this target in order to avoid an incomplete
+       DTD, e.g. ant/commontasks.xml should be included -->
+  <target name="gendtd"
+          depends="init,init.optional,configure.renewtasks,init.renewtasks"
+          description="generates XML DTD for build.xml files">
+    <antstructure output="ant/renewAnt.dtd"/>
+  </target>
+
+  
+
+  <!-- build all distributed Renew Components of the base distribution -->
+  <target name="dist"
+          depends="init,lib,Loader,Util,Simulator,Formalism,Misc,
+    CH,Export,Gui,Console,DBNets,FormalismGui,Logging,Netcomponents,Navigator,Splashscreen,Remote"
+          description="builds all subcomponents of the Renew distribution (except AppleUI).">
+  </target>
+  
+  
+  
+
+
+ 
+  <!-- There are components listed in neither 'dist' nor 'all'.
+       These are:
+       - AppleUI      belongs to 'dist', but runs only on MacOS X platforms.
+       - Core         there is no code left, but it still provides
+                      documentation and shell script sceletons
+       - ElementaryObjectNetSystems is brand new.
+       - FA           is new.
+       - FAFormalism  is new.
+       - ImageNets    is in unknown state.
+       - NetDoc       implements busi wait.
+       - RenewAnt     belongs to 'dist' and is required indirectly via 'init'.
+       - Scheme       is in unknown state.
+       - SDNet        is in unknown state.
+       - Test         is not a component but a test field.
+       - Tutorial     is in unknown state.
+ -->
+
+  <!-- An alias for the 'all' target.
+       This alias should not point to 'dist' because it is used
+       by other global targets like 'format' or 'commit'. -->
+  <target name="compile" />
+
+  <target name="RenewAnt"
+          depends="configure"
+          description="builds the Renew Ant Support Component.">
+    <ant dir="RenewAnt" target="dist" inheritAll="false"/>
+  </target>
+  
+  <!-- Component list in alphabetical order (all but internal components) -->
+  
+  <target name="AppleUI"
+    depends="init,lib,Loader,CH,Gui"
+    description="builds the Renew AppleUI Plugin (Mac OS X only).">
+    <ant dir="AppleUI" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="AppleUI-buildapp"
+    depends="init,AppleUI"
+    description="builds a self-contained Renew application bundle for Mac OS X in AppleUI/build.">
+    <ant dir="AppleUI" target="buildapp" inheritAll="false"/>
+  </target>
+
+  <target name="AppleUI-linkedapp"
+    depends="init,AppleUI"
+    description="builds a Renew application bundle for Mac OS X in AppleUI/build which links to plugins and libraries within the dist folder.">
+    <ant dir="AppleUI" target="linkedapp" inheritAll="false"/>
+  </target>
+
+  <target name="CH"
+    depends="init,lib,Loader,Util"
+    description="builds the JHotdraw GUI Component.">
+    <ant dir="CH" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Console"
+    depends="init,lib,Loader,Util,CH"
+    description="builds the Console Plugin.">
+    <ant dir="Console" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Diagram"
+    depends="init,lib,Loader,Util,CH,Gui,Simulator,FS"
+    description="builds the Renew Diagram Plugin.">
+    <ant dir="Diagram" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="DBNets"
+    depends="init,lib,Loader"
+    description="builds the Renew DBNets Plugin.">
+    <ant dir="DBNets" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Export"
+          depends="init,lib,Loader,Util,CH"
+          description="builds the Export plugin to Renew based on FreeHep.">
+    <ant dir="Export" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="FS"
+    depends="init,lib,Loader,Util,Simulator,Formalism,Misc,CH,Gui,FormalismGui,Remote"
+    description="builds the Renew Feature Structure Component.">
+    <ant dir="FS" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="FSOntGen"
+    depends="init,lib,Loader,Util,CH,Gui,Simulator,FS"
+    description="builds the FS Ontology Generator Plugin for Renew.">
+    <ant dir="FSOntGen" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Formalism"
+    depends="init,lib,Loader,Util,Simulator"
+    description="builds the Renew Formalism Component.">
+    <ant dir="Formalism" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="FormalismGui"
+    depends="init,lib,Loader,Simulator,Formalism,CH,Gui"
+    description="builds the Renew FormalismGui Component.">
+    <ant dir="FormalismGui" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Gui"
+    depends="init,lib,Loader,Util,Simulator,Formalism,CH,Remote"
+    description="builds the Renew GUI Component.">
+    <ant dir="Gui" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="GuiPrompt"
+    depends="init,lib,Loader,CH,Util"
+    description="builds the Renew Gui Prompt Component.">
+    <ant dir="GuiPrompt" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="ImageNetDiff"
+      depends="init,lib,Loader,Util,CH,Export"
+      description="builds the Renew ImageNetDiff Pluging for comparing drawings (needs imagemagick).">
+      <ant dir="ImageNetDiff" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Loader"
+    depends="init,lib"
+    description="builds the Renew Component Loader.">
+    <ant dir="Loader" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Logging"
+    depends="init,lib,Loader,Util,Simulator,CH,Gui,Remote"
+    description="builds the Renew Gui Prompt Component.">
+    <ant dir="Logging" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Lola"
+    depends="init,lib,Loader,Util,Simulator,Formalism,CH,Gui,Remote"
+    description="builds the Lola Plugin.">
+    <ant dir="Lola" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Misc"
+    depends="init,lib,Util,Simulator,Formalism"
+    description="builds the Renew Misc Component.">
+    <ant dir="Misc" target="dist" inheritAll="false"/>
+  </target>
+	
+  <target name="MiniMap"
+    depends="init,lib,Util,CH,Gui"
+    description="builds the MiniMap Plugin">
+    <ant dir="MiniMap" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="MongoDB"
+    depends="init,lib"
+    description="builds the MongoDB Plugin">
+    <ant dir="MongoDB" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Navigator"
+    depends="init,lib,Loader,Util,CH,Gui"
+    description="builds the Renew Navigator.">
+    <ant dir="Navigator" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Netcomponents"
+    depends="init,lib,Loader,Util,CH,Gui"
+    description="builds the Renew Netcomponents Plugin.">
+    <ant dir="Netcomponents" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Prompt"
+    depends="init,lib,Loader,Util"
+    description="builds the Renew Prompt Component.">
+    <ant dir="Prompt" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Refactoring"
+    depends="init,lib,Util,CH,Gui,Simulator,Formalism"
+    description="builds the Renew Refactoring Component.">
+    <ant dir="Refactoring" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="RefactoringOntology"
+    depends="init,lib,Util,CH,Gui,Simulator,Formalism,Refactoring,FS"
+    description="builds the Renew RefactoringOntology Component.">
+    <ant dir="RefactoringOntology" target="dist" inheritAll="false"/>
+  </target>
+	  
+  <target name="RefNetReachabilityGraph"
+    depends="init,lib,Util,CH,Gui,Simulator,Formalism"
+    description="builds the Renew RefNetReachabilityGraph Component.">
+    <ant dir="RefNetReachabilityGraph" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Remote"
+    depends="init,lib,Simulator,Util,Misc"
+    description="builds the Remote plugin">
+    <ant dir="Remote" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Simulator"
+    depends="init,lib,Loader,Util"
+    description="builds the Renew Simulator Component.">
+    <ant dir="Simulator" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="SL"
+    depends="init,lib,Loader,Util,CH,Gui,Simulator"
+    description="builds the SL Plugin.">
+    <ant dir="SL" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Splashscreen"
+    depends="init,lib,Loader"
+    description="builds the Splashscreen">
+    <ant dir="Splashscreen" target="dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Splashscreen-version"
+    depends="init,lib,Loader,Gui,Export,Misc"
+    description="updates the version in splashscreen">
+    <ant dir="Splashscreen" target="updatesplashversion-dist" inheritAll="false"/>
+  </target>
+  
+  <target name="Tablet"
+          depends="init,lib,Loader,Util,CH,Gui"
+          description="builds the Renew Tablet Component.">
+    <ant dir="Tablet" target="dist" inheritAll="false"/>
+  </target>
+
+  <target name="Util"
+    depends="init,lib,Loader"
+    description="builds the Renew Util Component.">
+    <ant dir="Util" target="dist" inheritAll="false"/>
+  </target>
+  
+  <!-- End of component list (all but internal components) -->
+
+
+  
+
+  
+  <!-- Use this target as basis to add new components:
+  <target name="Dummy"
+          depends="init,lib,Loader"
+          description="builds the Renew Dummy Component.">
+    <ant dir="Dummy" target="dist" inheritAll="false"/>
+  </target>
+  -->
+
+  <target name="lib"
+          depends="init"
+          description="copies common libraries into the distribution.">
+    <copy todir="${dir.renew.dist.libs}">
+      <fileset dir="${dir.renew.lib}">
+        <include name="**/*.jar"/>
+        <include name="**/*.LICENSE"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="clean"
+          description="cleans all existing subcomponents."
+          depends="configure, clean.dist, clean.finish">
+  </target>
+
+  <!-- cleanall is now an alias for clean -->
+  <target name="cleanall"
+          depends="clean">
+  </target>
+
+  <target name="clean.dist"
+          depends="configure">
+    <subant target="clean" inheritall="false">
+      <fileset dir=".">
+  <include name="*/build.xml"/>
+  <exclude name="RenewAnt/build.xml"/>
+  <exclude name="debian/build.xml"/>
+      </fileset>
+    </subant>
+  </target>
+
+  <target name="clean.finish"
+          depends="configure">
+    <!-- RenewAnt has to be cleaned last (because its classes are needed by ant) -->
+    <ant dir="RenewAnt" target="clean" inheritAll="false"/>
+    <delete includeEmptyDirs="true" failOnError="false">
+      <fileset dir="${dir.renew.dist}"
+               defaultexcludes="false"
+               followsymlinks="false">
+        <exclude name="config/**"/>
+      </fileset>
+    </delete>
+    <!-- We have to check if the tree has been removed in its entirety.
+         On NFS mounts, there may still be some files lying around.
+         However, this check does not cover all cases. It does not
+         verify all subcomponent's build trees. -->
+    <condition property="cond.clean.complete">
+      <or>
+        <available file="${dir.renew.dist}/lib"/>
+        <available file="${dir.renew.dist}/plugins"/>
+      </or>
+    </condition>
+    <fail if="cond.clean.complete"
+      message="The cleanup was not entirely successful. Please re-run the clean target."/>
+  </target>
+
+  <!-- Format all Renew components -->
+  <target name="format"
+          unless="dont.format"
+          depends="init, init.jalopy"
+          description="Formats the Java source code of all Renew subcomponents.">
+    <jalopy fileformat="${option.jalopy.fileformat}"
+            convention="${file.jalopy.convention}"
+            force="${option.jalopy.force}"
+            classpathref="ref.fullclasspath">
+      <fileset dir=".">
+        <include name="*/src/**/*.java" />
+        <include name="*/testsrc/**/*.java" />
+      </fileset>
+    </jalopy>
+  </target>
+
+  <!-- Generate API documentation for all Renew components -->
+  <target name="javadoc"
+          depends="init"
+          description="Creates javadoc documentation for all Renew subcomponents.">
+    <delete dir="${dir.javadoc}"/>
+    <mkdir dir="${dir.javadoc}"/>
+    <javadoc destdir="${dir.javadoc}"
+             author="true"
+             version="true"
+             use="true"
+             access="${option.javadoc.access}"
+             classpathref="ref.fullclasspath"
+             source="${option.compile.source}"
+             maxmemory="256M"
+             useexternalfile="true"
+             windowtitle="Renew API documentation"
+             doctitle="Reference Net Workshop and Plugins - API documentation">
+      <fileset dir="${dir.renew.checkout}">
+        <include name="*/src/**/*.java"/>
+        <include name="*/build/gensrc/**/*.java"/>
+      </fileset>
+      <link href="${link.javadoc.java}" />
+      <link href="${link.javadoc.junit}" />
+      <link href="${link.javadoc.xerces}" />
+      <link href="${link.javadoc.collections}"/>
+      <link href="${link.javadoc.ant}"/>
+      <group title="Simulation Engine and Core Formalisms">
+        <package name="de.renew.application"/>
+        <package name="de.renew.call"/>
+        <package name="de.renew.database:de.renew.database.*"/>
+        <package name="de.renew.engine:de.renew.engine.*"/>
+        <package name="de.renew.expression"/>
+        <package name="de.renew.formalism:de.renew.formalism.*"/>
+        <package name="de.renew.net:de.renew.net.*"/>
+        <package name="de.renew.remote"/>
+        <package name="de.renew.shadow"/>
+        <package name="de.renew.unify*"/>
+        <package name="de.renew.watch"/>
+        <package name="de.uni_hamburg.fs"/>
+      </group>
+      <group title="Graphical User Interface and Files">
+        <package name="CH.ifa.draw*"/>
+        <package name="de.renew.appleui"/>
+        <package name="de.renew.gui:de.renew.gui.*"/>
+        <package name="de.renew.io:de.renew.io.*"/>
+        <package name="de.renew.netcomponents"/>
+      </group>
+      <group title="Plugin Management and Utility Classes">
+        <package name="de.renew.ant"/>
+        <package name="de.renew.plugin:de.renew.plugin.*"/>
+        <package name="de.renew.prompt"/>
+        <package name="de.renew.util"/>
+      </group>
+      <!-- These tags have been used by some authors of plug-ins in the
+           Renew source tree.  It is unknown whether they used a special
+           taglet implementation. -->
+      <tag name="require" description="Requires:" scope="constructors, methods"/>
+      <tag name="ensure" description="Ensures:" scope="constructors, methods"/>
+      <tag name="de.renew.require" description="Requires:" scope="constructors, methods"/>
+      <tag name="de.renew.ensure" description="Ensures:" scope="constructors, methods"/>
+    </javadoc>
+    <!-- Unfortunately, JavaDoc seems to forget about copying additional
+         documentation files (doc-files subdirectory of any package).  So
+         we do this manually.  The regexpmapper just cuts off the directory
+         prefix "Plugin/src" or "Plugin/build/gensrc" from the file names to
+         merge all source directories into one documentation directory. -->
+    <copy todir="${dir.javadoc}">
+      <fileset dir="${dir.renew.checkout}">
+  <include name="*/src/**/doc-files/*"/>
+      </fileset>
+      <regexpmapper handledirsep="true" from="^[^/]+/(src|build/gensrc)/(.*)$" to="\2"/>
+    </copy>
+  </target>
+
+</project>

@@ -1,0 +1,110 @@
+<!-- optionaltasks.xml
+
+     This file can be included in the build.xml of many Renew
+     components or plug-ins.  It should be included outside any
+     target definitions.  This file provides specific targets that
+     define tasks not needed for a standard build process.
+     The tasks defined here are provided by external tools.
+     Ant tasks provided by Renew plug-ins are defined in renewtargets.xml.
+
+     Targets that use a task 'xxx' just need to declare a
+     dependency to the 'init.xxx' which transitively includes init'.
+     Targets that need all optional tasks just need to declare
+     a dependency to the 'init.optional' target.
+
+     Some properties have to be set before the targets in this file can
+     be executed.  If you want to configure them for your local build
+     environment, edit the file 'local.properties' in this directory.
+     The properties of interest are:
+     - dir.cobertura             - location of the cobertura directory 
+                                   containing all necessary jars
+     - dir.jalopy.lib            - location of the Jalopy directory 
+                                   containing jalopy-ant-....jar
+     - file.jarbundler.jar       - location of jarbunder.jar
+     - dir.launch4j              - location of the launch4j directory 
+                                   containing launch4j.jar
+-->
+
+  <!-- Declares a dependency to *all* optional task definitions.
+       Do not forget to augment the dependency set when new
+       optional task definitions are introduced.
+  -->
+  <target name="init.optional"
+	  depends="init.cobertura, init.jalopy, init.jarbundler, init.launch4j"/>
+
+  <!-- Defines the cobertura task for other targets. -->
+  <target name="init.cobertura"
+	  depends="init">
+    <path id="cobertura.classpath">
+      <fileset dir="${dir.cobertura}">
+     	<include name="**/*.jar"/>
+      </fileset>
+    </path>
+    <taskdef classpathref="cobertura.classpath"
+	     resource="tasks.properties"/>
+  </target>
+
+  <!-- Defines the jalopy task for other targets. -->
+  <target name="init.jalopy"
+	  depends="init">
+    <path id="ref.jalopyclasspath">
+      <fileset dir="${dir.jalopy.lib}">
+	<include name="**/*.jar" />
+      </fileset>
+      <pathelement path="${file.log4j.jar}" />
+    </path>
+    <taskdef name="jalopy"
+	     classname="de.hunsicker.jalopy.plugin.ant.AntPlugin"
+	     classpathref="ref.jalopyclasspath" />
+  </target>
+
+  <!-- Defines the eclipse format task for other targets. -->
+  <target name="init.eclipseformat"
+	  depends="init">
+    <macrodef name="eclipseformat">
+        <element name="formatpath" implicit="yes"/>
+        <attribute name="config" default="${file.eclipseformat.config}"/>
+        <sequential>
+            <apply executable="${file.eclipse.executable}" parallel="true" failonerror="true">
+    			<arg line="-application org.eclipse.jdt.core.JavaCodeFormatter" />
+                <arg line="-verbose" />
+                <arg line="-nosplash" />
+                <arg line="-config" />
+                <arg path="@{config}" />
+                <formatpath/>
+    		</apply>
+        </sequential>        
+    </macrodef>
+  </target>
+  
+  <!-- Defines the jarbundler task for other targets. -->
+  <target name="init.jarbundler"
+	  depends="init">
+    <taskdef name="jarbundler"
+             classpath="${file.jarbundler.jar}"
+             classname="net.sourceforge.jarbundler.JarBundler">
+    </taskdef>
+  </target>
+
+  <!-- Defines the appbundler task for other targets. -->
+  <target name="init.appbundler"
+	  depends="init">
+    <taskdef name="bundleapp"
+             classpath="${file.appbundler.jar}"
+             classname="com.oracle.appbundler.AppBundlerTask">
+    </taskdef>
+  </target>
+  
+  <!-- Defines the launch4j task for other targets. -->
+  <target name="init.launch4j"
+	  depends="init">
+    <taskdef name="launch4j"
+	     classname="net.sf.launch4j.ant.Launch4jTask">
+      <classpath>
+	<fileset dir="${dir.launch4j}">
+	  <include name="launch4j.jar"/>
+	  <include name="lib/xstream.jar"/>
+	</fileset>
+      </classpath>
+    </taskdef>
+  </target>

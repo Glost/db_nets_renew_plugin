@@ -1,0 +1,46 @@
+\documentclass[a4paper]{report}
+\usepackage{graphicx}
+\usepackage{renewdef}
+%\usepackage[hypertex]{hyperref}
+\usepackage[ps2pdf]{hyperref}
+
+\graphicspath{{./images/}}
+
+\begin{document}
+  \def\parttitle{Architecture Guide}
+  \input{title.tex}
+
+  \bug{We are sorry, but we were not able to update the
+    architecture guide to the major changes that came with Renew 2.0
+    and further architectural changes in recent versions.
+    This guide still presents the architecture of release 1.6.
+    However, the basic ideas and algorithms of the application are
+    still the same, although some Java package names and interfaces
+    have changed.}
+  \renewcommand{\renewversion}{1.6}
+
+  \tableofcontents
+
+  \listoffigures
+
+  \listoftables
+
+  \input{archintro.tex}
+  \input{archoverview.tex}
+  \input{archalgo.tex}
+  \input{archunif.tex}
+  \input{archdata.tex}
+  \input{archsearch.tex}
+  \input{archexec.tex}
+  \input{archshadow.tex}
+  \input{archsim.tex}
+  \input{archhowto.tex}
+  \input{archbugs.tex}
+
+  \appendix
+
+  \bibliographystyle{plain}
+  \bibliography{renew}
+
+  \input{archglossary.tex}
+\end{document}

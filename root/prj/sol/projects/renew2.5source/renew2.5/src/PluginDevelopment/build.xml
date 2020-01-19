@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+<!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+<!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+<!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+<!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="PluginDevelopment" default="dist" basedir=".">
+	<description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+Plugin Development shall be simplified 
+  </description>
+
+	<!-- makes some checks. (internal). -->
+	<!-- if there is something to initialise, insert here -->
+	<target name="configure">
+		<property name="plugin.name" value="pd" />
+
+  <echo level="debug">    Java Version = ${java.version} </echo>
+  <echo level="debug">    Java Home = ${java.home} </echo>
+  <echo level="debug">    Ant Home = ${ant.home} </echo>
+
+    &commonproperties;
+
+    <property name="dir.src.tools" location="tools" />
+		<path id="ref.classpath">
+			<path refid="ref.sharedlibs" />
+		  <path refid="ref.velocityclasspath"/>
+  			<fileset dir="${dir.renew.dist.plugins}">
+                <include name="ch*.jar" />
+			    <include name="nc*.jar" />
+                <include name="util*.jar" />
+			</fileset>
+			<fileset dir="${dir.renew.dist}">
+				<include name="loader*.jar" />
+			</fileset>
+		</path>
+	</target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+    <copy todir="${dir.build}/classes/">
+			<fileset dir="src">
+				<include name="**/*.vm" />
+			</fileset>
+		</copy>
+
+	</target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+  
+  <target name="compile" 
+  	depends="init, javac" 
+  	description="Compiles the Renew netcomponents plugin with all dependencies (default).">
+	</target>
+
+	<target name="dist" 
+	  depends="init, compile, jar, copytodist.dir" 
+	  description="Builds the Renew netcomponents plugin completely. Prepend 'clean' to build from scratch.">
+	</target>
+
+	<target name="clean" 
+		depends="configure, clean.common.dir"
+  		description="Removes all generated code/classes/doc.">
+	</target>
+
+	<!-- Copies all files of the default toolset to the distribution dir. (internal). -->
+	<target name="copytodist.tools"
+	  depends="init, copytodist.dir">
+		<mkdir dir="${dir.dist.tools}"/>
+		<copy todir="${dir.dist.tools}">
+			<fileset dir="${dir.src.tools}" includes="images/*.gif,.sequence,*.rnw"/>
+		</copy>
+	</target>
+
+	<!-- creates a plugin jar file including all libraries and classes -->
+	<target name="jar"
+          depends="configure, computeFilenames">
+		<property name="dir.dist.tools" location="${dir.dist.plugin}/tools"/>
+		<jar destfile="${file.build.jar}">
+			<fileset dir="${dir.build.classes}"/>
+		</jar>
+	</target>
+</project>

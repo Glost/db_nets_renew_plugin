@@ -1,0 +1,8 @@
+11 
+    de.renew.fa.FADrawing 2 
+        de.renew.fa.figures.FAStateFigure "attributes" "attributes" 2 "FigureWithID" "Int" 10 "FillColor" "Color" 255 255 255 255 38 38 40 40 NULL 
+            de.renew.fa.figures.NullDecoration  "de.renew.fa.figures.NullDecoration"  
+        de.renew.fa.figures.FAArcConnection "attributes" "attributes" 3 "LineStyle" "String" "" "FigureWithID" "Int" 2 "LineShape" "Int" 1 4 52 40 42 16 78 15 66 41 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 1  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 1   NULL  367 219 598 600 

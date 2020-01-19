@@ -1,0 +1,133 @@
+\section{Simulation}
+
+Ultimately, we come to the class that puts together the
+simulation algorithms that we described so far.
+It is the \texttt{Simulator}, which is responsible for
+starting and stopping a simulation run. While running,
+it has to acquire potentially activated transitions from the
+\texttt{SearchQueue}, search for an activate binding using
+a \texttt{Searcher} and fire the \texttt{Binding}, 
+if one is found. The main problem that arises at this level
+is to control the concurrent access to the search queue
+and to the simulator while starting and stopping.
+
+\singlediagram{simulator}{The simulator implementations}
+
+Fig.~\ref{fig:simulator} gives the basic interface of a simulator class
+and lists the three currently available implementations.
+Every simulator provides methods to set the desired simulation mode,
+i.e., stopped, single step, or running continuously.
+A refresh request instructs the simulator
+to search again for possible binding, even if a prior search
+failed. This might be required if the user requested a
+change of the net state during the search process.
+
+After the firing of a step has been requested, 
+the simulator must report in a status code whether a step was actually
+or not. It must also indicate, whether additional steps might be possible.
+
+\begin{table}[htbp]
+  \begin{center}
+    \begin{tabular}{lp{2,5cm}p{2,5cm}p{2,5cm}}
+      status code & \parbox[b]{2,5cm}{\raggedright Was a transi\-tion fired?}
+                  & \parbox[b]{2,5cm}{\raggedright Was a transi\-tion activated?}
+                  & \parbox[b]{2,5cm}{\raggedright Might there be
+                    activated transi\-tions in the future?\strut} \\\hline
+      \texttt{statusStepComplete} & yes & yes & yes \\\hline
+      \texttt{statusLastComplete} & yes & yes & no \\\hline
+      \texttt{statusCurrentlyDisabled} & no & no & yes \\\hline
+      \texttt{statusDisabled} & no & no & no \\\hline
+      \texttt{statusStopped} & no & unknown & yes \\
+    \end{tabular}
+    \caption{The simulator status codes}
+    \label{tab:statuscodes}
+  \end{center}
+\end{table}
+
+The \texttt{ParallelSimulator} aggregates a number of other simulators
+that can then search in parallel without knowing of each other.
+It coordinates the search effort and makes sure that all simulators
+contribute to a continuous simulation, but only one simulator
+is requested to perform a single step operation.
+
+Another version is the \texttt{SequentialSimulator}, which
+fires one transition occurrence at a time. This is required for
+some of the more exotic net formalisms, that are not easily
+equipped with a partial order semantics. Although this is the simplest
+implementation of a real simulator, it is already non-trivial.
+
+Synchronisation on the simulator object ensure mutual
+exclusion of the requests to change the current simulation
+mode. That means that the only concurrency control has to happen 
+between one thread that performs a continuous simulation
+and the thread that wants to change to simulation mode.
+
+The simulation thread is referenced by the field
+\texttt{runThread}. Whenever a new run request is issued,
+a new thread is created. This allows the threads to be garbage
+collected upon completion. Reusing one thread would
+permanently allocate this thread, unless done carefully.
+
+The sequential simulator makes sure to compute another 
+possible binding immediately after it executed another binding.
+This ensures that the simulator can return a specific
+status code whenever there are no more activated transitions.
+
+The more elaborated simulator class is named \texttt{ConcurrentSimulator}.
+Here the transitions may be executed concurrently to other transitions
+and concurrent to a single search process. In fact, the simulator tries
+to execute transitions as sequentially as possible. If
+an inscription of a transition could possibly require
+the firing of other transitions in order to be completed,
+the simulator will detach the remaining execution of a binding from the
+search thread. Transitions that do not involve longish actions,
+however, will be executed synchronously.
+
+Because bindings are sometimes executed concurrently, there might always be 
+firing bindings that can still deposit tokens in certain place instances.
+Hence it is infeasible to determine that there will be no more
+activated transitions. Therefore the sequential simulator returns
+less specific status codes, always indicating that there might be further
+activated transitions.
+
+\singlediagram{simalgpn}{The concurrent simulation algorithm as a Petri net}
+% See simcallpn.rnw for a sample control net.
+
+Fig.~\ref{fig:simalgpn} shows the basic structure of the
+concurrent simulator. The thread that controls the simulator,
+typically the GUI, invokes the transitions at the right. 
+They set the desired mode of operation: 
+termination (\texttt{-1}),
+stopped (\texttt{0}),
+single step (\texttt{1}), or
+continuous run (\texttt{2}).
+The desired mode in turn influences the simulation thread.
+Unless a continuous run was requested, the controlling thread 
+will wait until the simulation thread reached an idle state where no more
+firings are tried.
+
+It is not shown in the Petri net, how the status code is passed between
+the simulator thread an the controlling thread.
+This is done using the field \texttt{stepStatusCode} in the implementation.
+
+The termination of the search process is shown only schematically.
+The extended time span that a search requires is indicated by
+a looping transition that searches and an ultimate transition
+that finds a binding or determines a dead transition.
+In the real implementation, the termination request is passed to an
+instance of \texttt{AbortFinder}, which stops the search process if
+one is running. 
+
+The \texttt{SearchQueue} has been reduced to the single place
+\texttt{possibly activated} in the net. A notification algorithm
+implemented in the methods \texttt{searchQueueNonempty()}
+and \texttt{registerAtSearchQueue()} is required for a Java 
+implementation. One inhibitor arc is used in the net
+in order to check whether the search queue is empty.
+The use of an inhibitor arc already indicates that
+concurrency must be controlled very carefully here.
+
+In order to prevent deadlocks, the simulator obeys the following
+locking sequence: synchronize on the simulator object,
+then synchronize on the search queue, then synchronize on
+a dedicated object \texttt{threadLock}.

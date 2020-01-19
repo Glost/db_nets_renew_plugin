@@ -1,0 +1,193 @@
+<!-- renewtargets.xml
+
+     This file can be included in the build.xml of Renew
+     components or plugins.  It defines targets that need tasks
+     provided by Renew components.  Those targets depend on the
+     special "init.renewtasks" target defined in this file.  They
+     can not be used before the Simulator, Gui, and Export components
+     are built.
+
+     Some properties have to be set before the targets in this file can
+     be executed.  If you want to configure them for your local build
+     environment, edit the file 'local.properties' in this directory.
+     The properties of interest are:
+     - dir.renew.dist      - location of the Renew dist directory.
+     - dir.renew.dist.plugins - location of the Renew plugins directory.
+                             It must contain the plugins referred
+                             by the "ref.classpath.renewtasks"
+                             definition in the "init.renewtasks"
+                             target.
+
+     Some references have to be defined before the targets in this file
+     can be executed.  They need to be defined in each build.xml.
+     The references of interest are:
+     - ref.classpath       - classpath needed for compilation,
+                             including all external packages.
+-->
+
+    <!-- Predefine the classpath for tasks defined in "init.renewtasks".
+         This path may be overridden in specific build files, if more
+         components are needed.
+	 To override, define a target 'configure.renewtasks' in the local
+	 build.xml and ensure that it is included in the dependency chain
+	 between 'preconfigure.renewtasks' and 'init.renewtasks'. -->
+  <target name="preconfigure.renewtasks">
+    <path id="ref.classpath.renewtasks">
+      <path refid="ref.antclasspath"/>
+      <path refid="ref.sharedlibs"/>
+      <fileset dir="${dir.renew.dist}">
+        <include name="loader.jar"/>
+      </fileset>
+      <fileset dir="${dir.renew.dist.plugins}">
+        <include name="renewant*.jar"/>
+        <include name="util*.jar"/>
+        <include name="simulator*.jar"/>
+        <include name="formalism*.jar"/>
+        <include name="misc*.jar"/>
+        <include name="ch*.jar"/>
+        <include name="gui*.jar"/>
+        <include name="export*.jar"/>
+      </fileset>
+    </path>
+  </target>
+
+  <!-- Defines tasks provided by Renew components.  This target is required
+       by net stub and shadow net targets.  Large parts of Renew need to be
+       built before the tasks in this target can be defined. -->
+  <target name="init.renewtasks"
+          depends="preconfigure.renewtasks,init">
+    <!-- Be aware that overriding the properties of these tasks (especially 
+         the classpath) has no effect because ant uses the first property set 
+         (event though it is done in some of the ant files). This is for 
+         example important if you want to use the createsns task for FS nets, 
+         because it requires an extended classpath. -->
+    <taskdef name="createstubs"
+	     classname="de.renew.ant.CreateStubsTask"
+             classpathref="ref.classpath.renewtasks"/>
+    <taskdef name="createsns"
+	     classname="de.renew.ant.CreateShadownetsTask"
+             classpathref="ref.classpath.renewtasks"/>
+    <!-- CreateEPS from .rnw  -->
+    <taskdef name="createeps"
+        classname="de.renew.ant.CreateNetEpsTask"
+        classpathref="ref.classpath.renewtasks"/>    
+    <!-- CreatePNG from .rnw  -->
+    <taskdef name="createpng"
+        classname="de.renew.ant.CreateNetPngTask"
+        classpathref="ref.classpath.renewtasks"/>    
+  </target>
+
+  <!-- Checks whether net stub generation is needed in a component. -->
+  <target name="checknetstubs"
+	  depends="preconfigure.renewtasks,configure">
+    <uptodate property="tasknotneeded.createstubs">
+      <srcfiles dir= "${dir.src}" includes="**/*.stub"/>
+      <mapper type="glob" 
+	      from="*.stub"
+	      to="${dir.build.gensrc}/*.java"/>
+    </uptodate>
+  </target>
+
+  <!-- Generates java-Code from Renew .stub files into the gensrc
+       tree of a component. -->
+  <target name="netstubs" 
+	  unless="tasknotneeded.createstubs"
+	  depends="init.renewtasks,checknetstubs">
+     <createstubs destdir="${dir.build.gensrc}">
+	<fileset dir="${dir.src}">
+	  <include name="**/*.stub"/>
+	</fileset>
+     </createstubs>
+  </target>
+
+  <!-- Copies Renew net drawings to build (internal, optional). -->
+  <target name="rnw"
+	  depends="init"
+	  if="option.include.rnws">
+    <copy todir="${dir.build.classes}"
+	  flatten="true">
+      <fileset dir="${dir.src}">
+        <patternset refid="ref.netpattern" />
+      </fileset>
+    </copy>	  
+  </target>
+
+  <!-- Generates shadow nets from Renew net drawings in a component.
+       Always uses the Java Net Compiler. -->
+  <target name="sns"
+	  depends="init.renewtasks,rnw"
+	  unless="option.exclude.sns">
+    <path id="ref.classpath.sns">
+      <path refid="ref.classpath"/>
+      <pathelement location="${dir.build.classes}"/>
+    </path>
+    <path id="ref.snsnetpath">
+      <path refid="ref.netpath"/>
+    </path>
+    <!-- creates separate sns for each rnw -->
+    <createsns compilername="de.renew.formalism.java.JavaNetCompiler" 
+               compile="${option.sns.compile}" 
+               destdir="${dir.build.classes}"
+               classpathref="ref.classpath.sns"
+	       netpathref="ref.snsnetpath">
+      <fileset dir="${dir.src}">
+        <patternset refid="ref.netpattern" />
+      </fileset>
+    </createsns>
+  </target>
+
+  <target name="init.renewontologytasks" 
+      depends="init,preconfigure.renewtasks">
+    <path id="ref.classpath.sns">
+      <path refid="ref.classpath.renewtasks" />
+      <path refid="ref.classpath" />
+      <fileset dir="${dir.renew.dist.plugins}">
+        <include name="fs*.jar"/>
+      </fileset>  
+      <pathelement location="${dir.build.classes}" />
+    </path>
+    <taskdef name="createfssns" 
+        classname="de.renew.ant.CreateShadownetsTask"
+        classpathref="ref.classpath.sns"/>
+    <path id="ref.classpath.fsontology">
+      <path refid="ref.antclasspath" />
+<!-- <path refid="ref.classpath.ontology" /> -->
+      <path refid="ref.velocityclasspath" />
+      <fileset dir="${dir.renew.dist.plugins}">
+        <include name="fsontgen-*.jar" />
+      </fileset>
+      <path refid="ref.classpath" />
+    </path>
+    <taskdef name="createfsontology"
+        classname="de.renew.ant.renewontology.GenerateFSOntologyTask"
+        classpathref="ref.classpath.fsontology" />
+  </target>
+
+  <!-- Generates shadow nets from ontology net drawings (internal). -->
+  <target name="fsontology.sns" depends="init, init.renewtasks">
+    <!-- creates separate sns for each rnw -->
+    <createfssns compile="false" 
+        compilername="de.renew.formalism.fsnet.XFSNetCompiler"
+        destdir="${dir.build.classes}">
+      <fileset dir="${dir.src}">
+        <include name="ontology/*.rnw" />
+      </fileset>
+    </createfssns>
+  </target>
+
+  <target name="fsontology" 
+      depends="init.renewontologytasks, fsontology.sns">
+    <!-- configure the netpath to look for referenced ontology sns's -->
+    <path id="ref.ontology.netpath">
+      <pathelement location="${dir.build.classes}/ontology" />
+      <fileset dir="${dir.renew.dist.libs}">
+        <include name="**/log4j*.jar"/>
+      </fileset>
+    </path>
+    <createfsontology destdir="${dir.build.gensrc}">
+      <fileset dir="${dir.build.classes}">
+        <include name="ontology/*.sns" />
+      </fileset>
+    </createfsontology>
+</target>
+

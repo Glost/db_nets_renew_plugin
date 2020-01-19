@@ -1,0 +1,15 @@
+This plug-in provides rudimentary support of the MacOS X user interface 
+to the plug-in system. For the time beeing, this means that the shortcut
+Command-Q will initiate a proper shutdown of the plug-in system instead
+of killing the process.
+
+The AppleUI plug-in has soft dependencies to the JHotDraw and Gui plug-ins.
+They are not neccessary, but their functionality will be slightly enhanced by
+this plug-in.
+
+The code within this plugin requires the Apple-specific extension package
+com.apple.eawt for compilation and execution. The package is delivered
+with the MacOS X Java virtual machine in the file ui.jar. If you are
+not running an Apple computer, you cannot run this plug-in.
+However, you may compile this plugin if you copy the file ui.jar from
+an Apple machine to the directory AppleUI/lib.

@@ -1,0 +1,135 @@
+<?xml encoding="US-ASCII"?>
+<!ELEMENT net (place*, transition*, arc*, annotation*)>
+<!ATTLIST net
+  id ID #REQUIRED
+  type CDATA #IMPLIED>
+<!-- 
+  Valid net types include:
+    ptnet
+    hlnet
+  The net elements are created in such an order that no forward references 
+  occur in the common cases. This simplifies parsing, which is
+  difficult enough, and puts only a small burden on the generation
+  code.
+  -->
+<!ELEMENT place (graphics?, annotation*)>
+<!ATTLIST place
+  id ID #REQUIRED
+  type CDATA #IMPLIED>
+<!-- 
+  Valid place types include:
+    ordinary
+  -->
+<!ELEMENT transition (graphics?, annotation*)>
+<!ATTLIST transition
+  id ID #REQUIRED
+  type CDATA #IMPLIED>
+<!-- 
+  Valid transition types include:
+    ordinary
+  -->
+<!ELEMENT arc (graphics?, annotation*)>
+<!ATTLIST arc
+  id ID #REQUIRED
+  source IDREF #REQUIRED
+  target IDREF #REQUIRED
+  type CDATA #IMPLIED>
+<!-- 
+  Valid arc types include:
+    ordinary
+    double
+    test
+    multi-ordinary
+    inhibitor
+    clear
+  -->
+<!ELEMENT annotation (text, graphics?)>
+<!ATTLIST annotation
+  id ID #REQUIRED
+  type CDATA #IMPLIED>
+<!ELEMENT text (#PCDATA)>
+<!-- 
+  Most annotations are only valid for HL-nets.
+  Valid net annotation types include:
+    comment (also PTnet)
+    name (also PTnet)
+    declaration
+  Valid place annotation types include:
+    comment (also PTnet)
+    name (also PTnet)
+    initialmarking (also PTnet)
+    currentmarking (also PTnet)
+    capacity (also PTnet)
+    type
+  Valid transition annotation types include:
+    comment (also PTnet)
+    name (also PTnet)
+    guard
+    expression
+    action
+    uplink
+    downlink
+  Valid arc annotation types include:
+    comment (also PTnet)
+    expression (also PTnet, there it must be a positive integer)
+
+  If the annotation type is omitted, it has to be
+  inferred from the annotation text.
+  Types that are not recognized by the parser should be
+  reported to the user, but also inferred if possible.
+  -->
+<!ELEMENT graphics (size?, textsize?, offset?,
+  fillcolor?, pencolor?, textcolor?, point*, data*)>
+<!--
+  The rationale for an individual graphics element is
+  that non-graphical applications can easily ignore any
+  graphics-related information this way. Easier than
+  listing all attributes directly within the net elements.
+
+  All coordinates and sizes are expected in pixel units.
+  All numeric values are given in the form of Java number literals.
+  All sizes default to application dependent value.
+  The offset describes the offset of the net element's center.
+  Index origin of the net itself is the upper left corner.
+  Positive x-coordinates run right, positive y-coordinates run down.
+-->
+<!ELEMENT size EMPTY>
+<!ATTLIST size
+  w CDATA #REQUIRED
+  h CDATA #REQUIRED>
+<!ELEMENT textsize EMPTY>
+<!ATTLIST textsize
+  size CDATA #REQUIRED>
+<!ELEMENT offset EMPTY>
+<!ATTLIST offset
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED>
+<!-- 
+  Colors are given in RGB form, where the individual colors
+  are given by integers in the range 0 to 255. A transparent color
+  means that the object should not be drawn at all. The background
+  color can be used to make already painted parts invisible.
+  -->
+<!ELEMENT fillcolor (RGBcolor | transparent | background)>
+<!ELEMENT pencolor (RGBcolor | transparent | background)>
+<!ELEMENT textcolor (RGBcolor | transparent | background)>
+<!ELEMENT RGBcolor EMPTY>
+<!ATTLIST RGBcolor
+  r CDATA #REQUIRED
+  g CDATA #REQUIRED
+  b CDATA #REQUIRED>
+<!ELEMENT transparent EMPTY>
+<!ELEMENT background EMPTY>
+<!ELEMENT point (x,y)>
+<!ATTLIST point
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED>
+<!ELEMENT data (#PCDATA)>
+<!ATTLIST data
+  type CDATA #REQUIRED>
+<!-- 
+  Data elements may carry additional information about a net element.
+  Data types should be registered and ultimately converted to
+  individual elements.
+  -->
+

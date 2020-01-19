@@ -1,0 +1,71 @@
+\documentclass[a4paper]{report}
+%\usepackage{epspdfconversion}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{renewdef}
+%\usepackage[hypertex]{hyperref}
+\usepackage[breaklinks]{hyperref}
+\usepackage{longtable}
+%\usepackage{alltt}
+\usepackage{breakurl}
+\usepackage{todonotes}
+\usepackage{listings}
+
+\lstloadlanguages{bash,Java}
+\lstset{language=bash,escapechar=§,tabsize=4,morecomment=[l][basicstyle]{http://}}
+\lstdefinestyle{floating}{basicstyle=\scriptsize,float, frame=single, captionpos=b}
+\lstdefinestyle{nonfloating}{basicstyle=\scriptsize, frame=single, captionpos=b,breaklines=true}
+\lstdefinestyle{inline}{}
+
+\lstloadlanguages{Java}
+\lstset{language=Java,escapechar=§,tabsize=4,morecomment=[l][basicstyle]{http://}}
+\lstdefinestyle{xfloating}{basicstyle=\scriptsize,float, frame=single, captionpos=b}
+\lstdefinestyle{xnonfloating}{basicstyle=\small\ttfamily, frame=single, breaklines = true,  captionpos=b, prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\backslash}}}
+
+\graphicspath{{./images/}}
+
+%%------------------------------------------------------------------%%
+%% Reduce the spaces between items in bullet lists
+%%------------------------------------------------------------------%%
+\renewenvironment{itemize}
+{\begin{list}{$\bullet$}
+    {
+      \topsep2pt
+      \parsep0.1ex plus0.1ex minus0.0ex
+      \itemsep0.5ex
+      \leftmargin30pt}}{%
+  \end{list}}
+%%------------------------------------------------------------------%%
+
+\begin{document}
+  \def\parttitle{User Guide}
+  \input{title.tex}
+
+  \tableofcontents
+
+  \listoffigures
+
+  \listoftables
+
+  \input{intro.tex}
+
+  \input{install.tex}
+
+  \input{formalism.tex}
+
+  \input{drawing.tex}
+
+  \appendix
+
+  \bibliographystyle{plain}
+  \bibliography{renew}
+
+  \input{contact.tex}
+
+  \input{filetypes.tex}
+
+  \input{shortcuts.tex}
+
+  \input{license.tex}
+
+\end{document}

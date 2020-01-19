@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+   <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="Renew-Util" default="dist" basedir=".">
+    <description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+Renew-Util comprises several utility classes and function
+libraries needed by most components of Renew.
+    </description>
+
+  <!-- makes some checks. (internal). -->
+  <!-- if there is something to initialise, insert here -->
+  <target name="configure">
+    <property name="plugin.name" value="util"/>
+
+    &commonproperties;
+
+    <path id="ref.classpath">
+  	<path refid="ref.antclasspath"/>
+	<path refid="ref.sharedlibs"/>
+	<fileset dir="${dir.renew.dist}">
+		<include name="loader*.jar"/>
+	</fileset>
+    </path>
+  </target>
+
+  <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+  
+  <target name="compile" 
+	  depends="init, javac" 
+	  description="Compiles the Renew Util component with all dependencies.">
+  </target>
+
+  <target name="dist" 
+	  depends="init, compile, jar, copytodist.jar" 
+	  description="Builds this project resulting in a 'util.jar' (default). Prepend 'clean' to build from scratch.">
+  </target>
+
+  <target name="test"
+      depends="init, compile, test.javac, test.run"
+      description="Builds and runs JUnit tests on the Renew Util component.">
+  </target>
+
+  <target name="clean" 
+		depends="configure, clean.common.jar"
+  		description="Removes all generated code/classes/doc.">
+  </target>
+
+  <!-- creates a plugin jar file including all libraries and classes -->
+  <target name="jar"
+  	depends="compile">
+	<jar destfile="${file.build.jar}">
+		<fileset dir="${dir.build.classes}"/>
+	</jar>
+  </target>
+
+</project>

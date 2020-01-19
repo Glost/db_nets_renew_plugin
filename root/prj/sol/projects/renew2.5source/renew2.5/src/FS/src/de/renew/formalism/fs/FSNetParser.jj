@@ -1,0 +1,2137 @@
+/**
+ *
+ * Copyright (C) 1996, 1997 Sun Microsystems Inc.
+ *
+ * This file was modified from billsJava1.0.2.jj .
+ *
+ * Use of this file and the system it is part of is constrained by the
+ * file COPYRIGHT distributed with JavaCC version 7.0.  You may, however,
+ * make any modifications you wish to this file.
+ *
+ * Author: Sriram Sankar
+ * Date: 3/5/97
+ *
+ * Author: Olaf Kummer / Frank Wienberg
+ * Date: 04/28/99
+ *
+ * This file contains a FS/Net grammar and a partial Java grammar.
+ *
+ * From Java expressions I removed ++ and -- expressions, as well
+ * as updating assignments (+=, -=, etc.) They make no sense
+ * due to the write-once semantics of the variables. The
+ * ternary ?: operator was removed, too. The shortcut
+ * operators && and || are identical to & and | for simplicity.
+ *
+ * As this parser is based on Java 1.0.2, no inner classes are admitted.
+ * 
+ */
+
+options {
+  LOOKAHEAD = 1;
+  STATIC = false;
+  JAVA_UNICODE_ESCAPE = true;
+  UNICODE_INPUT = false;
+}
+
+PARSER_BEGIN(FSNetParser)
+
+package de.renew.formalism.fs;
+
+import collections.HashedMap;
+import collections.UpdatableMap;
+
+import de.renew.expression.CallExpression;
+import de.renew.expression.ConstantExpression;
+import de.renew.expression.Expression;
+import de.renew.expression.Function;
+import de.renew.expression.LocalVariable;
+import de.renew.expression.VariableExpression;
+
+import de.renew.formalism.function.BasicFunction;
+import de.renew.formalism.function.BasicUnaryFunction;
+import de.renew.formalism.function.DynamicConstructorFunction;
+import de.renew.formalism.function.InstanceofFunction;
+
+import de.renew.formalism.java.ChannelInscription;
+import de.renew.formalism.java.JavaHelper;
+import de.renew.formalism.java.LiteralParser;
+import de.renew.formalism.java.ParsedImportDecl;
+import de.renew.formalism.java.PrimaryPart;
+import de.renew.formalism.java.TimedExpression;
+import de.renew.formalism.java.Token;
+import de.renew.formalism.java.TypedExpression;
+
+//We need an explicit override for the automatically generated
+//classes, otherwise we get serious type errors.
+import de.renew.formalism.java.ParseException;
+import de.renew.formalism.java.ParsedDeclarationNode;
+
+import de.renew.net.Net;
+import de.renew.net.NetInstance;
+import de.renew.net.Transition;
+import de.renew.net.TransitionInscription;
+import de.renew.net.UplinkInscription;
+import de.renew.net.inscription.ActionInscription;
+import de.renew.net.inscription.CreationInscription;
+import de.renew.net.inscription.DownlinkInscription;
+import de.renew.net.inscription.ExpressionInscription;
+
+import de.renew.shadow.ShadowLookup;
+
+import de.renew.unify.Impossible;
+import de.renew.unify.Tuple;
+
+import de.renew.util.Types;
+import de.renew.util.Value;
+
+import de.uni_hamburg.fs.BasicType;
+import de.uni_hamburg.fs.Concept;
+import de.uni_hamburg.fs.ConceptImpl;
+import de.uni_hamburg.fs.ConceptSet;
+import de.uni_hamburg.fs.ConjunctiveType;
+import de.uni_hamburg.fs.EquivRelation;
+import de.uni_hamburg.fs.FeatureStructure;
+import de.uni_hamburg.fs.JavaClassType;
+import de.uni_hamburg.fs.JavaObject;
+import de.uni_hamburg.fs.JavaType;
+import de.uni_hamburg.fs.ListType;
+import de.uni_hamburg.fs.Name;
+import de.uni_hamburg.fs.Node;
+import de.uni_hamburg.fs.OrderedTable;
+import de.uni_hamburg.fs.ParsedConjunctiveType;
+import de.uni_hamburg.fs.ParsedListType;
+import de.uni_hamburg.fs.ParsedType;
+import de.uni_hamburg.fs.Path;
+import de.uni_hamburg.fs.Type;
+import de.uni_hamburg.fs.TypeException;
+import de.uni_hamburg.fs.TypeSystem;
+import de.uni_hamburg.fs.UnificationFailure;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+//TODO: Please switch on or off this flag to suppress all "unused" warnings in this code. 
+//Default case is to suppress unused warnings, because the generator produces lots of unused code.
+// when working on this class, turn the suppression off.
+ @SuppressWarnings("unused")
+public class FSNetParser implements FSInscriptionParser {
+
+  public static org.apache.log4j.Logger logger = 
+	     			org.apache.log4j.Logger.getLogger(FSNetParser.class) ;
+
+  ShadowLookup lookup=null;
+
+  /**
+   * Stores the declaration node to use when parsing inscriptions.
+   * If <code>null</code>, then some concept resolution and Java parsing
+   * features of the parser are skipped, resulting in less accurate output
+   * and less reported errors.
+   **/     
+  ParsedFSDeclarationNode decl = null;
+
+  /**
+   * Usually a copy of {@link #decl}, but never <code>null</code>.
+   * If <code>decl</code> is set to <code>null</code>, then this
+   * field contains an empty <code>ParsedFSDeclarationNode</code>.
+   **/
+  ParsedFSDeclarationNode declNotNull = new ParsedFSDeclarationNode();
+
+  boolean inAction=false;
+
+  public void setLookup(ShadowLookup lookup) {
+    this.lookup=lookup;
+  }
+
+  /**
+   * {@inheritDoc}
+   * @param decl  must be an instance of {@link ParsedFSDeclarationNode}.<br>
+   *              Setting the declaration node to <code>null</code> skips
+   *              some concept resolution and Java parsing features of the
+   *              parser, resulting in less accurate output and less
+   *              reported errors (this is the default).
+   * @throws ClassCastException
+   *   if <code>decl</code> is not a <code>ParsedFSDeclarationNode</code>
+   **/
+  public void setDeclarationNode(ParsedDeclarationNode decl) {
+    this.decl=(ParsedFSDeclarationNode)decl;
+    if (this.decl == null) {
+      this.declNotNull = new ParsedFSDeclarationNode();
+    } else {
+      this.declNotNull = this.decl;
+    }
+  }
+
+}
+
+PARSER_END(FSNetParser)
+
+
+// SKIP : /* WHITE SPACE */
+// {
+//   " "
+// | "\t"
+// | "\n"
+// | "\r"
+// | "\f"
+// }
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+| <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
+| <FORMAL_COMMENT: "/**" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+  < ABSTRACT: "abstract" >
+| < ACTION: "action" >
+| < BOOLEAN: "boolean" >
+| < BREAK: "break" >
+| < BYTE: "byte" >
+| < CASE: "case" >
+| < CATCH: "catch" >
+| < CHAR: "char" >
+| < CLASS: "class" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < _DEFAULT: "default" >
+| < DO: "do" >
+| < DOUBLE: "double" >
+| < ELSE: "else" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < FINAL: "final" >
+| < FINALLY: "finally" >
+| < FLOAT: "float" >
+| < FOR: "for" >
+| < GOTO: "goto" >
+| < GUARD: "guard" >
+| < IF: "if" >
+| < IMPLEMENTS: "implements" >
+| < IMPORT: "import" >
+| < INSTANCEOF: "instanceof" >
+| < INT: "int" >
+| < INTERFACE: "interface" >
+| < LONG: "long" >
+| < NATIVE: "native" >
+| < NEW: "new" >
+| < NULL: "null" >
+| < PACKAGE: "package">
+| < PRIVATE: "private" >
+| < PROTECTED: "protected" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < SHORT: "short" >
+| < STATIC: "static" >
+| < SUPER: "super" >
+| < SWITCH: "switch" >
+| < SYNCHRONIZED: "synchronized" >
+| < THIS: "this" >
+| < THROW: "throw" >
+| < THROWS: "throws" >
+| < TRANSIENT: "transient" >
+| < TRUE: "true" >
+| < TRY: "try" >
+| < VOID: "void" >
+| < VOLATILE: "volatile" >
+| < WHILE: "while" >
+| < ACCESS: "access" >
+| < ANY: "Any" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < TAG_SIGN: "#" >
+|
+  < LOWER_RANGE_LITERAL:
+        ["0"-"1"] ".." >
+|
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < TAGIDENT: "#" (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER:
+      [
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+TOKEN : /* SEPARATORS */
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
+| < DOTDOT: ".." >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < ASSIGN: "=" >
+| < GT: ">" >
+| < LT: "<" >
+| < BANG: "!" >
+| < TILDE: "~" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < INCR: "++" >
+| < DECR: "--" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < RSIGNEDSHIFT: ">>" >
+| < RUNSIGNEDSHIFT: ">>>" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RUNSIGNEDSHIFTASSIGN: ">>>=" >
+| < AT: "@" >
+}
+
+TOKEN : /* CATCHALL TOKEN DEFINITION */
+{
+  < OTHERCHAR: ["\u0000"-"\uffff"] >
+}
+
+
+/*********************************
+ * THE RENEW GRAMMAR STARTS HERE *
+ *********************************/
+
+// Thoroughly parse the declaration node.
+
+ParsedDeclarationNode DeclarationNode() :
+{
+  setDeclarationNode(new ParsedFSDeclarationNode());
+
+  ParsedImportDecl importDecl;
+  String accessDecl;
+  Token t;
+}
+{
+  ( {t=token;}
+    accessDecl = PackageDeclaration()
+    {logger.warn("Ignoring declaration of package " + accessDecl + " outside of FS ontology generation."); }
+  )?
+  ( {t=token;}
+    accessDecl=AccessDeclaration()
+    {decl.addAccess(accessDecl,t.next);}
+  )*
+  (
+    {t=token;}
+    importDecl=ImportDeclaration()
+    {decl.addImport(importDecl,t.next);}
+  )*
+  ( VariableDeclaration() )*
+  <EOF>
+  { return decl; }
+}
+
+String PackageDeclaration() :
+{
+  String name;
+}
+{
+  <PACKAGE> name=Name() ";"
+  { return name; }
+}
+
+ParsedImportDecl ImportDeclaration() :
+{
+  String name;
+  boolean star=false;
+}
+{
+  <IMPORT> name=Name() [ "." "*" { star=true; } ] ";"
+  { return new ParsedImportDecl(name,star); }
+}
+
+String AccessDeclaration() :
+{
+  String name;
+}
+{
+  <ACCESS> name=Name() ";"
+  { return name; }
+}
+
+void VariableDeclaration() :
+{
+  Class<?> clazz;
+  Token t;
+  int arrayLevel=0;
+}
+{
+  clazz=Type()
+  VariableNamePart(clazz)
+  ( "," VariableNamePart(clazz) )* ";"
+}
+
+void VariableNamePart(Class<?> clazz) :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  ( "[" "]"
+    { clazz=JavaHelper.increaseArrayLevel(clazz,token); }
+  )*
+  { 
+    decl.addVariable(clazz,t.image,t);
+  }
+
+}
+
+Collection<Object> PlaceInscription() :
+{
+  Object single;
+  Collection<Object> inscriptions=new ArrayList<Object>();
+}
+{
+  single=SinglePlaceInscription()
+  { inscriptions.add(single); }
+  (
+    ";"
+    [ 
+      single=SinglePlaceInscription()
+      { inscriptions.add(single); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+Object SinglePlaceInscription() :
+{
+  Class<?> type;
+  TypedExpression expr;  
+  Vector<PrimaryPart> vector;
+  Object obj;
+}
+{
+  (
+    LOOKAHEAD(NonArrayType() ("[" "]")+)
+    type=Type()
+    { return type; }  	
+  |
+    type=PrimitiveType()
+    { return type; }  	
+  |
+    LOOKAHEAD(PrimaryExpression() (";" | <EOF>))
+    vector=PrimaryExpression()
+    {
+      StringBuffer name=new StringBuffer();
+      boolean isName=true;
+      for (int i=0;i<vector.size();i++) {
+        PrimaryPart part=vector.elementAt(i);
+	if (part.type!=PrimaryPart.NAME) {
+          isName=false;
+        } else {
+          if (i>0) {
+            name.append('.');
+          }
+          name.append((String)part.obj);
+        }
+      }
+
+      if (isName && decl!=null) {
+        obj=decl.interpreteName(name.toString());
+        if (obj instanceof Class) {
+          return obj;
+        }
+      }
+      return JavaHelper.makeExpression(vector, null, declNotNull, null);
+    }
+  |
+    expr=Expression()
+    { return expr; }
+  )
+}
+
+Collection<TransitionInscription> TransitionInscription(boolean create, Transition transition) :
+{
+  Collection<TransitionInscription> subInscriptions;
+  Collection<TransitionInscription> inscriptions=new ArrayList<TransitionInscription>();
+}
+{
+  subInscriptions=SingleTransitionInscription(create, transition)
+  { inscriptions.addAll(subInscriptions); }
+  (
+    ";"
+    [ 
+      subInscriptions=SingleTransitionInscription(create, transition)
+      { inscriptions.addAll(subInscriptions); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+Collection<TransitionInscription> SingleTransitionInscription(boolean create, Transition transition) :
+{
+  TransitionInscription inscr;
+  Collection<TransitionInscription> inscriptions;
+}
+{
+  (
+    inscr=UplinkInscription(transition)
+    { inscriptions=Collections.singleton(inscr); }
+  |
+    LOOKAHEAD(<IDENTIFIER> ":" "new" <IDENTIFIER>)
+    inscriptions=CreationInscription(create, transition)
+  |
+    LOOKAHEAD(Expression() ":")
+    inscr=DownlinkInscription(transition)
+    { inscriptions=Collections.singleton(inscr); }
+  |
+    inscr=GuardInscription(transition)
+    { inscriptions=Collections.singleton(inscr); }
+  |
+    inscr=ActionInscription(transition)
+    { inscriptions=Collections.singleton(inscr); }
+  )
+  { return inscriptions; }
+}
+
+TransitionInscription UplinkInscription(Transition transition) :
+{
+  Token t;
+  Vector<TypedExpression> args;
+}
+{
+  ":" ( t=<IDENTIFIER> | t="new" ) "(" args=ArgumentList() ")"
+  {
+    return new UplinkInscription(t.image,
+      JavaHelper.makeGuardedTupleExpression(args)); }
+}
+
+Collection<TransitionInscription> CreationInscription(boolean create, Transition transition) :
+{
+  Token varT;
+  Token netT;
+  LocalVariable local;
+  Class<?> type;	
+  TransitionInscription createInscr;
+  TransitionInscription channelInscr;
+  Vector<TypedExpression> args=null;
+  Token errToken;
+}
+{
+  { errToken=token; }
+  varT=<IDENTIFIER>
+  {
+    Object loc=decl.interpreteName(varT.image);
+    if (!(loc instanceof LocalVariable)) {
+      throw JavaHelper.makeParseException("Variable name expected.",errToken);
+    }
+    local=(LocalVariable)loc;
+    type=decl.findType(local);
+    if (type!=Types.UNTYPED &&
+      !Types.allowsWideningConversion(de.renew.net.NetInstance.class,
+        type))
+    {
+      throw JavaHelper.makeParseException("Variable must be "+
+       "assignable from de.renew.net.NetInstance.",errToken);
+    }
+  }
+  ":" "new" { errToken=token; } netT=<IDENTIFIER>
+  [
+    // Arguments are optional.
+    "(" args=ArgumentList() ")"
+  ]
+  { 
+    if (create) {
+      Net net=lookup.getNet(netT.image);
+      if (net==null) {
+        throw JavaHelper.makeParseException("Unknown net: "+netT.image,
+          errToken);
+      }
+      createInscr=new CreationInscription(net,local, transition);
+      if (args==null) {
+	return Collections.singleton(createInscr);
+      } else {
+        channelInscr=new DownlinkInscription("new",
+          JavaHelper.makeGuardedTupleExpression(args),
+          new VariableExpression(type,local),
+          false, transition);
+	return Arrays.asList(new TransitionInscription[]{createInscr,channelInscr});
+      }
+    } else {
+      return Collections.emptySet();
+    }
+  }
+}
+
+TransitionInscription DownlinkInscription(Transition transition) :
+{
+  TypedExpression callee;
+  Token t;
+  Vector<TypedExpression> args;
+  Token errToken;
+}
+{
+  { errToken=token; }
+  callee=Expression() ":"
+  {
+    if (callee.isTyped() &&
+      !Types.allowsWideningConversion(callee.getType(),NetInstance.class))
+    {
+      throw JavaHelper.makeParseException(
+        "Expression of net instance type expected.",errToken);
+    }
+  }
+  ( t=<IDENTIFIER> | t="new" )
+  "(" args=ArgumentList() ")"
+  {
+    return new DownlinkInscription(t.image,
+      JavaHelper.makeGuardedTupleExpression(args),
+      callee.getExpression(),
+      false, transition);
+  }
+}
+
+TransitionInscription GuardInscription(Transition transition) :
+{
+  TypedExpression expr;
+}
+{
+  "guard" expr=Expression()
+  {
+    if (expr.isTyped()) {
+      if (expr.getType()!=Boolean.TYPE) {
+	throw JavaHelper.makeParseException("Boolean expression expected.",token);
+      }
+    }
+    return new de.renew.net.inscription.GuardInscription(expr.getExpression());
+  }
+}
+
+TransitionInscription ActionInscription(Transition transition) :
+{
+  boolean isAction=false;
+  TypedExpression expr;
+}
+{
+  [ "action" {isAction=true;} ]
+  { inAction=isAction; }
+  expr=Expression()
+  {
+    if (isAction) {
+      return new ActionInscription(expr.getExpression(), transition);
+    } else {
+      return new ExpressionInscription(expr.getExpression());
+    }
+  }
+}
+
+ChannelInscription tryParseChannelInscription() :
+{
+  boolean isUplink=true;
+  Token t;
+  Vector<TypedExpression> args;
+}
+{
+  [ Expression() {isUplink=false;} ]
+  ":" ( t=<IDENTIFIER> | t="new" ) "(" args=ArgumentList() ")" <EOF>
+  {
+    return new ChannelInscription(isUplink,t.image,args.size());
+  }
+}
+
+Collection<TimedExpression> ArcInscription() :
+{
+  TimedExpression expr;
+  Collection<TimedExpression> inscriptions=new ArrayList<TimedExpression>();
+}
+{
+  expr=SingleArcInscription()
+  { inscriptions.add(expr); }
+  (
+    ";"
+    [ 
+      expr=SingleArcInscription()
+      { inscriptions.add(expr); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+TimedExpression SingleArcInscription() :
+{
+  TypedExpression expr;
+}
+{
+  expr=Expression()
+  { return new TimedExpression(expr,null); }
+}
+
+TypedExpression VariableInscription() :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER> [";"] <EOF>
+  {
+    return JavaHelper.makeSinglePartExpression(
+      new PrimaryPart(PrimaryPart.NAME,t.image,t),null,decl);
+  }
+}
+
+
+/********************************
+ * THE JAVA GRAMMAR STARTS HERE *
+ ********************************/
+
+/*
+ * Type, name and expression syntax follows.
+ */
+
+Class<?> ClassType() :
+{
+  Token errToken;
+  Class<?> clazz=null;
+  String name;
+  Object obj;
+}
+{
+  { errToken=token; }
+  name=Name() 
+  {
+    if (decl!=null) {
+	obj=decl.interpreteName(name);
+    	if (!(obj instanceof Class)) {
+      	   throw JavaHelper.makeParseException("No such class.",errToken);
+    	}
+	return (Class<?>)obj;
+    } else {
+        return Object.class;
+    }
+  }
+}
+
+Class<?> NonArrayType() :
+{
+  Class<?> clazz=null;
+}
+{
+  (
+    clazz=PrimitiveType()
+  | 
+    clazz=ClassType()
+  )
+  { return clazz; }
+}
+
+Class<?> Type() :
+{
+  Class<?> clazz;
+  String name;
+}
+{
+  clazz=NonArrayType()
+  ( "[" "]"
+    { clazz=JavaHelper.increaseArrayLevel(clazz,token); }
+  )*
+  { return clazz; }
+}
+
+Class<?> PrimitiveType() :
+{
+  Token t;
+  Class<?> clazz;
+}
+{
+  (
+    t="boolean"
+    { clazz=Boolean.TYPE; }
+  |
+    t="char"
+    { clazz=Character.TYPE; }
+  |
+    t="byte"
+    { clazz=Byte.TYPE; }
+  |
+    t="short"
+    { clazz=Short.TYPE; }
+  |
+    t="int"
+    { clazz=Integer.TYPE; }
+  |
+    t="long"
+    { clazz=Long.TYPE; }
+  |
+    t="float"
+    { clazz=Float.TYPE; }
+  |
+    t="double"
+    { clazz=Double.TYPE; }
+  )
+  { return clazz; }
+}
+
+String Name() :
+/*
+ * A lookahead of 2 is required below since "Name" can be followed
+ * by a ".*" when used in the context of an "ImportDeclaration".
+ */
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<IDENTIFIER> { s.append(t.image); }
+  ( LOOKAHEAD(2) "." t=<IDENTIFIER> 
+    { s.append("."); s.append(t.image); }
+  )*
+  {
+    return s.toString();
+  }
+}
+
+
+/*
+ * Expression syntax follows.
+ */
+
+TypedExpression Expression() :
+{
+  TypedExpression expr;
+}
+{
+  LOOKAHEAD( ConditionalOrExpression() "=" )
+  expr=Assignment()
+  { return expr; }
+|
+  expr=ConditionalOrExpression()
+  { return expr; }
+}
+
+TypedExpression Assignment() :
+{
+  Token errToken;
+  Vector<PrimaryPart> vector;
+  TypedExpression left;
+  TypedExpression right;
+}
+{
+  LOOKAHEAD( PrimaryExpression() "=" )
+  vector=PrimaryExpression() {errToken=token;} "=" right=Expression()
+  {
+    if (inAction) {
+      return JavaHelper.makeExpression(vector,right,decl,errToken.next);
+    } else {
+      return JavaHelper.makeEqualityAssertion(
+        JavaHelper.makeExpression(vector,null,decl,errToken.next),
+        right,errToken);
+    }
+  }
+|
+  { 
+    if (inAction) {
+      throw JavaHelper.makeParseException("Invalid left hand side of assignment.",
+        token);
+    }
+  }
+  left=ConditionalOrExpression() {errToken=token;} "=" right=Expression()
+  {
+    return JavaHelper.makeEqualityAssertion(left,right,errToken);
+  }
+}
+
+TypedExpression ConditionalOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=ConditionalAndExpression() 
+  ( {t=token;} "||" right=ConditionalAndExpression() 
+    {
+      JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Boolean.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.LOR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ConditionalAndExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=InclusiveOrExpression()
+  ( {t=token;} "&&" right=InclusiveOrExpression()  
+    {
+      JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Boolean.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.LAND,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression InclusiveOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=ExclusiveOrExpression()
+  ( {t=token;} "|" right=ExclusiveOrExpression()   
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.OR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ExclusiveOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=AndExpression() 
+  ( {t=token;} "^" right=AndExpression()    
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.XOR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression AndExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=EqualityExpression() 
+  ( {t=token;} "&" right=EqualityExpression()   
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.AND,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression EqualityExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=InstanceOfExpression() 
+  (
+   {t=token;}
+    ( "==" {fun=BasicFunction.EQUAL;}
+    | "!=" {fun=BasicFunction.NEQUAL;} )
+    right=InstanceOfExpression()
+    {
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+      expr=JavaHelper.makeBooleanBinary(expr,right,fun);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression InstanceOfExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  Class<?> clazz;
+}
+{
+  {t=token;}
+  expr=RelationalExpression()
+  [ "instanceof" clazz=Type() 
+    { 
+      JavaHelper.ensureConvertability(Object.class,expr,t);
+      expr=new TypedExpression(Boolean.TYPE,
+	new CallExpression(Boolean.TYPE,expr.getExpression(),
+	  new InstanceofFunction(clazz,false,false)));
+    }
+  ]
+  { return expr; }
+}
+
+TypedExpression RelationalExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=ShiftExpression()
+  (
+    {t=token;}
+    ( "<" {fun=FSFunction.LESS;}
+    | ">" {fun=FSFunction.GREATER;}
+    | "<=" {fun=FSFunction.LESSEQUAL;}
+    | ">=" {fun=FSFunction.GREATEREQUAL;} )
+    right=ShiftExpression() 
+    {
+      if (expr.getType()==FeatureStructure.class || right.getType()==FeatureStructure.class) {
+	JavaHelper.ensureConvertability(FeatureStructure.class,expr,t);
+	JavaHelper.ensureConvertability(FeatureStructure.class,right,t.next);
+      } else {
+	JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+	JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      }
+      expr=JavaHelper.makeBooleanBinary(expr,right,fun);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ShiftExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=AdditiveExpression()
+  ( 
+    { t=token; }
+    ( "<<" {fun=BasicFunction.SHL;}
+    | ">>" {fun=BasicFunction.SHR;}
+    | ">>>" {fun=BasicFunction.SSHR;} )
+    right=AdditiveExpression()
+    {
+      JavaHelper.ensureConvertability(Long.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Long.TYPE,right,t.next);
+
+      expr=JavaHelper.makeTypedBinary(expr,right,fun,
+        JavaHelper.unaryIntegralPromotion(expr.getType(),t));
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression AdditiveExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=MultiplicativeExpression()
+  (
+    {t=token;}
+    "+" right=MultiplicativeExpression()
+    {
+      if (expr.getType()==String.class || right.getType()==String.class) {
+	expr=JavaHelper.makeTypedBinary(expr,right,
+          BasicFunction.PLUS,String.class);
+      } else {
+	if (expr.getType()==FeatureStructure.class || right.getType()==FeatureStructure.class) {
+	  JavaHelper.ensureConvertability(FeatureStructure.class,expr,t);
+	  JavaHelper.ensureConvertability(FeatureStructure.class,right,t.next);
+	  expr=JavaHelper.makeTypedBinary(expr,right,FSFunction.PLUS,FeatureStructure.class);
+	} else {
+	  // Check for numeric or untyped.
+	  // Untyped expression may result in FSs, but
+	  // this is ok for type checking.
+	  JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+	  JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+	  expr=JavaHelper.makeBinary(expr,right,FSFunction.PLUS,t); 
+	}
+      }
+    }
+  |
+    {t=token;}
+    "-" right=MultiplicativeExpression()
+    {
+      JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.MINUS,t); 
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression MultiplicativeExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=UnaryExpression()
+  ( 
+    {t=token;}
+    ( "*" {fun=BasicFunction.TIMES;}
+    | "/" {fun=BasicFunction.DIVIDE;}
+    | "%" {fun=BasicFunction.MOD;} )
+    right=UnaryExpression()
+    {
+      JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,fun,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression UnaryExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  Function fun;
+  Class<?> type;
+}
+{
+  t="!" expr=UnaryExpression()
+  {
+    JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+
+    return new TypedExpression(Boolean.TYPE,
+      new CallExpression(Boolean.TYPE,expr.getExpression(),
+	BasicUnaryFunction.LNOT));
+  }
+|
+  t="~" expr=UnaryExpression()
+  {
+    type=JavaHelper.unaryIntegralPromotion(expr.getType(),t);
+    return new TypedExpression(type,
+      new CallExpression(type,expr.getExpression(),BasicUnaryFunction.NOT));
+  }
+|
+  ( t="+" {fun=BasicUnaryFunction.POS;}
+  | t="-" {fun=BasicUnaryFunction.NEG;} )
+  expr=UnaryExpression()
+  {
+    type=JavaHelper.unaryNumericPromotion(expr.getType(),t);
+    return new TypedExpression(type,
+      new CallExpression(type,expr.getExpression(),fun));
+  }
+|
+  expr=SimpleUnaryExpression()
+  { return expr; }
+}
+
+TypedExpression SimpleUnaryExpression() :
+{
+  Vector<PrimaryPart> vector;
+  TypedExpression expr;
+}
+{
+  LOOKAHEAD( CastLookahead() )
+  expr=CastExpression()
+  {
+    return expr;
+  }
+|
+  vector=PrimaryExpression()
+  {
+    try {
+      return JavaHelper.makeExpression(vector,null,declNotNull,null);
+    } catch (ParseException pe) {
+      if (decl==null)
+	return new TypedExpression(null,new VariableExpression(Types.UNTYPED,new LocalVariable("0_x")));
+      else
+	throw pe;
+    }
+  }
+}
+
+// This production is to determine lookahead only.
+// The LOOKAHEAD specifications below are not used,
+// but they are there just to indicate that we know about this.
+void CastLookahead() :
+{}
+{
+  LOOKAHEAD(2)
+  "(" PrimitiveType()
+|
+  LOOKAHEAD("(" Name() "[")
+  "(" Name() "[" "]"
+|
+  "(" Name() ")"
+  ( "(" | <IDENTIFIER> | "this" | "super" | "new" | Literal() )
+}
+
+TypedExpression CastExpression() :
+{
+  Token errToken;
+  Class<?> clazz;
+  TypedExpression expr;
+}
+{
+  (
+    LOOKAHEAD("(" PrimitiveType() ")")
+    "(" clazz=PrimitiveType() ")"
+    {errToken=token;}
+    expr=UnaryExpression()
+  |
+    "(" clazz=Type() ")"
+    {errToken=token;}
+    expr=SimpleUnaryExpression()
+  )
+  {
+    return JavaHelper.makeExplicitCastExpression(clazz,expr,errToken);
+  }
+}
+
+Vector<PrimaryPart> PrimaryExpression() :
+{
+  Token t;
+  PrimaryPart part;
+  Vector<PrimaryPart> parts=new Vector<PrimaryPart>();
+  Token errToken;
+}
+{
+  { errToken=token; }
+  part=PrimaryPrefix()
+  { parts.addElement(part); }
+  (
+    part=PrimarySuffix()
+    { parts.addElement(part); }
+  |
+    "@" t=<IDENTIFIER>
+    {
+      TypedExpression oldExpr=JavaHelper.makeExpression(parts,null,declNotNull,null);
+      JavaHelper.ensureConvertability(FeatureStructure.class,oldExpr,errToken);
+      TypedExpression expr=new TypedExpression(Types.UNTYPED,
+	new CallExpression(Types.UNTYPED,oldExpr.getExpression(),
+	  new de.renew.formalism.fs.FSAtFunction(t.image)));
+      // Start a completely new vector. The previous vector
+      // had to be parsed into an expression and could
+      // not be kept.
+      parts=new Vector<PrimaryPart>();
+      parts.addElement(new PrimaryPart(PrimaryPart.EXPR,expr,errToken));
+    }
+  )*
+  { return parts; }
+}
+
+PrimaryPart PrimaryPrefix() :
+{
+  Token t;
+  TypedExpression expr;
+  Expression untypedExpr;
+  Vector<TypedExpression> vector;
+  Token errToken;
+  Class<?> clazz;
+}
+{
+  { errToken=token; }
+  expr=Literal()
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,expr,errToken);
+  }
+|
+  LOOKAHEAD(Name() "." "class")
+  { errToken=token; }
+  clazz=ClassType() "." "class"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(Class.class,
+        new ConstantExpression(Class.class,clazz)),errToken);
+  }
+|
+  { errToken=token; }
+  t=<IDENTIFIER>
+  {
+    return new PrimaryPart(PrimaryPart.NAME,t.image,errToken);
+  }
+|
+  { errToken=token; }
+  "this"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(
+        de.renew.net.NetInstance.class,
+	  new VariableExpression(de.renew.net.NetInstance.class,
+            new LocalVariable("this"))),
+      errToken);
+  }
+|
+  { errToken=token; }
+  "(" vector=ArgumentList() ")"
+  {
+    if (vector.size()==1) {
+      return new PrimaryPart(PrimaryPart.EXPR,
+        vector.elementAt(0),errToken);
+    } else {
+      return new PrimaryPart(PrimaryPart.EXPR,
+        new TypedExpression(Tuple.class,
+          JavaHelper.makeGuardedTupleExpression(vector)),
+        errToken);
+    }
+  }
+|
+  { errToken=token; }
+  untypedExpr=FSExpression()
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(FeatureStructure.class,untypedExpr),errToken);
+  }
+|
+  { errToken=token; }
+  expr=AllocationExpression()
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,expr,errToken);
+  }
+}
+
+PrimaryPart PrimarySuffix() :
+{
+  Token t;
+  PrimaryPart result=null;
+  TypedExpression expr;
+  Vector<TypedExpression> vector;
+  Token errToken;
+}
+{
+  { errToken=token; }
+  "[" expr=Expression() "]"
+  {
+    return new PrimaryPart(PrimaryPart.ARRAY,expr,errToken);
+  }
+|
+  { errToken=token; }
+  "." t=<IDENTIFIER>
+  {
+    return new PrimaryPart(PrimaryPart.NAME,t.image,errToken);
+  }
+|
+  { errToken=token; }
+  "(" vector=ArgumentList() ")"
+  {
+    return new PrimaryPart(PrimaryPart.CALL,vector,errToken);
+  }
+}
+
+TypedExpression Literal() :
+{
+  Token t;
+  Object obj;
+  String s;
+  Class<?> type;
+}
+{
+  (
+    t=<INTEGER_LITERAL>
+    {
+      s=t.image.toLowerCase();
+      if (LiteralParser.denotesLong(s)) {
+        obj=new Value(new Long(LiteralParser.parseLong(s)));
+	type=Long.TYPE;
+      } else {
+        obj=new Value(new Integer(LiteralParser.parseInt(s)));
+	type=Integer.TYPE;
+      }
+    }
+  |
+    t=<FLOATING_POINT_LITERAL>
+    {
+      s=t.image.toLowerCase();
+      if (LiteralParser.denotesFloat(s)) {
+        obj=new Value(LiteralParser.parseFloat(s));
+	type=Float.TYPE;
+      } else {
+        obj=new Value(LiteralParser.parseDouble(s));
+	type=Double.TYPE;
+      }
+    }
+  |
+    t=<CHARACTER_LITERAL>
+    {
+      obj=new Value(new Character(LiteralParser.parseChar(t.image)));
+      type=Character.TYPE;
+    }
+  |
+    t=<STRING_LITERAL>
+    {
+      obj=LiteralParser.parseString(t.image);
+      type=String.class;
+    }
+  |
+    "true"
+    {
+      obj=new Value(Boolean.TRUE);
+      type=Boolean.TYPE;
+    }
+  |
+    "false"
+    {
+      obj=new Value(Boolean.FALSE);
+      type=Boolean.TYPE;
+    }
+  |
+    "null"
+    { 
+      obj=null;
+      type=null;
+    }
+  )
+  {
+    return new TypedExpression(type,
+      new ConstantExpression(type,obj));
+  }
+}
+
+Vector<TypedExpression> ArgumentList() :
+{
+  Vector<TypedExpression> vector=new Vector<TypedExpression>();
+  TypedExpression expr;
+}
+{
+  [
+    expr=Expression() 
+    { vector.addElement(expr); }
+    ( "," expr=Expression()
+      { vector.addElement(expr); }
+    )*
+  ]
+  {
+    return vector;
+  }
+}
+
+TypedExpression AllocationExpression() :
+{
+  Token errToken;
+  TypedExpression expr;
+  Vector<TypedExpression> vector;
+  String name;
+  Class<?> clazz;
+}
+{
+  "new"
+  (
+    LOOKAHEAD(PrimitiveType())
+    clazz=PrimitiveType()
+    expr=ArrayDimensions(clazz)
+    { return expr; }
+  |
+    LOOKAHEAD(Name() "[")
+    clazz=NonArrayType()
+    expr=ArrayDimensions(clazz)
+    { return expr; }
+  |
+    { errToken=token; }
+    clazz=NonArrayType() "(" vector=ArgumentList() ")"
+    {
+      try {
+        return JavaHelper.makeConstructorExpression(clazz,vector,errToken);
+      } catch (ParseException pe) {
+        if (decl==null)
+          return new TypedExpression(null,new VariableExpression(Types.UNTYPED,new LocalVariable("0_x")));
+        else
+	  throw pe;
+      }
+    }
+  )
+}
+
+/*
+ * The second LOOKAHEAD specification below is to parse to PrimarySuffix
+ * if there is an expression between "[" and "]".
+ */
+TypedExpression ArrayDimensions(Class<?> clazz) :
+{
+  Token t;
+  Vector<TypedExpression> vector=new Vector<TypedExpression>();
+  TypedExpression expr;
+}
+{
+  (
+    LOOKAHEAD(2) "[" {t=token;} expr=Expression() "]"
+    {
+      // Make sure the result can be converted to an int.
+      JavaHelper.ensureConvertability(Integer.TYPE,expr,t);
+      // Store another expression in the vector.
+      vector.addElement(expr);
+      clazz=JavaHelper.increaseArrayLevel(clazz,token);
+    }
+  )+
+  (
+    LOOKAHEAD(2) "[" "]"
+    {
+      clazz=JavaHelper.increaseArrayLevel(clazz,token);
+    }
+  )*
+  {
+    Object[] result=new Object[vector.size()];
+    vector.copyInto(result);
+    return new TypedExpression(clazz,
+      new CallExpression(clazz,
+        JavaHelper.makeTupleExpression(vector),
+	new DynamicConstructorFunction(clazz)));
+  }
+}
+
+//*****************************************************************
+//*****************************************************************
+//*****************************************************************
+//*****************************************************************
+
+FSUnifyExpression FSExpression() :
+{
+  Token errToken;
+  Vector<Path> paths=new Vector<Path>();
+  Vector<Object> exprs=new Vector<Object>();
+//  UpdatableMap ECtoExpr=new HashedMap(), FStoExpr=new HashedMap();
+  EquivRelation er = new EquivRelation();
+  Node ec;
+  FeatureStructure fs;
+}
+{
+  { errToken=token; }
+  ec = parseFS(new HashedMap(),er,Path.EPSILON,paths,exprs)
+  {
+    try {
+	er.extensionalize();
+	//ec.retype();
+    } catch (Exception uff) {
+	throw JavaHelper.makeParseException("Not extensionalizable!",
+	  errToken);
+    }
+    fs = new FeatureStructure(er.rebuild(ec));
+    return new FSUnifyExpression(fs, paths, exprs);
+  }
+}
+
+
+Concept parseConcept():
+{
+  String conceptName=null;
+  Token namespaceToken=null, errToken=null;
+  Concept concept=null;
+}
+{
+    { errToken=token; }
+   (([LOOKAHEAD(2) namespaceToken=<IDENTIFIER> "::"] conceptName=Name())
+     | "this" { conceptName="this"; } )
+     {
+       if (namespaceToken==null) {
+	   if (decl!=null) {
+	       Object interpretation=decl.interpreteName(conceptName);
+	       // logger.debug("Interpretation of "+conceptName+": "+interpretation+".");
+	       String iName=null;
+	       if (interpretation instanceof Concept) {
+		   iName=((Concept)interpretation).getFullName();
+	       } else if (interpretation instanceof Class) {
+		   iName=((Class<?>)interpretation).getName();
+	       }
+	       if (iName!=null) {
+		   // logger.debug("Interpreting "+conceptName+" as "+iName+".");
+		   conceptName=iName;
+	       }
+	   }
+       } else {
+	   conceptName=namespaceToken.image+"::"+conceptName;
+       }
+       try {
+	   concept=TypeSystem.instance().conceptForName(conceptName);
+       } catch (NoSuchElementException ex) {
+	   if (decl==null) {
+	       // create dummy concept on the fly:
+	       concept=new ConceptImpl(conceptName,false,true);
+	   } else {
+	       throw JavaHelper.makeParseException("Concept "+conceptName
+						   +" does not exist.",errToken);
+	   }
+       }
+     }
+  {
+      return concept;
+  }
+}
+
+JavaClassType parseBasicType():
+{
+  Token errToken;
+  JavaClassType type=null;
+  Class<?> primitive=null;
+  TypedExpression lowerExpr=null, upperExpr=null;
+  Object lower=BasicType.NEGINF, upper=BasicType.POSINF;
+}
+{
+   { errToken=token; }
+(
+     primitive=PrimitiveType()
+    {
+      type=new BasicType(primitive);
+    }
+
+   | "{" (lowerExpr=Literal() | "*") ".."
+	 (upperExpr=Literal() | "*") "}"
+   { 
+     try {
+	 if (lowerExpr==null)
+	   lower=BasicType.NEGINF;
+	 else
+	   lower=lowerExpr.getExpression().startEvaluation(null,null,null);
+	 if (upperExpr==null)
+	   upper=BasicType.POSINF;
+	 else
+	   upper=upperExpr.getExpression().startEvaluation(null,null,null);
+     } catch (Impossible imp) {
+	   logger.error(imp.getMessage(), imp);
+     }
+       try {
+         type = new BasicType(lower,upper);
+       } catch (TypeException tee) {
+	   throw JavaHelper.makeParseException
+	              ("Different or no BasicTypes in range type {"
+		       +BasicType.objToString(lower)
+		       +".."+BasicType.objToString(upper)+"}."
+		       ,errToken);
+       }
+   }
+  )
+  
+  {
+     return type;
+  }
+}
+
+Type parseType():
+{
+  Token errToken;
+  ParsedType ptype=ParsedType.PARSED_TOP;
+  Token instantiate=null, listType=null;
+}
+{  { errToken=token; }
+ ( LOOKAHEAD(["!"] ("*" | "+"))
+   ([instantiate="!"]
+    (listType="*" | listType="+"))
+ | LOOKAHEAD("!" (<IDENTIFIER> ":" | "]" | ">"))
+   instantiate="!"
+ |([instantiate="!"]
+   ptype = preParseType()
+   [ listType="*" | listType="+" ]))
+   { try {
+       Type type=ptype.asType(); 
+       if (instantiate!=null)
+         type=type.getInstanceType();
+       if (listType!=null) {
+         if (listType.image.equals("*"))
+	   type=ListType.getList(type);
+         else if (listType.image.equals("+"))
+	   type=ListType.getNEList(type);
+       }
+       return type;
+     } catch (UnificationFailure uff) {
+	 // should not happen
+	 throw JavaHelper.makeParseException
+	       ("Type "+ptype+" is not consistent.",
+		errToken);
+	 
+     }
+   }
+}
+
+ParsedType preParseType():
+{
+  Token errToken;
+  Type type=null;
+  ParsedType result=null;
+  Concept concept;
+  ConceptSet concepts=null;
+  boolean restricted=true;
+}
+{
+(
+   // either a Primitive/BasicType...
+   result = parseBasicType()
+   | // ...or a ConjunctiveType...
+   (((concept=parseConcept()
+      { concepts=new ConceptSet(concept); })
+    |("Any" { restricted=false; concepts=new ConceptSet(); } ) )
+    ( "," { errToken=token; } concept=parseConcept()
+      {
+        try {
+            concepts.joinConcept(concept);
+        } catch (UnificationFailure uff) {
+	    throw JavaHelper.makeParseException("Concept "+concept.getName()
+                 +" is not compatible with concept(s) "+concepts+".",errToken);
+        }
+
+	errToken=token;
+      }
+    )*
+    {
+      result=new ParsedConjunctiveType(concepts,restricted,decl!=null);
+    }
+  )
+)
+  { return result; }
+}
+
+Node parseUntaggedFS(Type ectype, Name tag, UpdatableMap tags,
+		     EquivRelation tie,
+		     Path path, Vector<Path> paths, Vector<Object> exprs):
+{
+  Node ec = null;
+  Token t;
+  Type type=null;
+  Node subec, headec, tailec;
+  Node listec, prevec = null;
+  boolean hasTag = false;
+  String feature;
+  Name featureName;
+  Path newPath;
+  Token errToken=null;
+  Type apptype;
+}
+{
+try {
+(
+("["   
+
+  [
+    LOOKAHEAD((["!"]((parseConcept()
+                      ( <IDENTIFIER>  | "]" | "," | "." | "*" | "+"))
+ 		       | "+" | "*"))
+	     | "!" | parseBasicType() | "Any")
+    { errToken=token; }
+    type=parseType()
+  ]
+
+ { if (type!=null) {
+	if (decl==null) {
+	   ectype=type; // overwrite ectype explicitely
+        } else {
+          try {
+            ectype=ectype.unify(type);
+          } catch (UnificationFailure uff) {
+  	    throw JavaHelper.makeParseException("Type "+type
+	       +" is incompatible with Type "
+               +ectype+".", errToken);
+          }
+       }
+   }
+   ec = ectype.newNode();
+  }
+
+  (
+    { errToken=token; }
+    t=<IDENTIFIER> ":"
+    {
+      if (decl==null && Type.TOP.equals(ectype)) {
+	  ectype=Type.NONE;
+	  ec=ectype.newNode();
+      }
+      feature=t.image;
+      featureName=new Name(feature);
+      if (ec.hasFeature(featureName))
+	throw JavaHelper.makeParseException(
+          "Science Fiction - Double Feature "+feature+".",errToken);
+      if (!ectype.isApprop(featureName))
+	throw JavaHelper.makeParseException(
+	  "Feature "+feature+" not allowed in Type "+ectype+".",errToken);
+      newPath=path.append(new Name(feature));
+      errToken=token;
+      if (decl==null)
+	apptype=Type.TOP;
+      else
+        apptype=ectype.appropType(featureName);
+    }
+    subec=parseSubFS(apptype,tags,tie,newPath,paths,exprs)
+    {
+      ec.setFeature(featureName,subec);
+    }
+  )*
+  "]"
+) |
+( { errToken=token; }
+  "<"
+  [
+    { errToken=token; }
+    type=parseType()
+  ]
+  {
+    if (type==null) {
+	type=Type.TOP;
+    }
+    try {
+       ectype=ectype.unify(ListType.getList(type));
+      // may throw UnificationFailure
+      type=((ListType)ectype).getBaseType();
+      // may throw ClassCastException
+    } catch (Exception anye) {
+	throw JavaHelper.makeParseException
+	    ("Type "+ectype+" is not the correct list type.",errToken);
+    }
+  }
+  ( {
+      listec = ListType.getNEList(type).newNode();
+      if (prevec == null) {
+	 // first time: remember first list node as result
+	 ec = listec;
+      }
+      errToken = token;
+    }
+    headec=parseSubFS(type,tags,tie,path.append(ListType.HEAD),
+		      paths,exprs)
+    {
+     listec.setFeature(ListType.HEAD, headec);
+     if (prevec != null) {
+	prevec.setFeature(ListType.TAIL,listec);
+     }
+     prevec = listec;
+     path=path.append(ListType.TAIL);
+    }
+   )*
+   { tailec = null;
+      errToken=token; }
+   (("|" [ tailec=parseSubFS(ListType.getList(type),tags,tie,
+			     path,paths,exprs) ]
+	{ if (tailec==null) {
+	    tailec=ListType.getList(type).newNode();
+	  }
+	  listec = tailec;
+	}
+     ">")
+    |
+    (">" { errToken = token;
+	   listec = ListType.getEList(type).newNode(); }))
+    {     if (prevec == null) {
+	    ec = listec;
+	  } else {
+            prevec.setFeature(ListType.TAIL, listec);
+         }
+    }
+)
+)
+  {
+    if (tag!=null) {
+	if (tags.includesKey(tag)) {
+          tie.unify(tie.getUnificator((Node)tags.at(tag)),ec);
+	} else {
+	  tags.putAt(tag,ec);
+        }
+    }
+    return ec;
+  }
+} catch (UnificationFailure uff) {
+   throw JavaHelper.makeParseException("Something did not unify unexpectedly.",token);
+}
+
+}
+
+
+Node parseFS(UpdatableMap tags, EquivRelation tie,
+  Path path, Vector<Path> paths, Vector<Object> exprs) :
+{
+  Node ec=null;
+  Token t, errToken;
+  Name tag;
+}
+{
+
+( ec=parseUntaggedFS(Type.TOP,null,tags,tie,path,paths,exprs)
+|
+(t=<TAGIDENT>
+ { tag = new Name(t.image.substring(1));
+   errToken=t;
+ }
+ (
+  ( ec=parseUntaggedFS(Type.TOP,tag,tags,tie,path,paths,exprs) )
+  |
+  { if (ec==null) {
+      ec=Type.TOP.newNode();
+    }
+    if (tags.includesKey(tag)) {
+      try {
+         tie.unify(ec,(Node)tags.at(tag));
+      } catch (UnificationFailure uff) {
+	  throw JavaHelper.makeParseException("Tag "+tag+" did not unify.",errToken);
+      }
+    } else {
+      tags.putAt(tag,ec);
+    }
+  }
+  )
+ )
+)
+  {
+	return ec;
+  }
+}
+
+Node parseUntaggedSubFS(Type ectype, Name tag, UpdatableMap tags,
+			EquivRelation tie,
+			Path path, Vector<Path> paths, Vector<Object> exprs):
+{
+  Node ec;
+  TypedExpression expr=null;
+  Token errToken=null;
+ }
+{
+  ec=parseUntaggedFS(ectype,tag,tags,tie,path,paths,exprs)
+  { return ec; }
+|
+  "(" { errToken=token; } expr=Expression() ")"
+  {
+    if (expr.getExpression() instanceof ConstantExpression) {
+	// logger.debug("Found ConstantExpression!");
+      Object javaObject=
+        ((ConstantExpression)expr.getExpression()).getConstant();
+      JavaType jotype=JavaObject.getJavaType(javaObject);
+      // logger.debug("Constant object is "+jotype.getJavaObject());
+      if (!ectype.canUnify(jotype)) {
+         throw JavaHelper.makeParseException("Constant "+javaObject+" is not of type "+ectype+".",errToken);
+      }
+      ectype=jotype;
+    } else {
+      if (decl==null) {
+	StringBuffer javaExpr=new StringBuffer();
+	Token currentToken=errToken.next;
+	while (currentToken!=token) {
+	   javaExpr.append(currentToken.image);
+	   currentToken=currentToken.next;
+	   if (currentToken!=token) {
+	     Token specialToken=currentToken.specialToken;
+	     while (specialToken!=null) {
+	       javaExpr.append(specialToken.image);
+	       specialToken=specialToken.specialToken;
+             }
+	   }
+        }
+	Concept jec=null;
+	try {
+	    jec=TypeSystem.instance().conceptForName(javaExpr.toString());
+	} catch (NoSuchElementException ex) {
+	    jec=new ConceptImpl(javaExpr.toString(),false,true);
+	}
+	ectype=new ConjunctiveType(jec);
+      } else {
+      Class<?> type=expr.getType();
+      if (type!=Types.UNTYPED) {
+        if (Types.allowsWideningConversion(de.uni_hamburg.fs.FeatureStructure.class,
+					   type)) {
+	   // logger.debug("Found FS subexpression.");
+        } else {
+	    try {
+		ectype=ectype.unify(TypeSystem.instance().getType(type));
+	    } catch (UnificationFailure uff) {
+		throw JavaHelper.makeParseException("Expression is not type compatible with "+ectype+".",errToken);
+	    }
+	}
+      }
+      paths.addElement(path);
+      exprs.addElement(expr.getExpression());
+      }
+    }
+    ec = ectype.newNode();
+    if (tag != null) {
+      if (tags.includesKey(tag))
+          ec = (Node)tags.at(tag);
+      else {
+          tags.putAt(tag,ec);
+      }
+    }
+    return ec;
+  }
+}
+
+Node parseSubFS(Type ectype, UpdatableMap tags, EquivRelation tie,
+  Path path, Vector<Path> paths, Vector<Object> exprs) :
+{
+  Node ec = null;
+  Token t;
+  Name tag;
+}
+{
+(ec = parseUntaggedSubFS(ectype,null,tags,tie,path,paths,exprs)
+|
+(t=<TAGIDENT> { tag = new Name(t.image.substring(1)); }
+ (( ec = parseUntaggedSubFS(ectype,tag,tags,tie,path,paths,exprs)
+  )
+  |
+  { if (ec == null) {
+	if (tags.includesKey(tag))
+          ec = (Node)tags.at(tag);
+	else {
+	  ec = ectype.newNode();
+	  tags.putAt(tag,ec);
+	}
+    }
+  }
+  )
+ )
+)
+  {
+	return ec;
+  }
+}
+
+
+/** Method for parsing concept "approp" definition strings.
+ * Returns a Map from features (Names) to the Type they allow.
+ */
+OrderedTable parseAppropDef():
+{
+  Token errToken, lower, upper;
+  String feature=null;
+  ParsedType type;
+  OrderedTable approps=new OrderedTable();
+}
+{
+  (
+  { errToken=token; lower=null; upper=null; type=ParsedType.PARSED_TOP; }
+    feature=Name()
+    [ "[" [lower=<LOWER_RANGE_LITERAL>] upper="*" "]" ]
+    [":" type=preParseType() ]
+    { if (approps.includesKey(feature)) {
+	throw JavaHelper.makeParseException("Science Fiction - Double Feature: \""+feature+"\".",
+                 errToken);
+       }
+       if (upper != null) {
+	   boolean atLeastOne = lower != null && lower.image.equals("1..");
+	   type = new ParsedListType(atLeastOne,type);
+       }
+       approps.putAt(new Name(feature),type);
+    }
+  )*
+
+  { return approps; }
+}

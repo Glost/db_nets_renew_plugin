@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+        <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+        <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+        <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+        <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+        <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+        ]>
+
+<project name="$appName" default="dist" basedir=".">
+  <description>
+    ${appName} Plugin. Generated with PluginDevelopment plugin (version ${pdversion})
+    $generic-description
+  </description>
+
+    <!-- makes some checks. (internal). -->
+    <!-- if there is something to initialise, insert here -->
+    <target name="configure">
+        <property name="plugin.name" value="${generic-name}"/>
+
+        &commonproperties;
+
+        <path id="ref.classpath">
+            <path refid="ref.antclasspath"/>
+        </path>
+    </target>
+
+    <target name="init" depends="configure,printName">
+        &commontasks;
+    </target>
+
+    &optionaltasks;
+    &commontargets;
+    &cvstargets;
+
+    <!-- Basic Distribution target. -->
+    <target name="dist"
+            depends="init, lib"
+            description="Builds the $appName plugin completely. (default)">
+    </target>
+
+    <!-- Basic Compilation target. -->
+    <target name="compile"
+            depends="init"
+            description="Compiles the $appName plugin with all dependencies.">
+    </target>
+
+    <!-- Copies libraries to $appName Plugin directory. -->
+    <target name="lib"
+            depends="init,computeFilenames,removeObsoleteFiles,is.plugin.version.uptodate.jar,plugin.build.version"
+            description="copies libraries into the plugin directory.">
+        <mkdir dir="${dir.renew.dist}"/>
+        <copy todir="${dir.dist.plugin}"
+              file="${file.build.cfg}"/>
+        <copy todir="${dir.dist.plugin}/lib">
+            <fileset dir="${dir.lib}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Cleans up working directory. -->
+    <target name="clean"
+            depends="configure, clean.common.dir"
+            description="Removes all generated code/classes/doc.">
+    </target>
+</project>

@@ -1,0 +1,95 @@
+\chapter{Introduction}
+
+The intention of this document is to give the interested user of Renew
+some rudimentary insight into the general structure
+and some individual components of Renew. This document does not aim
+to be a programming guide, but it tries to help you in
+finding a point where to start.
+
+Note that, in general, you do not need to read this document.
+You can work with Renew perfectly without knowing its internals.
+Whenever you have a problem that does not seem to be solvable
+with the current version of Renew, think once more. If you still
+consider an extension of Renew essential, you should start with this manual
+before digging into the source.
+
+To gain something from reading this manual you need considerable
+Java experience, the Renew source package, and willingness to read
+the source. Although large parts of the source are not yet documented,
+you might be able to infer most of the functionality from the
+names given to classes and methods, especially after checking this manual.
+
+\input{custom}
+
+\section{Before you Start}
+
+Before you start reading this manual, you should run JavaDoc to create
+the online documentation from the source files. This will help you
+in getting a feel of the system and in following this manual
+more easily. Many classes in the \texttt{de.renew}
+hierarchy do not contain JavaDoc comments, but you will still find it
+valuable to browse through the classes easily.
+
+Since Renew uses the Java library, you should have learned
+everything there is to learn about the packages
+\texttt{java.lang} and \texttt{java.util}. You will not be able to
+proceed without that knowledge.
+
+Since Renew uses Doug Lea's collection classes \cite{Lea98},
+you should familiarize yourself with this class library before
+looking at the simulation engine.
+The original distribution has some API documentation included.
+
+Since Renew uses the Reflection API to execute Java inscriptions,
+you should familiarize yourself with the package
+\texttt{java.lang.reflect} before
+looking at the simulation engine.
+See the original documentation from Sun for details.
+
+Since Renew uses the Java AWT for its windowing code,
+you should consult at least a tutorial about the
+package \texttt{java.awt}.
+
+Since Renew uses the JHotDraw graph editing framework \cite{Gamma98}
+for painting its nets, you should inform yourself about this
+package before investigating the GUI code. The classes in the 
+\texttt{CH.ifa.draw} hierarchy contain nice JavaDoc comments
+and are a good place to start.
+
+If you want to customize the inscription grammar, you should
+download JavaCC, the Java Compiler Compiler, from
+\url{http://javacc.dev.java.net/}
+which is free.
+We consider doing a complete rewrite of the grammar files
+in order to free them of the license restrictions that
+currently exist. In that course of work, it might be
+sensible to move from JavaCC (a great program) to ANTLR 
+(a great program that is also free and available with source).
+
+Class diagrams in this document are given in UML style notation.
+You are encouraged to learn about this notation from one of the many
+books or directly at \cite{rational}. In all diagrams we aim at
+providing the best overview and structural knowledge. To this end,
+the diagrams do not always include information about all attributes, 
+but rather those attributes that are useful for understanding that
+part of the architecture that is currently discussed.
+
+Sometimes we use attributes where one might rather expect
+an association or vice versa, but this is always done in order
+to simplify the diagram and to convey the intended meaning of a construction.
+For similar reasons, private attributes 
+that are publicly accessible via getter and setter methods
+are sometimes shown as public attributes.
+
+
+\section{Overview}
+
+We will now explain the basic structure of this document.
+In Chapter~\ref{chap:overview} we give an overview of the packages
+that structure the Renew application.
+
+
+
+\input{thanks}
+
+

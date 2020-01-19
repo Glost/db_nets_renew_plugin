@@ -1,0 +1,432 @@
+<!-- commontargets.xml
+
+     This file can be included in the build.xml of many Renew
+     components or plugins. It should be included outside any
+     target definitions.  This file provides basic targets with
+     similar structure throughout all plugins. However, the
+     essential plugin-specific targets like init, prepare,
+     compile and jar have to be defined in each build.xml.
+
+     Some properties have to be set before the targets in this file can
+     be executed.  If you want to configure them for your local build
+     environment, edit the file 'local.properties' in this directory.
+     The properties of interest are:
+     - dir.renew.checkout  - location of the Renew root directory
+
+     Some references have to be defined before the targets in this file
+     can be executed.  They need to be defined in each build.xml.
+     The references of interest are:
+     - ref.classpath       - classpath needed for compilation,
+                             including all external packages
+
+     Most targets defined in this file do not imply any
+     dependencies except from the target "configure".
+     If a target uses a task from commontasks.xml, it
+     depends on "init" instead of "configure".  If a target
+     uses a task xxx from optionaltasks.xml, it also depends
+     on the appropriate "init.xxx" target (see there).
+
+     Furthermore, there are refined dependencies that require
+     the inclusion of optionaltasks.xml with separated task
+     definitions (see there for details).
+
+     However, the target "format" depends on "compile" to ensure
+     that the code is in valid syntax before it is formatted.
+-->
+
+  <!-- Generates java-Code from .jj files (internal). -->
+  <target name="jj"
+	  depends="init">
+    <mkdir dir="${dir.build.gensrc}"/>
+    <enhjavacc javacchome="${dir.javacc}"
+	       destdir="${dir.build.gensrc}"
+	       jdkversion="${option.compile.source}">
+      <fileset dir="${dir.src}">
+	<include name="**/*.jj"/>
+      </fileset>
+    </enhjavacc>
+  </target>
+
+  <!-- Compiles all .java files including generated. (internal). -->
+  <target name="javac"
+	  depends="configure">
+    <mkdir dir="${dir.build.classes}"/>
+    <mkdir dir="${dir.build.gensrc}"/>
+    <javac classpathref="ref.classpath"
+	   destdir="${dir.build.classes}"
+	   target="${option.compile.target}"
+	   source="${option.compile.source}"
+	   encoding="${option.compile.encoding}"
+	   optimize="${option.compile.optimize}"
+	   debug="${option.compile.debug}"
+	   deprecation="${option.compile.deprecation}">
+      <src path="${dir.src}"/>
+      <src path="${dir.build.gensrc}"/>
+    </javac>
+  </target>
+  
+  <!-- Generates rmi stubs from generated class files (internal). -->
+  <target name="rmic"
+	  depends="configure">
+    <path id="ref.classpath.rmic">
+      <path refid="ref.classpath"/>
+      <pathelement location="${dir.build.classes}"/>
+    </path>
+    <rmic base="${dir.build.classes}" 
+	  includes="**/*.class"
+	  stubversion="${option.compile.target}"
+	  classpathref="ref.classpath.rmic"
+	  verify="true"/>
+  </target>
+
+  <!-- Configures path for JUnit test compilation and execution (internal). -->
+  <target name="test.configure"
+      depends="configure">
+    <condition property="tests.available" value="yes">
+      <available file="${dir.src.test}" type="dir"/>
+    </condition>
+    <path id="ref.classpath.test">
+   	  <path refid="ref.classpath" />
+      <pathelement location="${dir.build.classes}"/>
+      <pathelement location="${dir.build.classes.test}"/>
+    </path>
+   </target>
+ 
+  <!-- Compiles all JUnit test files including generated Java code (internal). -->
+  <target name="test.javac"
+	  if="tests.available"
+	  depends="test.configure">
+    <mkdir dir="${dir.build.classes.test}"/>
+    <mkdir dir="${dir.build.gensrc.test}"/>
+    <javac classpathref="ref.classpath.test"
+	   destdir="${dir.build.classes.test}"
+	   target="${option.compile.target}"
+	   source="${option.compile.source}"
+	   encoding="${option.compile.encoding}"
+	   optimize="${option.compile.optimize}"
+	   debug="${option.compile.debug}"
+	   deprecation="${option.compile.deprecation}">
+      <src path="${dir.src.test}"/>
+      <src path="${dir.build.gensrc.test}"/>
+    </javac>
+  </target>
+
+  <!-- Executes all JUnit test cases (internal).
+       In case of elementary changes please keep in mind that the
+       target test.run.cobertura duplicates the functionality with
+       a different classpath.  It should adopt the same changes. -->
+  <target name="test.run"
+	  if="tests.available"
+          depends="test.configure">
+    <mkdir dir="${dir.build.testreports}" />
+    <junit fork="yes" haltonfailure="no">
+      <classpath>
+        <path refid="ref.classpath.test"/>
+      </classpath>
+      <formatter type="brief"/>
+      <batchtest todir="${dir.build.testreports}">
+        <fileset dir="${dir.build.classes.test}">
+	  <include name="**/Test*.class"/>
+	  <include name="**/*Test.class"/>
+	  <exclude name="**/*$*.class"/>
+	</fileset>
+      </batchtest>
+     </junit>
+  </target>
+
+  <!-- Executes all JUnit test cases with cobertura (internal).
+       In case of elementary changes please keep in mind that the
+       target test.run duplicates the functionality with
+       a different classpath.  It should adopt the same changes. -->
+  <target name="test.run.cobertura"
+	  if="tests.available"
+          depends="test.configure, init.cobertura">
+    <mkdir dir="${dir.build.testreports}" />
+    <junit fork="yes" haltonfailure="no">
+      <classpath location="${dir.build.instrumented-classes}" />
+      <classpath>
+        <path refid="ref.classpath.test"/>
+        <path refid="cobertura.classpath"/>
+      </classpath>
+      <formatter type="brief"/>
+      <batchtest todir="${dir.build.testreports}">
+        <fileset dir="${dir.build.classes.test}">
+	  <include name="**/Test*.class"/>
+	  <include name="**/*Test.class"/>
+	  <exclude name="**/*$*.class"/>
+	</fileset>
+      </batchtest>
+      <sysproperty key="net.sourceforge.cobertura.datafile"
+		   value="${file.build.cobertura.ser}"/>
+     </junit>
+  </target>
+  
+  <target name="cobertura.instrument"
+      depends="test.configure, init.cobertura">
+    <mkdir dir="${dir.build.instrumented-classes}" />
+    <cobertura-instrument 
+         todir="${dir.build.instrumented-classes}"
+	 datafile="${file.build.cobertura.ser}">
+      <fileset dir="${dir.build.classes}">
+        <include name="**/*.class"/>
+      </fileset>
+    </cobertura-instrument>
+  </target>
+  
+  <target name="cobertura.createreport"
+      depends="test.configure, init.cobertura, cobertura.instrument, test.run.cobertura">
+     <cobertura-report
+	 destdir="${dir.build.cobertura-reports}"
+	 srcdir="${dir.src}"
+	 datafile="${file.build.cobertura.ser}" />
+     <delete>
+     	<fileset dir="${dir.build}">
+     		<include name="cobertura.ser"/>
+     	</fileset>
+     </delete>
+     <delete>
+         <fileset dir="${dir.build.instrumented-classes}"/>
+     </delete>
+  </target>
+  
+  <target name="cobertura"
+      depends="init, compile, test.javac, cobertura.instrument, test.run.cobertura, cobertura.createreport"/>
+      
+  <!-- Copies the plugin jar and config files to a subdir in the
+       global Renew distribution directory (internal). 
+       This target is alternative to "copytodist.jar". -->
+  <target name="copytodist.dir"
+	  depends="configure,computeFilenames,removeObsoleteFiles,is.plugin.version.uptodate.dir,plugin.build.version">
+    <mkdir dir="${dir.dist.plugin}"/>
+    <copy todir="${dir.dist.plugin}"
+	  file="${file.build.cfg}"/>
+    <copy todir="${dir.dist.plugin}"
+	  file="${file.build.jar}"/>
+  </target>
+
+  <!-- Copies the plugin jar to the global Renew distribution
+       directory and includes the config file (internal).
+       This target is alternative to "copytodist.dir". -->
+  <target name="copytodist.jar"
+	  depends="configure,computeFilenames,removeObsoleteFiles,is.plugin.version.uptodate.jar,plugin.build.version">
+    <jar jarfile="${file.build.jar}"
+         update="true">
+      <fileset file="${file.build.cfg}"/>
+    </jar>
+    <copy tofile="${file.dist.plugin}" 
+          file="${file.build.jar}"/>
+  </target>
+
+  <!-- Tests whether the distributed build version information is up to date. -->
+  <target name="is.plugin.version.uptodate.dir" depends="configure,computeFilenames,removeObsoleteFiles">
+    <condition property="build.version.is.uptodate">
+      <and>
+         <uptodate targetfile="${file.dist.cfg}" srcfile="${file.src.cfg}"/>   
+         <uptodate targetfile="${dir.dist.plugin}/${plugin.name}.jar" srcfile="${file.build.jar}"/>
+      </and>
+    </condition>
+  </target>
+  
+  <!-- Tests whether the distributed build version information is up to date. -->
+  <target name="is.plugin.version.uptodate.jar" depends="configure,computeFilenames,removeObsoleteFiles">
+    <condition property="build.version.is.uptodate">
+      <and>
+         <uptodate targetfile="${file.dist.plugin}" srcfile="${file.src.cfg}"/> 
+         <uptodate targetfile="${file.dist.plugin}" srcfile="${file.build.jar}"/> 
+      </and>
+    </condition>
+  </target>
+
+  <!-- Joins some information on the current build to 
+       each jar (internal) -->
+  <target name="plugin.build.version" depends="configure" unless="build.version.is.uptodate">
+     <loadproperties srcFile="${file.src.cfg}"/>
+     <tstamp>
+         <format property="touch.time" pattern="dd MMMM yyyy HH:mm:ss"/>
+     </tstamp>  	 
+     <copy tofile="${file.build.cfg}" 
+           file="${file.src.cfg}"
+           overwrite="true"/>  		
+     <echo file="${file.build.cfg}" 
+           append="true">
+${provides}.compile.user = ${user.name} 
+${provides}.compile.date = ${touch.time} 
+${provides}.compile.os = ${os.name} 
+${provides}.compile.os.version = ${os.version} 
+${provides}.compile.vm = ${java.vm.name} 
+${provides}.compile.vm.version = ${java.vm.version} 
+     </echo>      
+  </target>
+
+  <!-- Formats all .java test source code files in a component (intern).
+       Checks for the dont.format property. -->
+  <target name="test.format"
+	  depends="init, init.jalopy, test.configure"
+	  unless="dont.format"
+	  if="tests.available">
+    <path id="ref.extendedclasspath">
+      <path refid="ref.classpath"/>
+      <pathelement location="${file.build.jar}" />
+    </path>
+
+    <jalopy fileformat="${option.jalopy.fileformat}"
+	    convention="${file.jalopy.convention}"
+	    force="${option.jalopy.force}"
+	    classpathref="ref.extendedclasspath">
+      <fileset dir="${dir.src.test}" erroronmissingdir="false">
+	<include name="**/*.java" />
+      </fileset>
+    </jalopy>
+  </target>
+
+  <!-- Formats all .java source code files in a component (public).
+       Checks for the dont.format property. -->
+  <target name="format"
+	  depends="init, init.jalopy, compile, test.format"
+	  unless="dont.format"
+	  description="Formats the Java source code of this component.">
+    <path id="ref.extendedclasspath">
+      <path refid="ref.classpath"/>
+      <pathelement location="${file.build.jar}" />
+    </path>
+
+    <jalopy fileformat="${option.jalopy.fileformat}"
+	    convention="${file.jalopy.convention}"
+	    force="${option.jalopy.force}"
+	    classpathref="ref.extendedclasspath">
+      <fileset dir="${dir.src}" erroronmissingdir="false">
+	<include name="**/*.java" />
+      </fileset>
+    </jalopy>
+  </target>
+
+  <!-- Formats all .java test source code files in a component (intern) using eclipse formatter.
+       Checks for the dont.format property. -->
+  <target name="test.format.eclipse"
+	  depends="init, init.eclipseformat, test.configure"
+	  unless="dont.format"
+	  if="tests.available">
+      
+    <eclipseformat>
+        <fileset dir="${dir.src.test}" erroronmissingdir="false">
+	        <include name="**/*.java" />
+        </fileset>
+    </eclipseformat>
+  </target>
+
+  <!-- Formats all .java source code files in a component (public) using eclipse formatter.
+       Checks for the dont.format property. -->
+  <target name="format.eclipse"
+	  depends="init, init.eclipseformat, compile, test.format.eclipse"
+	  unless="dont.format"
+	  description="Formats the Java source code of this component.">
+  
+    <eclipseformat>
+        <fileset dir="${dir.src}" erroronmissingdir="false">
+	        <include name="**/*.java" />
+        </fileset>
+    </eclipseformat>    
+  </target>
+    
+  <!-- Removes the build tree and distribution jar of a standard plugin.
+       This target is alternative to "clean.common.dir". -->
+  <target name="clean.common.jar"
+          depends="configure">
+    <echo message="${ant.project.name}"/>
+    <delete includeEmptyDirs="true" failOnError="false">
+       <fileset dir="${dir.build}" defaultexcludes="false" followsymlinks="false"/>
+       <fileset file="${dist.plugin.prefix}-*.jar"/>
+       <!-- delete old style jar files without version numbers -->
+       <fileset file="${dist.plugin.prefix}.jar"/>
+    </delete>
+  </target>
+
+  <!-- Removes the build tree and distribution jar of a standard plugin.
+       This target is alternative to "clean.common.jar". -->
+  <target name="clean.common.dir"
+          depends="configure">
+    <echo message="${ant.project.name}"/>
+    <delete includeEmptyDirs="true" failOnError="false">
+      <fileset dir="${dir.build}" defaultexcludes="false" followsymlinks="false"/>
+      <fileset dir="${dir.renew.dist.plugins}" includes="${plugin.name}-*/**" defaultexcludes="false" followsymlinks="false"/>
+      <!-- delete old style folders without version numbers -->
+      <fileset dir="${dir.renew.dist.plugins}/${plugin.name}" defaultexcludes="false" followsymlinks="false"/>
+    </delete>
+  </target>
+
+
+
+  <target name="computeFilenames" 
+          depends="configure">
+     <!-- read the version propterty from plugin.cfg and attach prefix "plugin." to keys -->
+     <echo>    Plug-in name = ${plugin.name}
+</echo>
+     <loadproperties srcFile="etc/plugin.cfg">
+       <filterchain>
+         <linecontains>
+           <contains value="version"/>
+         </linecontains>
+         <filterreader classname="org.apache.tools.ant.filters.PrefixLines">
+           <param name="prefix" value="plugin."/>
+         </filterreader>
+       </filterchain>
+      </loadproperties>
+      <!-- set extension to "-<version>" if version is set 
+      otherwise set extension and plugin.version to lambda -->
+      
+      <condition property="plugin.version.extension" value="-${renew.version}_${plugin.version}">
+        <isset property="plugin.version"/>
+      </condition>
+      <property name="plugin.version" value=""/>
+      <property name="plugin.version.extension" value=""/>
+      <echo>    Renew version = ${renew.version}
+</echo>
+      <echo>    Plug-in version = ${plugin.version}
+</echo>
+      <echo level="debug">    Pluginversion extension = ${plugin.version.extension}
+</echo>
+      
+      <!-- finally determine full path name of plugin -->
+      <property name="dir.dist.plugin" location="${dist.plugin.prefix}${plugin.version.extension}"/>
+      <property name="file.dist.plugin" location="${dist.plugin.prefix}${plugin.version.extension}.jar"/>
+      <property name="file.dist.cfg" location="${dir.dist.plugin}/plugin.cfg"/>
+  </target>
+
+
+  <target name="removeObsoleteFiles" 
+          depends="configure,computeFilenames">
+    <!--
+    <fileset dir="${dir.renew.dist.plugins}" id="plugin.version.files">
+      <exclude name="${plugin.name}${plugin.version.extension}.jar"/>
+      <include name="${plugin.name}*.jar"/>
+    </fileset>
+    <pathconvert pathsep="" refid="plugin.version.files"
+        setonempty="true" property="aaa.plugin.version.files">
+        <mergemapper to="a"/>
+    </pathconvert>
+    <echo>${aaa.plugin.version.files}</echo>
+    <length property="count.plugin.version.files" string="${aaa.plugin.version.files}"/>
+    <echo>${count.plugin.version.files}</echo>
+    -->
+    <delete includeEmptyDirs="false" failOnError="false">
+      <fileset dir="${dir.renew.dist.plugins}" id="plugin.version.files">
+        <exclude name="${plugin.name}${plugin.version.extension}.jar"/>
+        <include name="${plugin.name}.jar"/>
+        <include name="${plugin.name}-*.jar"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="printName">
+    <java classname="de.renew.ant.FigletText" fork="yes">
+      <arg value="${ant.project.name}" />
+      <classpath>
+	<fileset dir="${dir.renew.dist.plugins}">
+          <include name="renewant-*.jar"/>
+	</fileset>
+        <pathelement
+            location="${dir.renew.lib}/jfiglet/jfiglet-1.0-alpha1.jar" />
+        <pathelement path="${dir.renew.lib}/jfiglet" />
+      </classpath>
+    </java>
+  </target>

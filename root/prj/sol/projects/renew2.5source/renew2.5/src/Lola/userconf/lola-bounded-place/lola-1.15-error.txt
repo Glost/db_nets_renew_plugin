@@ -1,0 +1,49 @@
+
+// using the same userconf.H file once compiled with lola-1.14, 
+// once with lola-1.15 we get different results when checking 
+// whether a place is bounded.
+
+// compiled without error message on ...
+
+hewelt@tgipc16:~/rendir/Lola$ uname -a
+Linux tgipc16 2.6.35-28-generic-pae #50-Ubuntu SMP Fri Mar 18 20:43:15 UTC 2011 i686 GNU/Linux
+
+// output using lola 1.15
+
+hewelt@tgipc16:~/rendir/Lola$ lib/lola-bounded-place blub.net -ablub.task
+lola: 0 places
+lola: 1 transitions
+lola: place p42 is unbounded!
+lola: >>>>> 1 States, 0 Edges, 1 Hash table entries
+
+// output using lola 1.14
+
+hewelt@tgipc16:~/rendir/Lola$ lib-lin/lola-bounded-place blub.net -ablub.task0 Places
+1 Transitions
+
+place p42 is bounded!
+
+
+>>>>> 1 States, 0 Edges, 1 Hash table entries
+
+
+// The net blub.net
+
+PLACE
+  p42;
+
+MARKING
+p42: 1
+;
+
+TRANSITION t41
+CONSUME
+;
+
+PRODUCE
+;
+
+
+// The task file blub.task
+
+ANALYSE PLACE p42

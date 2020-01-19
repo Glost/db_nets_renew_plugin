@@ -1,0 +1,34 @@
+# usage: {command {args}* ---}*
+# available commands:
+#                  -  
+# demonstrator     -  opens a window with a list of drawing file names
+# ex               -  Exports a drawing. Usage: ex <type> [drawing]+ Type ex for a list of supported formats and options.
+# exit             -  leave plugin system (append "ifidle" or "force" to modify behaviour)
+# gc               -  triggers the Java garbage collector.
+# get              -  Returns the value of the given PluginProperty. Options: [-a| -A] for a listing of all known property names / properties.
+# gui              -  start the renew gui
+# help             -  print a list of all commands
+# info             -  view properties of a loaded plugin.
+# keepalive        -  controls the keep-alive feature of the Renew Prompt plugin.
+# list             -  lists all loaded plugins. Options: [-l| --long] for more information; [-c| --comment] to show compile comments; [-j|--jar] to show all JAR file locations;[-o] to show ordered list.
+# listFormalisms   -  display a list of all available formalisms
+# load             -  Load a new plug-in. Type 'load -help' to get examples of usage.
+# packageCount     -  prints the number of packages in the class loader
+# pep              -  pep export and latex representation
+# reload           -  Rebuilds and reloads a plugin, i.e. unloads alls dependant plugins and the desired plugin and reloads all previously dependant plugins and the plugin itself
+# script           -  reads an input file and interprets every line as a PluginManager command
+# set              -  sets a system property (syntax key=value)
+# setFormalism     -  sets the named formalism.
+# simulation       -  control the simulation by subcommands (e.g. step, run, stop)
+# sleep            -  This command waits for a given time until the next command is executed.
+# startsimulation  -  set up a simulation with given nets (-h for help).
+# unload           -  cleans up (deactivates) a plugin
+
+gui FA/samples/communication/refnet-calls-aut/uplink.fa
+setFormalism Java Net Compiler
+ex ShadowNetSystem FA/samples/communication/refnet-calls-aut/rnwDownlink.rnw -o FA/samples/communication/refnet-calls-aut/rnwDownlink.sns
+setFormalism FA Compiler
+startsimulation FA/samples/communication/refnet-calls-aut/rnwDownlink.sns rnwDownlink -i
+#ex FA/samples/communication/refnet-calls-aut/rnwDownlink.rnw -o FA/samples/communication/refnet-calls-aut/rnwDownlink.sns
+#../samples/communication/refnet-calls-aut/rnwDownlink
+#../samples/communication/refnet-calls-aut/uplink

@@ -1,0 +1,38 @@
+PLACE
+  p2{x:261y:161},
+  p3{x:330y:233},
+  p4 ,  p1{x:196y:233},
+  p5{x:389y:307};
+
+MARKING p1:3, p4: 1;
+
+TRANSITION t81 
+CONSUME 
+  p1: 1, 
+  p2: 3; 
+
+PRODUCE 
+  p2: 1;
+
+TRANSITION t82{x:329y:309}
+CONSUME
+  p3: 1;
+
+PRODUCE
+  p5: 1,
+  p4: 1;
+
+TRANSITION t83{x:328y:164}
+CONSUME
+  p2: 1;
+
+PRODUCE
+  p3: 1;
+
+TRANSITION t84{x:195y:308}
+CONSUME
+  p4: 1;
+
+PRODUCE
+  p1: 1;
+

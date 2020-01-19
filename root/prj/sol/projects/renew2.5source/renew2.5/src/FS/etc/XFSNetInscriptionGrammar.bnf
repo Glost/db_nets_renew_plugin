@@ -1,0 +1,693 @@
+# SKIP : # WHITE SPACE
+# (
+#   " "
+# | "\t"
+# | "\n"
+# | "\r"
+# | "\f"
+# )
+
+SPECIAL_TOKEN : # COMMENTS
+(
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+| <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
+| <FORMAL_COMMENT: "/**" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+)
+
+TOKEN : # RESERVED WORDS AND LITERALS
+(
+  < ABSTRACT: "abstract" >
+| < ACTION: "action" >
+| < BOOLEAN: "boolean" >
+| < BREAK: "break" >
+| < BYTE: "byte" >
+| < CASE: "case" >
+| < CATCH: "catch" >
+| < CHAR: "char" >
+| < CLASS: "class" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < _DEFAULT: "default" >
+| < DO: "do" >
+| < DOUBLE: "double" >
+| < ELSE: "else" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < FINAL: "final" >
+| < FINALLY: "finally" >
+| < FLOAT: "float" >
+| < FOR: "for" >
+| < GOTO: "goto" >
+| < GUARD: "guard" >
+| < IF: "if" >
+| < IMPLEMENTS: "implements" >
+| < IMPORT: "import" >
+| < INSTANCEOF: "instanceof" >
+| < INT: "int" >
+| < INTERFACE: "interface" >
+| < LONG: "long" >
+| < NATIVE: "native" >
+| < NEW: "new" >
+| < NULL: "null" >
+| < PACKAGE: "package">
+| < PRIVATE: "private" >
+| < PROTECTED: "protected" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < SHORT: "short" >
+| < STATIC: "static" >
+| < SUPER: "super" >
+| < SWITCH: "switch" >
+| < SYNCHRONIZED: "synchronized" >
+| < THIS: "this" >
+| < THROW: "throw" >
+| < THROWS: "throws" >
+| < TRANSIENT: "transient" >
+| < TRUE: "true" >
+| < TRY: "try" >
+| < VOID: "void" >
+| < VOLATILE: "volatile" >
+| < WHILE: "while" >
+| < ACCESS: "access" >
+| < ANY: "Any" >
+)
+
+TOKEN : # LITERALS
+(
+  < TAG_SIGN: "#" >
+|
+  < LOWER_RANGE_LITERAL:
+        ["0"-"1"] ".." >
+|
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+)
+
+TOKEN : # IDENTIFIERS
+(
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < TAGIDENT: "#" (<LETTER>|<DIGIT>)* >
+|
+  < LETTER:
+      [
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+)
+
+TOKEN : # SEPARATORS
+(
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
+| < DOTDOT: ".." >
+)
+
+TOKEN : # OPERATORS
+(
+  < ASSIGN: "=" >
+| < GT: ">" >
+| < LT: "<" >
+| < BANG: "!" >
+| < TILDE: "~" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < INCR: "++" >
+| < DECR: "--" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < RSIGNEDSHIFT: ">>" >
+| < RUNSIGNEDSHIFT: ">>>" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RUNSIGNEDSHIFTASSIGN: ">>>=" >
+| < AT: "@" >
+)
+
+TOKEN : # CATCHALL TOKEN DEFINITION
+(
+  < OTHERCHAR: ["\u0000"-"\uffff"] >
+)
+
+
+# *********************************
+# * THE RENEW GRAMMAR STARTS HERE *
+# *********************************
+
+# Thoroughly parse the declaration node.
+
+DeclarationNode :
+  (
+    AccessDeclaration
+  )*
+  (
+    ImportDeclaration
+  )*
+  ( VariableDeclaration )*
+  <EOF>
+
+ImportDeclaration :
+  "import" Name [ "." "*" ] ";"
+
+AccessDeclaration :
+  "access" Name ";"
+
+VariableDeclaration :
+  Type
+  VariableNamePart
+  ( "," VariableNamePart )* ";"
+
+VariableNamePart :
+  <IDENTIFIER>
+  ( "[" "]"
+  )*
+
+PlaceInscription :
+  SinglePlaceInscription
+  (
+    ";"
+    [
+      SinglePlaceInscription
+    ]
+  )*
+  <EOF>
+
+SinglePlaceInscription :
+  (
+    Expression
+  )
+
+TransitionInscription :
+  SingleTransitionInscription
+  (
+    ";"
+    [
+      SingleTransitionInscription
+    ]
+  )*
+  <EOF>
+
+SingleTransitionInscription :
+  (
+    UplinkInscription
+  |
+    CreationInscription
+  |
+    DownlinkInscription
+  |
+    GuardInscription
+  |
+    ActionInscription
+  )
+
+UplinkInscription :
+  ":" ( <IDENTIFIER> | "new" ) "(" ArgumentList ")"
+
+CreationInscription :
+  <IDENTIFIER>
+  ":" "new" <IDENTIFIER>
+  [
+    "(" ArgumentList ")"
+  ]
+
+DownlinkInscription :
+  Expression ":"
+  ( <IDENTIFIER> | "new" )
+  "(" ArgumentList ")"
+
+GuardInscription :
+  "guard" Expression
+
+ActionInscription :
+  [ "action" ]
+  Expression
+
+tryParseChannelInscription :
+  [ Expression ]
+  ":" ( <IDENTIFIER> | "new" ) "(" ArgumentList ")" <EOF>
+
+ArcInscription :
+  SingleArcInscription
+  (
+    ";"
+    [
+      SingleArcInscription
+    ]
+  )*
+  <EOF>
+
+SingleArcInscription :
+  Expression
+
+VariableInscription :
+  <IDENTIFIER> [";"] <EOF>
+
+
+# ********************************
+# * THE JAVA GRAMMAR STARTS HERE *
+# ********************************
+
+#
+#  Type, name and expression syntax follows.
+#
+
+ClassType :
+  Name
+
+NonArrayType :
+  (
+    PrimitiveType
+  |
+    ClassType
+  )
+
+Type :
+  NonArrayType
+  ( "[" "]"
+  )*
+
+PrimitiveType :
+  (
+    "boolean"
+  |
+    "char"
+  |
+    "byte"
+  |
+    "short"
+  |
+    "int"
+  |
+    "long"
+  |
+    "float"
+  |
+    "double"
+  )
+
+Name :
+  <IDENTIFIER>
+  ( "." <IDENTIFIER>
+  )*
+
+
+#
+#  Expression syntax follows.
+#
+
+Expression :
+  Assignment
+|
+  ConditionalOrExpression
+
+Assignment :
+  PrimaryExpression "=" Expression
+|
+  ConditionalOrExpression "=" Expression
+
+ConditionalOrExpression :
+  ConditionalAndExpression
+  ( "||" ConditionalAndExpression
+  )*
+
+ConditionalAndExpression :
+  InclusiveOrExpression
+  ( "&&" InclusiveOrExpression
+  )*
+
+InclusiveOrExpression :
+  ExclusiveOrExpression
+  ( "|" ExclusiveOrExpression
+  )*
+
+ExclusiveOrExpression :
+  AndExpression
+  ( "^" AndExpression
+  )*
+
+AndExpression :
+  EqualityExpression
+  ( "&" EqualityExpression
+  )*
+
+EqualityExpression :
+  InstanceOfExpression
+  (
+    ( "=="
+    | "!=" )
+    InstanceOfExpression
+  )*
+
+InstanceOfExpression :
+  RelationalExpression
+  [ "instanceof" Type
+  ]
+
+RelationalExpression :
+  ShiftExpression
+  (
+    ( "<"
+    | ">"
+    | "<="
+    | ">=" )
+    ShiftExpression
+  )*
+
+ShiftExpression :
+  AdditiveExpression
+  (
+    ( "<<"
+    | ">>"
+    | ">>>" )
+    AdditiveExpression
+  )*
+
+AdditiveExpression :
+  MultiplicativeExpression
+  (
+    "+" MultiplicativeExpression
+  |
+    "-" MultiplicativeExpression
+  )*
+
+MultiplicativeExpression :
+  UnaryExpression
+  (
+    ( "*"
+    | "/"
+    | "%" )
+    UnaryExpression
+  )*
+
+UnaryExpression :
+  "!" UnaryExpression
+|
+  "~" UnaryExpression
+|
+  ( "+"
+  | "-" )
+  UnaryExpression
+|
+  SimpleUnaryExpression
+
+SimpleUnaryExpression :
+  CastExpression
+|
+  PrimaryExpression
+
+CastExpression :
+  (
+    "(" PrimitiveType ")"
+    UnaryExpression
+  |
+    "(" Type ")"
+    SimpleUnaryExpression
+  )
+
+PrimaryExpression :
+  PrimaryPrefix
+  (
+    PrimarySuffix
+  |
+    "@" <IDENTIFIER>
+  )*
+
+PrimaryPrefix :
+  Literal
+|
+  ClassType "." "class"
+|
+  <IDENTIFIER>
+|
+  "this"
+|
+  "(" ArgumentList ")"
+|
+  FSExpression
+|
+  AllocationExpression
+
+PrimarySuffix :
+  "[" Expression "]"
+|
+  "." <IDENTIFIER>
+|
+  "(" ArgumentList ")"
+
+Literal :
+  (
+    <INTEGER_LITERAL>
+  |
+    <FLOATING_POINT_LITERAL>
+  |
+    <CHARACTER_LITERAL>
+  |
+    <STRING_LITERAL>
+  |
+    "true"
+  |
+    "false"
+  |
+    "null"
+  )
+
+ArgumentList :
+  [
+    Expression
+    ( "," Expression
+    )*
+  ]
+
+AllocationExpression :
+  "new"
+  (
+    PrimitiveType
+    ArrayDimensions
+  |
+    NonArrayType
+    ArrayDimensions
+  |
+    NonArrayType "(" ArgumentList ")"
+  )
+
+ArrayDimensions :
+  (
+    "[" Expression "]"
+  )+
+  (
+    "[" "]"
+  )*
+
+
+#*****************************************************************
+#***************************************************** FS ********
+#*****************************************************************
+#*****************************************************************
+
+TransitionRule :
+  FSExpression <EOF>
+
+FSExpression :
+  parseFS
+
+parseConcept :
+   (([ <IDENTIFIER> "::" ] Name )
+     | "this" )
+
+parseBasicType :
+(
+     PrimitiveType
+   | "{" (Literal | "*") ".."
+	 (Literal | "*") "}"
+  )
+
+parseType :
+ (
+   (["!"]
+    ("*" | "+"))
+ |
+   "!"
+ |
+   (["!"]
+    preParseType
+    [ "*" | "+" ]))
+
+preParseType :
+(
+   parseBasicType
+   |
+   ((parseConcept
+    | "Any" )
+    ( ","  parseConcept
+    )*
+  )
+)
+
+parseUntaggedFS :
+(
+("["
+  [
+    parseType
+  ]
+  (
+    <IDENTIFIER> ":"
+    parseSubFS
+  )*
+  "]"
+) |
+(
+  "<"
+  [
+    parseType
+  ]
+  ( parseSubFS
+   )*
+   (("|" [ parseSubFS ]
+     ">")
+    |
+    (">" ))
+)
+)
+
+parseFS :
+( parseUntaggedFS
+|
+(<TAGIDENT>
+ (
+  ( parseUntaggedSubFS )
+  |
+  )
+ )
+)
+
+parseUntaggedSubFS :
+  parseUntaggedFS
+|
+  "(" Expression ")"
+
+parseSubFS :
+(parseUntaggedSubFS
+|
+(<TAGIDENT>
+ (( parseUntaggedSubFS
+  )
+  |
+  )
+ )
+)
+
+parseAppropDef :
+  (
+    Name
+    [ "[" [<LOWER_RANGE_LITERAL>] "*" "]" ]
+    [":" preParseType ]
+  )*

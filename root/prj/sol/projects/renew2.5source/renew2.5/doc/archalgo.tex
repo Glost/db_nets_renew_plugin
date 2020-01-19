@@ -1,0 +1,56 @@
+\chapter{Algorithms and Data Structures}
+
+In this chapter we will give an introduction to the
+most important algorithms of the simulation engine.
+Fig.~\ref{fig:corepackages} summarizes those packages
+mentioned in Fig.~\ref{fig:packages} that are
+highlighted subsequently.
+
+\singlediagram{corepackages}{Overview of the simulation core packages}
+
+
+\section{Anatomy of the Simulation Engine}
+
+The implementation of a Petri net simulator can be separated into various 
+aspects, which can be regarded independently 
+from each other to some extent: 
+
+\begin{itemize}
+\item A unification algorithm.
+A large part of the complexity of a Petri net simulator can been 
+alleviated through the consistent use of a unification algorithm.
+Because there are special requirements, a dedicated algorithm has 
+to be written.
+
+\item The data structures for the representation of the net structure 
+and the net state. This is a particularly meaningful point, because 
+each simplification, in addition, each special treatment on this level 
+immediately impedes the other parts of the algorithm. Since we do not 
+want to produce a code individually for a net, the data structure must 
+be particularly flexibly adaptable, in order to be able to represent 
+all [sorts of] possible Petri nets. Since net instances should be 
+able to be simulated, also the description of a current marking is 
+more complex than for ordinary Petri nets.
+
+\item The selection of a transition for check on activation. If a 
+transition was not detected as activated, it should only be checked 
+again, if a realistic chance exists that it could be activated.
+
+\item The search for enabled bindings of an individual transition. 
+This is the central part of the algorithm, which should be able to 
+find bindings as many as possible [and] as fast as possible. This 
+algorithm can become very complex in concept, in particular if 
+there are many optimization considerations, but it should however 
+be simple, as there it has a special influence on the robustness 
+of the whole system. 
+
+\item The firing of a transition. Basically the execution of a 
+transition is comparatively a simple process, as soon as an enabled 
+binding is found. If we allow however the parallel execution of several 
+transitions, conflicts develop with the access to common data here. 
+Here the powerful synchronisation methods of Petri nets must be 
+illustrated on concepts of a programming language. 
+\end{itemize}
+
+In the following sections we will examine each item individually.
+

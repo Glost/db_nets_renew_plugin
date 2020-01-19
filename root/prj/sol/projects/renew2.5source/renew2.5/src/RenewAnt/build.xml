@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+   <!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+   <!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+   <!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+   <!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+   <!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="Renew-Ant" default="dist" basedir=".">
+    <description>
+This is one of the subprojects' build.xml file. It is supposed
+to work on its own, but is usually invoked from the build of a
+higher level.
+
+Renew-Ant comprises basic Ant task implementations to compile 
+LaTeX documentation and JavaCC compiler definitions. This plugin
+is not needed in Renew runtime environments, but during the build 
+process.
+    </description>
+
+  <!-- makes some checks. (internal). -->
+  <!-- if there is something to initialise, insert here -->
+  <target name="configure">
+    <property name="plugin.name" value="renewant"/>
+
+    &commonproperties;
+
+    <path id="ref.classpath">
+  	<path refid="ref.antclasspath"/>
+	<path refid="ref.sharedlibs"/>
+        <!-- There are no dependencies to Renew code. -->
+    </path>
+    <echo message="${plugin.name}"/>
+  </target>
+
+  <!-- Includes common task definitions in this build.xml. In
+       most other subprojects this inclusion can be done immediately, 
+       but since some needed classes are compiled on this
+       level, the target "dist" must be completed before. -->
+  <target name="init" depends="configure, dist">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+  
+  <target name="compile" 
+	  depends="configure, javac" 
+	  description="Compiles the renew ant component with all dependencies (default).">
+  </target>
+
+  <target name="dist" 
+	  depends="configure, compile, jar, copytodist.jar" 
+	  description="Builds this project resulting in a 'renewant.jar'. Prepend 'clean' to build from scratch.">
+  </target>
+
+  <target name="clean" 
+		depends="configure, clean.common.jar"
+  		description="Removes all generated code/classes/doc.">
+  </target>
+
+  <!-- creates a plugin jar file including all libraries and classes -->
+  <target name="jar"
+  	depends="compile">
+	<jar destfile="${file.build.jar}">
+		<fileset dir="${dir.build.classes}"/>
+	</jar>
+  </target>
+
+</project>

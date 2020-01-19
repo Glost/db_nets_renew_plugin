@@ -1,0 +1,277 @@
+\section{Unification}
+
+First of all we describe the data structures and algorithms of
+the unification algorithm. All classes used for this algorithm 
+can be found in the package \texttt{de.renew.unify}.
+
+\subsection{Motivation}
+
+For improved usability, the inscription
+language of a Petri net formalism should support some sort of tuples to 
+facilitate the easy retrieval of matching values. Tuples are already 
+a classic area in which unification algorithms have been applied, 
+and the unification of tokens at places with arc inscriptions 
+requires at least a matching algorithm. There are, however, 
+aspects of the simulation algorithm for which a unification 
+algorithm is useful in different ways.  
+
+Petri net formalisms often require the consideration of 
+many different transition inscriptions when firing a transition. 
+Mostly, these inscriptions are given without a particular order, so their 
+effect should not depend on the order of their evaluation. 
+This coincides with the characteristic of unification algorithms, 
+i.e., the sequence of unification is irrelevant.
+
+For synchronous channels, no direction of the information flow 
+is prescribed. during the search for enabled 
+bindings, the values and variables on both sides must be unified, 
+as a simple assignment is generally not possible. First of all,
+a parameter of a synchronous channel itself could be again a 
+tuple expression, if we want to keep the orthogonality of the 
+language definitions. Further, a synchronous channel might have to be
+handled even before the last variable of the initiating side
+is bound. This is especially important when the channel transfers
+values in both directions.  
+
+The question is, whether more unifiable objects, besides tuples, 
+should be examined. Lists were identified as a reasonable 
+extension of a net formalism. Although lists can be represented 
+as nested tuples, for the sake of better usability this way 
+of implementation should not be externally visible. However, 
+we cannot modify the representation of tuples, as nested tuples 
+do not always represent a list. Hence a special category of 
+lists was created which allows a more suitable representation 
+and prohibits the visibility of their internal structure as well. 
+In the following, we will not deal with this class often since 
+nothing changes in the actual unification algorithm and all 
+interesting effects can already be observed with tuples.   
+
+\subsection{Unknowns}
+
+Each variable has a value. This can be a normal Java object or 
+a unifiable object. When a new variable is generated, its value 
+is unknown at first, because the variable is completely unbound. 
+In order to be able to indicate a value nonetheless, special 
+objects have been introduced by the class
+\texttt{Unknown}. 
+
+These objects become important during unification. After 
+two unassigned variables \texttt{x} and \texttt{y} have been unified, their 
+value is still unknown. The unification, however, is visible 
+in that both variables would return the same unknown as their value. 
+
+We note that, after the unification of \texttt{x} and \texttt{y},
+it is not specified which of the two 
+unknowns will form the later value of \texttt{x} and \texttt{y}. 
+In fact, this is irrelevant for further unifications.
+Outside the unification algorithm, the class \texttt{Unknown}
+need not be known anyway, because variables should be
+queried for their valuation only after
+they have become completely bound, i.e., when no unknown is part
+of their value, not even nested within a tuple.
+
+\subsection{Backtracking}
+
+For the implementation of a unification algorithm one can choose 
+one of two ways. Either unification creates a new binding list
+that assigns the appropriate values to the variables, whereby the 
+original bindings list is preserved; or, alternatively, the old 
+binding information is overwritten and thus no longer available.
+ 
+Here, the second way, which modifies the existing objects, has 
+been chosen, so that unnecessary copying can be avoided. 
+
+In a Petri net simulator, however, it is necessary to be able to 
+reset to the old state as required, for example when a
+proposed binding of an arc variable to a token value 
+did not lead to an activated 
+transition and alternative bindings should be tried out. 
+
+Therefore all modifications that the unification algorithm executes 
+are noted in a central object, which belongs to the \texttt{StateRecorder}
+class. For all modifying accesses to unifiable objects a recorder 
+must then be specified. If the special value \texttt{null} is used, then 
+the corresponding operation cannot be undone. Otherwise, all attributes
+of the object that are supposed to be modified are stored in
+the recorder. It is important to make no modification at all before
+recording it first.
+
+In order to keep the recording of the modifications as flexible as 
+possible, the state recorder does not prescribe a format for the information
+that must be recorded. Instead, an object of the type 
+\texttt{StateRestorer} is transmitted. This object possesses only one method 
+\texttt{restore()} and stores all necessary information. For each 
+type of modification a subclass of \texttt{StateRestorer} is created.  
+
+Several reset points can be specified for a recorder, so that a partial 
+resetting is possible. Modifications are always undone in the reverse 
+order in which they were made. 
+
+It will be shown that almost the entire state of the Petri net 
+simulator is stored in unifiable objects, and that almost the 
+entire backtracking can be performed by this algorithm.
+If information is not connected to unifiable objects, special
+subclasses of \texttt{StateRestorer} can handle these cases, too.
+
+\singlediagram{unifdata}{Unifiable objects}
+
+\subsection{Unifiability and Java Equality}
+
+The unifiability of Java objects was implemented on the basis of the
+method \texttt{equals(Object)}. 
+Thus we follow the decision of the programmers of container classes, 
+where this way is also always chosen to access the contents
+of a container. It is a procedure already embodied in the 
+language definition, which can be adapted sufficiently flexibly to 
+individual needs. 
+
+The substantial problems develop from the fact that the Java definition 
+of equality allows \texttt{equals(Object)} to vary over time.
+In most cases the Java API follows the rule that only for 
+unchangeable objects equality may be coarser than identity, but 
+there are exceptions as for instance \texttt{java.awt.Point} or the 
+container classes from Java 1.2. 
+
+This is to be borne, if Java's equality concept is normally used.
+It becomes a serious problem for unification, however, because a check
+for equality may occur in many unexpected places.
+
+Now the question arises, how unifiable objects themselves deal 
+with testing on equality. Tuples are very easy to handle, because 
+for them the equality is defined by the equality of all components. 
+
+For unknowns, however, a certain problem results, because they can still  
+take any value by unification, so that the outcome of a comparison with  
+other objects is not at all defined. 
+
+Therefore a comparison attempt on unknowns throws an exception, 
+which interrupts the normal program flow and is normally announced as error. 
+Indeed a comparison should not occur, because unknown should be used only 
+under the control of the Petri net simulator. To other program sections
+the simulator should only pass completely bound tuples, 
+so that unknown should not be accessible from normal Java code. 
+
+Since backtracking operations can again introduce unknown components into 
+already fully unified tuples, it would be possible that an appropriate  
+method stores reference to a complete tuple and later, after the  
+backtracking, accesses the tuple again and retrieves an unknown. Since  
+those methods that are not invoked from within actions 
+should not have any side effects, this effect will only  
+occur in actions. In that case all, however, all tuples will first be  
+copied, so that they are not subject to backtracking any more. 
+
+A hash code must be assigned to each Java Object. For tuples this 
+is calculated using a simple polynomial derived from the hash codes of 
+the tuple components. For unknowns the query of the hash code throws
+an exception, because an unknown should not be stored in a hashed 
+data structure. 
+
+
+\subsection{Occurrence check}
+
+If a tuple could contain itself directly or indirectly, then one could 
+describe certain infinite data structures quite easily. But such things 
+are not easy to handle in the mathematical theory and cause problems 
+during the implementation, too.
+
+With unification further problems occur. In particular,
+attention would have to be paid to avoid endless loops. Also unification 
+is founded on the basis of term unification of predicate 
+logic, where infinite terms are not allowed. 
+ 
+Thus there is the task is to ensure cycle-freeness during the 
+unification: the so called occurrence check, which checks for the 
+occurrence of a tuple within in another tuple. The 
+occurrence check is sometimes not implemented in the area of 
+logical programming, and one leaves the behavior in the case 
+of recursive tuple unspecified, because a check in 
+that context would be very expensive. In Petri net simulators 
+the principal complexity is due to other algorithms, so 
+that an occurrence check does not slow down the simulator considerably.
+
+
+\subsection{Calculations}
+
+In the formalism of the reference nets it is possible to carry out 
+certain calculations only during the execution of a transition, 
+which is noted with the keyword action. The results of the 
+calculations are not known to the unification algorithm, 
+yet the algorithm should as far possibly be able to deal with these 
+calculations. 
+
+Especially, late calculations should be effectively executable
+during the transition's firing. This leads to certain requirements:
+\begin{itemize}
+\item Cyclic dependencies shall be detected. This applies also to 
+complex multi-level dependencies. For example, the call
+\texttt{action x=[1,a.method(x)]}
+should fail before the firing of the transition, 
+because here \texttt{x} depends on itself 
+indirectly through a method invocation 
+and a tuple.
+
+\item As far as possible, the result type of a later calculation should be
+represented by unification algorithm, so that no preventable
+type errors may occur.
+\end{itemize}
+
+A calculation is represented by special unifiable objects
+of the type \texttt{Calculator}.
+A calculator is unifiable only with unknowns and with itself, 
+but not with tuples, values or other calculators. 
+In particular, equality reduces to identity for calculations. 
+
+Calculator objects reference exactly another object, which can serve 
+as an argument for a calculation. If more arguments are required, 
+this can be implemented by a calculator object that references a tuple
+object.
+
+Occasionally a variable value must be of a certain type,
+in order to be a valid allocation for the variable. 
+this is ensured by the class \texttt{TypeConstrainer}. Such an object 
+monitors an arbitrary value. As soon as the value is no more 
+an unknown, the type of the new value is 
+checked. This might be possible before the value is completely 
+bound. For example, a tuple may be type checked before all its
+components are bound.
+
+\singlediagram{tupleindex}{A tuple index}
+
+In order to be able to provide type checking for late calculation, 
+all calculator objects carry the predicted type of their result. 
+If a \texttt{TypeConstrainer} detects as a calculation object as value, the 
+predicted type is used instead of the type \texttt{Calculator}. 
+
+In Fig.~\ref{fig:unifdata} we summarize the main classes involved in
+the representation of unifiable data structures. You can see
+how every implementation of \texttt{Referer} is assisted by an instance
+of \texttt{Reference}. Similarly, every \texttt{Referable} is
+augmented by a \texttt{BacklinkSet}. A backlink set collects 
+information about all those references that reference its owner.
+A reference makes sure to insert itself into the backlink set
+of its referenced object.
+
+Using a \texttt{CalculationChecker} object a program can require that
+certain variables must be bound or that they must be complete.
+A value is complete if it contains no unknowns, even nested
+within a multitude of unifiable objects. A complete value
+is bound if it contains no calculators.
+
+
+\subsection{Tuple Index}
+
+The tuple index is a specialized data structure that allows to select
+among a set of tuples some candidates that might fit a given pattern.
+The given pattern is itself a possibly nested tuple, which might be
+incomplete, i.e., it might contain unknown in some substructures.
+
+The tuple index provides an upper bound for the set of matching
+values based on exactly one component of the tuple or one component
+of a subcomponent of the tuple. The tuple index will try all
+complete subcomponents of the tuple during lookup and select the best
+estimate among these. It will not, however, consider more then one
+components. E.g., with the set \texttt{[0,0,0]}, \texttt{[0,1,0]},
+\texttt{[0,1,1]},and \texttt{[1,0,0]} of values and 
+the pattern \verb:[0,0,_]:, the only matching pattern is
+\texttt{[0,0,0]}, but the optimal guess based on
+the second component contains \texttt{[0,0,0]} and \texttt{[1,0,0]}.

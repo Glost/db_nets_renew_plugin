@@ -1,0 +1,36 @@
+/*
+ * @(#)ReverseVectorEnumerator.java 5.1
+ *
+ */
+package CH.ifa.draw.util;
+
+import CH.ifa.draw.framework.Figure;
+
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+
+/**
+ * An Enumeration that enumerates a vector back (size-1) to front (0).
+ */
+public class ReverseVectorEnumerator implements Enumeration<Figure> {
+    Vector<Figure> vector;
+    int count;
+
+    public ReverseVectorEnumerator(Vector<Figure> v) {
+        vector = v;
+        count = vector.size() - 1;
+    }
+
+    public boolean hasMoreElements() {
+        return count >= 0;
+    }
+
+    public Figure nextElement() {
+        if (count >= 0) {
+            return vector.elementAt(count--);
+        }
+        throw new NoSuchElementException("ReverseVectorEnumerator");
+    }
+}

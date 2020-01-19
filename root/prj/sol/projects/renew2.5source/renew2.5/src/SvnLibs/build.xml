@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE project SYSTEM "../ant/renewAnt.dtd" [
+<!ENTITY commonproperties SYSTEM "../ant/commonproperties.xml">
+<!ENTITY commontasks      SYSTEM "../ant/commontasks.xml">
+<!ENTITY commontargets    SYSTEM "../ant/commontargets.xml">
+<!ENTITY optionaltasks    SYSTEM "../ant/optionaltasks.xml">
+<!ENTITY cvstargets       SYSTEM "../ant/renewtargets.xml">
+<!ENTITY cvstargets       SYSTEM "../ant/cvstargets.xml">
+]>
+
+<project name="SvnLibs" default="dist" basedir=".">
+    <description>
+  NavigatorDiff Plugin. Generated with PluginDevelopment plugin (version ${pd.version})
+  This is the generated desctiption for this plugin.
+  </description>
+
+    <!-- makes some checks. (internal). -->
+    <!-- if there is something to initialize, insert here -->
+    <target name="configure">
+        <property name="plugin.name" value="svn" />
+
+    &commonproperties;
+    <property name="dir.samples" location="samples" />
+
+
+        <path id="ref.classpath">
+            <fileset dir="${dir.renew.dist.libs}">
+                <include name="**/log4j*.jar" />   
+            </fileset>
+            <fileset dir="${dir.renew.dist.plugins}">
+            </fileset>
+            <fileset dir="${dir.lib}">
+                <include name="**/svnkit*.jar"/>
+            </fileset>
+        </path>
+
+        <!-- include/exclude pattern for shadow net compilation. -->
+        <patternset id="ref.netpattern">
+            <include name="**/*.rnw" />
+        </patternset>
+    </target>
+
+    <target name="init" depends="configure,printName">
+    &commontasks;
+  </target>
+
+  &optionaltasks;
+  &commontargets;
+  &cvstargets;
+    <target name="compile" depends="init, javac" description="Compiles the NavigatorDiff with all dependencies.">
+    </target>
+  
+    <target name="dist" depends="init, compile, jar, copytodist.dir, copytodist.other_subdirs"
+	    description="Builds the JGit library plug-in completely. Prepend 'clean' to build from scratch. (default)">
+    </target>
+
+    <target name="clean" depends="configure, clean.common.dir" description="Removes all generated code/classes/doc.">
+    </target>
+    
+    <!-- Copies all files in subfolders of the planning project, wich 
+         contain files, that schoudn't be compiled but should be included for 
+         inspection to the distribution dir. (internal). -->
+    <target name="copytodist.other_subdirs" depends="init, copytodist.dir.app, computeFilenames">
+      <!-- <mkdir dir="${dir.dist.}" /> -->
+      <copy todir="${dir.dist.plugin}/lib">
+        <fileset dir="${dir.lib}" />
+                </copy>
+    </target>
+
+    <!-- creates a plugin jar file including all libraries and classes. -->
+    <target name="jar" depends="configure">
+        <jar destfile="${file.build.jar}">
+            <fileset dir="${dir.build.classes}" />
+        </jar>
+    </target>
+    
+    <!-- creates a plugin dist skeleton. -->
+    <target name="copytodist.dir.app"
+            depends="configure,computeFilenames,removeObsoleteFiles,is.plugin.version.uptodate.dir,plugin.build.version">
+      <mkdir dir="${dir.dist.plugin}"/>
+      <copy todir="${dir.dist.plugin}"
+            file="${file.build.cfg}"/>
+     </target>
+
+</project>
