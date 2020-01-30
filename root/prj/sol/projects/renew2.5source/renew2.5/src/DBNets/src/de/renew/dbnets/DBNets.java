@@ -1,4 +1,4 @@
-package dbnets;
+package de.renew.dbnets;
 
 import de.renew.plugin.PluginAdapter;
 import de.renew.plugin.PluginException;
