@@ -1,7 +1,4 @@
-package de.renew.dbnets.controllayer;
-
-import de.renew.net.NetElementID;
-import de.renew.net.Transition;
+package de.renew.net;
 
 public class DBNetTransition extends Transition {
 
