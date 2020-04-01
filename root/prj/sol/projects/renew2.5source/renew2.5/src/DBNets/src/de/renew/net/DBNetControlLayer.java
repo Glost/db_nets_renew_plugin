@@ -1,5 +1,8 @@
 package de.renew.net;
 
+import de.renew.engine.simulator.SimulationThreadPool;
+import de.renew.unify.Impossible;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -12,6 +15,12 @@ public class DBNetControlLayer extends Net {
 
     public DBNetControlLayer(String name) {
         super(name);
+    }
+
+    @Override
+    public NetInstance makeInstance() throws Impossible {
+        assert SimulationThreadPool.isSimulationThread() : "is not in a simulation thread";
+        return new DBNetControlLayerInstance(this);
     }
 
     @Override

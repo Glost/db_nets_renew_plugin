@@ -10,4 +10,12 @@ public class DBNetTransition extends Transition {
         super(net, name, id);
         this.action = action;
     }
+
+    public void performAction() {
+        action.performAction();
+    }
+
+    public void rollbackAction() {
+        action.rollbackAction();
+    }
 }

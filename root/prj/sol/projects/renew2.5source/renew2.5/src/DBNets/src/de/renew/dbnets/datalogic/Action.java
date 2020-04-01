@@ -47,4 +47,9 @@ public class Action {
         // TODO: implement the method.
         logger.info("Performing action: " + name);
     }
+
+    public void rollbackAction() {
+        // TODO: implement the method.
+        logger.info("Rollbacking action: " + name);
+    }
 }
