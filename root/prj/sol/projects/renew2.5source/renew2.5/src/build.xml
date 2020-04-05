@@ -171,7 +171,7 @@ invocation of ant on each plugin or other Renew subproject.
   </target>
 
   <target name="DBNets"
-    depends="init,lib,Loader,Simulator,Util"
+    depends="init,lib,CH,Gui,Loader,Simulator,Util"
     description="builds the Renew DBNets Plugin.">
     <ant dir="DBNets" target="dist" inheritAll="false"/>
   </target>
