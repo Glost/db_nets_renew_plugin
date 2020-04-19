@@ -2,7 +2,8 @@ package de.renew.dbnets;
 
 import CH.ifa.draw.framework.DrawingEditor;
 import CH.ifa.draw.util.Palette;
-import de.renew.dbnets.gui.tool.DBNetTransitionCreationTool;
+import de.renew.dbnets.gui.DBNetsPalette;
+import de.renew.dbnets.gui.tool.DBNetTransitionFigureCreationTool;
 import de.renew.gui.GuiPlugin;
 import de.renew.gui.PaletteHolder;
 import de.renew.plugin.PluginAdapter;
@@ -34,10 +35,11 @@ public class DBNets extends PluginAdapter {
 
     // TODO: implement palette creating.
     private void createPalette(GuiPlugin guiPlugin) {
-        Palette palette = new Palette("DBNetsPalette");
-
         DrawingEditor drawingEditor = guiPlugin.getDrawingEditor();
-        DBNetTransitionCreationTool tool = new DBNetTransitionCreationTool(drawingEditor);
+
+        Palette palette = new DBNetsPalette("DBNetsPalette", guiPlugin, drawingEditor);
+
+        DBNetTransitionFigureCreationTool tool = new DBNetTransitionFigureCreationTool(drawingEditor);
 
         PaletteHolder paletteHolder = guiPlugin.getPaletteHolder();
 

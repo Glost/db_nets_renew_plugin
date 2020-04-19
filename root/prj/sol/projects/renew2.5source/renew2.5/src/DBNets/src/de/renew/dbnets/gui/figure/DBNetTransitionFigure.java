@@ -1,17 +1,36 @@
 package de.renew.dbnets.gui.figure;
 
-import CH.ifa.draw.figures.RectangleFigure;
-import de.renew.net.DBNetTransition;
+import de.renew.dbnets.shadow.ShadowDBNetTransition;
+import de.renew.gui.TransitionFigure;
+import de.renew.shadow.ShadowNet;
+import de.renew.shadow.ShadowNetElement;
 
-public class DBNetTransitionFigure extends RectangleFigure {
+import java.util.Objects;
 
-    private final DBNetTransition transition;
+public class DBNetTransitionFigure extends TransitionFigure {
 
-    public DBNetTransitionFigure(DBNetTransition transition) {
-        this.transition = transition;
+    private transient ShadowDBNetTransition shadow;
+
+    @Override
+    public void release() {
+        super.release();
+        if (Objects.nonNull(shadow)) {
+            shadow.discard();
+        }
     }
 
-    public DBNetTransition getTransition() {
-        return transition;
+    @Override
+    public ShadowNetElement buildShadow(ShadowNet net) {
+        shadow = new ShadowDBNetTransition(net);
+        shadow.context = this;
+        shadow.setID(this.getID());
+        shadow.setTrace(getTraceMode());
+        logger.debug("DB-net transition shadow created");
+        return shadow;
+    }
+
+    @Override
+    public ShadowDBNetTransition getShadow() {
+        return shadow;
     }
 }
