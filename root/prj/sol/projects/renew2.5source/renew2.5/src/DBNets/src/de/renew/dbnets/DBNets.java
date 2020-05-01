@@ -4,6 +4,7 @@ import CH.ifa.draw.framework.DrawingEditor;
 import CH.ifa.draw.util.Palette;
 import de.renew.dbnets.gui.DBNetsPalette;
 import de.renew.dbnets.gui.tool.DBNetTransitionFigureCreationTool;
+import de.renew.dbnets.gui.tool.ViewPlaceFigureCreationTool;
 import de.renew.gui.GuiPlugin;
 import de.renew.gui.PaletteHolder;
 import de.renew.plugin.PluginAdapter;
@@ -39,11 +40,23 @@ public class DBNets extends PluginAdapter {
 
         Palette palette = new DBNetsPalette("DBNetsPalette", guiPlugin, drawingEditor);
 
-        DBNetTransitionFigureCreationTool tool = new DBNetTransitionFigureCreationTool(drawingEditor);
-
         PaletteHolder paletteHolder = guiPlugin.getPaletteHolder();
 
-        palette.add(paletteHolder.createToolButton("/CH/ifa/draw/images/TEXT", "DB-net transition tool", tool));
+        DBNetTransitionFigureCreationTool dbNetTransitionTool = new DBNetTransitionFigureCreationTool(drawingEditor);
+
+        palette.add(paletteHolder.createToolButton(
+                "/CH/ifa/draw/images/TEXT",
+                "DB-net transition tool",
+                dbNetTransitionTool
+        ));
+
+        ViewPlaceFigureCreationTool viewPlaceTool = new ViewPlaceFigureCreationTool(drawingEditor);
+
+        palette.add(paletteHolder.createToolButton(
+                "/CH/ifa/draw/images/TEXT",
+                "View place tool",
+                viewPlaceTool
+        ));
 
         paletteHolder.addPalette(palette);
     }

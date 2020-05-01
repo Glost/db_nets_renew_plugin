@@ -1,15 +1,15 @@
 package de.renew.dbnets.gui.figure;
 
-import de.renew.dbnets.shadow.ShadowDBNetTransition;
-import de.renew.gui.TransitionFigure;
+import de.renew.gui.PlaceFigure;
 import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
+import de.renew.shadow.ShadowPlace;
 
 import java.util.Objects;
 
-public class DBNetTransitionFigure extends TransitionFigure {
+public class ViewPlaceFigure extends PlaceFigure {
 
-    private transient ShadowDBNetTransition shadow;
+    private transient ShadowPlace shadow;
 
     @Override
     public void release() {
@@ -21,16 +21,16 @@ public class DBNetTransitionFigure extends TransitionFigure {
 
     @Override
     public ShadowNetElement buildShadow(ShadowNet net) {
-        shadow = new ShadowDBNetTransition(net);
+        shadow = new ShadowPlace(net);
         shadow.context = this;
         shadow.setID(getID());
         shadow.setTrace(getTraceMode());
-        logger.debug("DB-net transition shadow created");
+        logger.debug("View place created");
         return shadow;
     }
 
     @Override
-    public ShadowDBNetTransition getShadow() {
+    public ShadowPlace getShadow() {
         return shadow;
     }
 }
