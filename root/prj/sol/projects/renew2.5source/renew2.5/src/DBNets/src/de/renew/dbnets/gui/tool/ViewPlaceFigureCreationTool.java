@@ -2,7 +2,7 @@ package de.renew.dbnets.gui.tool;
 
 import CH.ifa.draw.framework.DrawingEditor;
 import CH.ifa.draw.framework.Figure;
-import de.renew.dbnets.gui.figure.ViewPlaceFigure;
+import de.renew.gui.ViewPlaceFigure;
 import de.renew.gui.PlaceFigureCreationTool;
 
 public class ViewPlaceFigureCreationTool extends PlaceFigureCreationTool implements DrawingEditorSettable {

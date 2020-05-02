@@ -4,6 +4,8 @@ import CH.ifa.draw.framework.DrawingEditor;
 import CH.ifa.draw.util.Palette;
 import de.renew.dbnets.gui.DBNetsPalette;
 import de.renew.dbnets.gui.tool.DBNetTransitionFigureCreationTool;
+import de.renew.dbnets.gui.tool.ReadArcConnectionCreationTool;
+import de.renew.dbnets.gui.tool.RollbackArcConnectionCreationTool;
 import de.renew.dbnets.gui.tool.ViewPlaceFigureCreationTool;
 import de.renew.gui.GuiPlugin;
 import de.renew.gui.PaletteHolder;
@@ -56,6 +58,22 @@ public class DBNets extends PluginAdapter {
                 "/CH/ifa/draw/images/TEXT",
                 "View place tool",
                 viewPlaceTool
+        ));
+
+        ReadArcConnectionCreationTool readArcTool = new ReadArcConnectionCreationTool(drawingEditor);
+
+        palette.add(paletteHolder.createToolButton(
+                "/CH/ifa/draw/images/TEXT",
+                "Read arc tool",
+                readArcTool
+        ));
+
+        RollbackArcConnectionCreationTool rollbackArcTool = new RollbackArcConnectionCreationTool(drawingEditor);
+
+        palette.add(paletteHolder.createToolButton(
+                "/CH/ifa/draw/images/TEXT",
+                "Rollback arc tool",
+                rollbackArcTool
         ));
 
         paletteHolder.addPalette(palette);
