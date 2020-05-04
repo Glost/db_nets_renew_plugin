@@ -22,7 +22,7 @@ public class ViewPlaceFigure extends PlaceFigure {
 
     @Override
     public ShadowNetElement buildShadow(ShadowNet net) {
-        shadow = new ShadowViewPlace(((ShadowDBNet) net));
+        shadow = new ShadowViewPlace(net);
         shadow.context = this;
         shadow.setID(getID());
         shadow.setTrace(getTraceMode());

@@ -27,6 +27,10 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
 
     private static final RollbackArcFactory ROLLBACK_ARC_FACTORY = new RollbackArcFactory();
 
+    public SingleJavaDBNetCompiler() {
+        super(false, false, false);
+    }
+
     public SingleJavaDBNetCompiler(boolean allowDangerousArcs, boolean allowTimeInscriptions, boolean wantEarlyTokens) {
         super(allowDangerousArcs, allowTimeInscriptions, wantEarlyTokens);
     }

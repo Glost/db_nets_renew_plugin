@@ -21,7 +21,7 @@ public class DBNetTransitionFigure extends TransitionFigure {
 
     @Override
     public ShadowNetElement buildShadow(ShadowNet net) {
-        shadow = new ShadowDBNetTransition(((ShadowDBNet) net));
+        shadow = new ShadowDBNetTransition(net);
         shadow.context = this;
         shadow.setID(getID());
         shadow.setTrace(getTraceMode());

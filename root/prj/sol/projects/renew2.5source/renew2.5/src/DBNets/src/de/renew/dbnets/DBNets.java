@@ -7,6 +7,8 @@ import de.renew.dbnets.gui.tool.DBNetTransitionFigureCreationTool;
 import de.renew.dbnets.gui.tool.ReadArcConnectionCreationTool;
 import de.renew.dbnets.gui.tool.RollbackArcConnectionCreationTool;
 import de.renew.dbnets.gui.tool.ViewPlaceFigureCreationTool;
+import de.renew.dbnets.shadow.SingleJavaDBNetCompilerFactory;
+import de.renew.formalism.FormalismPlugin;
 import de.renew.gui.GuiPlugin;
 import de.renew.gui.PaletteHolder;
 import de.renew.plugin.PluginAdapter;
@@ -32,6 +34,8 @@ public class DBNets extends PluginAdapter {
         GuiPlugin guiPlugin = GuiPlugin.getCurrent();
 
         createPalette(guiPlugin);
+
+        FormalismPlugin.getCurrent().addCompilerFactory("DB-Net Compiler", new SingleJavaDBNetCompilerFactory());
 
         super.init();
     }
