@@ -1,8 +1,8 @@
 package de.renew.gui;
 
-import de.renew.dbnets.shadow.ShadowDBNetTransition;
-import de.renew.dbnets.shadow.ShadowReadArc;
-import de.renew.dbnets.shadow.ShadowViewPlace;
+import de.renew.dbnets.shadow.node.ShadowDBNetTransition;
+import de.renew.dbnets.shadow.node.ShadowReadArc;
+import de.renew.dbnets.shadow.node.ShadowViewPlace;
 import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
 

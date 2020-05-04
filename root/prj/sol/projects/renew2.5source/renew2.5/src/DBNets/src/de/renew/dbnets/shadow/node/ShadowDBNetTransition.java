@@ -1,11 +1,11 @@
-package de.renew.dbnets.shadow;
+package de.renew.dbnets.shadow.node;
 
-import de.renew.shadow.ShadowNet;
+import de.renew.dbnets.shadow.ShadowDBNet;
 import de.renew.shadow.ShadowTransition;
 
 public class ShadowDBNetTransition extends ShadowTransition {
 
-    public ShadowDBNetTransition(ShadowNet shadowNet) {
+    public ShadowDBNetTransition(ShadowDBNet shadowNet) {
         super(shadowNet);
     }
 }

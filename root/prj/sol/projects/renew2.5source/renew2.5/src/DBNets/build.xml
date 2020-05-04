@@ -31,6 +31,7 @@ Renew-DBNets is the Renew plugin for supporting the DB-nets.
 	</fileset>
         <fileset dir="${dir.renew.dist}">
             <include name="ch*.jar"/>
+            <include name="formalism*.jar"/>
             <include name="gui*.jar"/>
             <include name="loader*.jar"/>
             <include name="simulator*.jar"/>

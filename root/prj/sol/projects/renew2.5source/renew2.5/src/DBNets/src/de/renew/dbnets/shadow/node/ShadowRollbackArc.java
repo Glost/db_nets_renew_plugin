@@ -1,4 +1,4 @@
-package de.renew.dbnets.shadow;
+package de.renew.dbnets.shadow.node;
 
 import de.renew.shadow.ShadowArc;
 import de.renew.shadow.ShadowPlace;

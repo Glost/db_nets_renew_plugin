@@ -1,6 +1,7 @@
 package de.renew.gui;
 
-import de.renew.gui.PlaceFigure;
+import de.renew.dbnets.shadow.ShadowDBNet;
+import de.renew.dbnets.shadow.node.ShadowViewPlace;
 import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
 import de.renew.shadow.ShadowPlace;
@@ -21,7 +22,7 @@ public class ViewPlaceFigure extends PlaceFigure {
 
     @Override
     public ShadowNetElement buildShadow(ShadowNet net) {
-        shadow = new ShadowPlace(net);
+        shadow = new ShadowViewPlace(((ShadowDBNet) net));
         shadow.context = this;
         shadow.setID(getID());
         shadow.setTrace(getTraceMode());

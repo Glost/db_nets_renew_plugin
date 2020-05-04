@@ -1,7 +1,7 @@
 package de.renew.gui;
 
-import de.renew.dbnets.shadow.ShadowDBNetTransition;
-import de.renew.gui.TransitionFigure;
+import de.renew.dbnets.shadow.ShadowDBNet;
+import de.renew.dbnets.shadow.node.ShadowDBNetTransition;
 import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
 
@@ -21,7 +21,7 @@ public class DBNetTransitionFigure extends TransitionFigure {
 
     @Override
     public ShadowNetElement buildShadow(ShadowNet net) {
-        shadow = new ShadowDBNetTransition(net);
+        shadow = new ShadowDBNetTransition(((ShadowDBNet) net));
         shadow.context = this;
         shadow.setID(getID());
         shadow.setTrace(getTraceMode());
