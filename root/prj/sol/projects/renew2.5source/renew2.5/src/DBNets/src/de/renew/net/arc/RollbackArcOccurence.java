@@ -5,7 +5,7 @@ import de.renew.net.DBNetControlLayerInstance;
 
 public class RollbackArcOccurence extends ArcOccurrence {
 
-    public RollbackArcOccurence(ReadArc arc, VariableMapper mapper, DBNetControlLayerInstance netInstance) {
+    public RollbackArcOccurence(RollbackArc arc, VariableMapper mapper, DBNetControlLayerInstance netInstance) {
         super(arc, mapper, netInstance);
     }
 }
