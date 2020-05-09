@@ -22,6 +22,11 @@ public class RollbackArc extends Arc {
     }
 
     @Override
+    public boolean isUntimedArc() {
+        return true;
+    }
+
+    @Override
     public Collection<Occurrence> makeOccurrences(VariableMapper mapper, NetInstance netInstance, Searcher searcher) {
         if (!(netInstance instanceof DBNetControlLayerInstance)) {
             throw new IllegalArgumentException();
