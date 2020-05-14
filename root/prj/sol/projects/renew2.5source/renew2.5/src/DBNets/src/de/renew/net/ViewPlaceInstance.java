@@ -16,7 +16,7 @@ public class ViewPlaceInstance extends MultisetPlaceInstance {
         return (ViewPlace) super.getPlace();
     }
 
-    public Object getQueryResult() {
+    public Object executeQuery() {
         Query query = ((ViewPlace) place).getQuery();
         // TODO: ...
         return 42; // TODO: implement.
