@@ -1,5 +1,6 @@
 package de.renew.dbnets.shadow;
 
+import de.renew.dbnets.datalogic.Action;
 import de.renew.dbnets.shadow.node.ShadowDBNetTransition;
 import de.renew.dbnets.shadow.node.ShadowReadArc;
 import de.renew.dbnets.shadow.node.ShadowRollbackArc;
@@ -83,7 +84,7 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
                 net,
                 transitionName,
                 new NetElementID(shadowTransition.getID()),
-                null // TODO: action.
+                new Action("action", null, null, null) // TODO: action.
         );
 
         transition.setTrace(shadowTransition.getTrace());

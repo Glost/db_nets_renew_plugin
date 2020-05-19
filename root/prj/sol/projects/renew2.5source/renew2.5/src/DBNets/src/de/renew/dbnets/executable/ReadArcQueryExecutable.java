@@ -1,14 +1,14 @@
 package de.renew.dbnets.executable;
 
 import de.renew.engine.common.StepIdentifier;
-import de.renew.engine.searcher.LateExecutable;
+import de.renew.engine.searcher.EarlyExecutable;
 import de.renew.net.ViewPlaceInstance;
 import de.renew.unify.Impossible;
 import de.renew.unify.StateRecorder;
 import de.renew.unify.Unify;
 import de.renew.unify.Variable;
 
-public class ReadArcQueryExecutable implements LateExecutable {
+public class ReadArcQueryExecutable implements EarlyExecutable {
 
     private final ViewPlaceInstance placeInstance;
 
@@ -26,22 +26,45 @@ public class ReadArcQueryExecutable implements LateExecutable {
 
     @Override
     public int phase() {
-        return ACTION;
+        return INPUT;
     }
 
     @Override
-    public boolean isLong() {
-        return true;
+    public void verify(StepIdentifier stepIdentifier) throws Impossible {
     }
 
+    //    @Override
+//    public boolean isLong() {
+//        return true;
+//    }
+
     @Override
-    public void execute(StepIdentifier stepIdentifier) throws Impossible {
+    public void execute(StepIdentifier stepIdentifier) {
         Object queryResult = placeInstance.executeQuery();
 
-        Unify.unify(tokenVariable, queryResult, stateRecorder);
+        try {
+            Unify.unify(tokenVariable, queryResult, stateRecorder);
+        } catch (Impossible e) {
+            throw new RuntimeException(); // TODO: ...
+        }
     }
 
     @Override
-    public void executeAfterException(StepIdentifier stepIdentifier, Throwable t) {
+    public void rollback() {
+    }
+
+    @Override
+    public long lockPriority() {
+        return placeInstance.lockOrder;
+    }
+
+    @Override
+    public void lock() {
+        placeInstance.lock.lock();
+    }
+
+    @Override
+    public void unlock() {
+        placeInstance.lock.unlock();
     }
 }
