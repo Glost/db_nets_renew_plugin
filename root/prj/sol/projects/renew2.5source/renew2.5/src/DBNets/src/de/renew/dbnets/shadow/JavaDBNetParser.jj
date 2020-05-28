@@ -35,7 +35,12 @@ options {
 
 PARSER_BEGIN(JavaDBNetParser)
 
-package de.renew.formalism.java;
+package de.renew.dbnets.shadow;
+
+import de.renew.dbnets.datalogic.Action;
+import de.renew.dbnets.datalogic.EditedFact;
+import de.renew.dbnets.datalogic.Query;
+import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
 
 import de.renew.expression.CallExpression;
 import de.renew.expression.ConstantExpression;
@@ -47,6 +52,18 @@ import de.renew.formalism.function.BasicFunction;
 import de.renew.formalism.function.BasicUnaryFunction;
 import de.renew.formalism.function.DynamicConstructorFunction;
 import de.renew.formalism.function.InstanceofFunction;
+
+import de.renew.formalism.java.ChannelInscription;
+import de.renew.formalism.java.InscriptionParser;
+import de.renew.formalism.java.JavaHelper;
+import de.renew.formalism.java.LiteralParser;
+import de.renew.formalism.java.ParsedDeclarationNode;
+import de.renew.formalism.java.ParsedImportDecl;
+import de.renew.formalism.java.ParseException;
+import de.renew.formalism.java.PrimaryPart;
+import de.renew.formalism.java.TimedExpression;
+import de.renew.formalism.java.Token;
+import de.renew.formalism.java.TypedExpression;
 
 import de.renew.net.Net;
 import de.renew.net.NetInstance;
@@ -74,7 +91,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
 
-//TODO: Please switch on or off this flag to suppress all "unused" warnings in this code. 
+//TODO: Please switch on or off this flag to suppress all "unused" warnings in this code.
 //Default case is to suppress unused warnings, because the generator produces lots of unused code.
 // when working on this class, turn the suppression off.
  @SuppressWarnings("unused")
@@ -134,6 +151,9 @@ TOKEN : /* RESERVED WORDS AND LITERALS */
 | < CONST: "const" >
 | < CONTINUE: "continue" >
 | < _DEFAULT: "default" >
+| < DBN_ACTION: "dbn_action" >
+| < DBN_DDL: "dbn_ddl" >
+| < DBN_QUERY: "dbn_query" >
 | < DEL: "del" >
 | < DO: "do" >
 | < DOUBLE: "double" >
@@ -871,23 +891,53 @@ TypedExpression VariableInscription() :
  * THE DB-NETS GRAMMAR STARTS HERE *
  *********************************/
 
-// TODO: complete parser.
-//Action Action():
-//{
-//  Token t;
-//  String name;
-//  Collection<String> params;
-//  Collection<EditedFact> addedFacts;
-//  Collection<EditedFact> deletedFacts;
-//}
-//{
-//
-//}
+DatabaseSchemaDeclaration DatabaseSchemaDeclaration():
+{
+  Token t;
+  String ddlQueryString;
+}
+{
+  t=<DBN_DDL> "{" ddlQueryString = Name() "}"
+  {
+    return new DatabaseSchemaDeclaration(ddlQueryString);
+  }
+}
+
+Query QueryDeclaration():
+{
+  Token t;
+  String name;
+  String queryString;
+}
+{
+  t=<DBN_QUERY> name = Name() "{" queryString = Name() "}"
+  {
+      return new Query(name, queryString);
+  }
+}
+
+Action ActionDeclaration():
+{
+  Token t;
+  String name;
+  Collection<String> params;
+  Collection<EditedFact> addedFacts;
+  Collection<EditedFact> deletedFacts;
+}
+{
+  t=<DBN_ACTION> name = Name()
+    "{" t=<PARAMS> "=" params = ActionParams()
+      (",")? t=<ADD> "=" addedFacts = EditedFacts()
+      (",")? t=<DEL> "=" deletedFacts = EditedFacts() "}"
+  {
+      return new Action(name, params, addedFacts, deletedFacts);
+  }
+}
 
 Collection<String> ActionParams() :
 {
   String param;
-  Collection<String> params;
+  Collection<String> params = new ArrayList<String>();
 }
 {
   "<" param = Name() { params.add(param); } ( "," param = Name() { params.add(param); } )* ">"
@@ -899,7 +949,7 @@ Collection<String> ActionParams() :
 Collection<EditedFact> EditedFacts() :
 {
   EditedFact editedFact;
-  Collection<EditedFact> editedFacts = new ArrayList<>();
+  Collection<EditedFact> editedFacts = new ArrayList<EditedFact>();
 }
 {
   "{" editedFact = EditedFact() { editedFacts.add(editedFact); }
@@ -913,13 +963,13 @@ EditedFact EditedFact() :
 {
   String relationName;
   String paramValue;
-  Collection<String> paramsValues = new ArrayList<>();
+  Collection<String> paramsValues = new ArrayList<String>();
 }
 {
   relationName = Name() "(" paramValue = Name() { paramsValues.add(paramValue); }
     ( ","  paramValue = Name() { paramsValues.add(paramValue); } )* ")"
   {
-      return new EditedFact(relationName, paramsValues);
+    return new EditedFact(relationName, paramsValues);
   }
 }
 

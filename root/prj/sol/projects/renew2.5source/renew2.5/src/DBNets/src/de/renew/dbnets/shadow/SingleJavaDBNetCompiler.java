@@ -19,11 +19,15 @@ import de.renew.shadow.ShadowInscription;
 import de.renew.shadow.ShadowPlace;
 import de.renew.shadow.ShadowTransition;
 import de.renew.shadow.SyntaxException;
+import org.apache.log4j.Logger;
 
+import java.io.StringReader;
 import java.util.Optional;
 import java.util.Vector;
 
 public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
+
+    private static final Logger logger = Logger.getLogger(SingleJavaDBNetCompiler.class);
 
     private static final ReadArcFactory READ_ARC_FACTORY = new ReadArcFactory();
 
@@ -64,7 +68,10 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
 
     @Override
     protected InscriptionParser makeParser(String inscr) {
-        return super.makeParser(inscr);
+        logger.info("Making JavaDBNetParser");
+        JavaDBNetParser parser = new JavaDBNetParser(new StringReader(inscr));
+        parser.setNetLoader(loopbackNetLoader);
+        return parser;
     }
 
     private void compile(ShadowViewPlace shadowPlace, DBNetControlLayer net) throws SyntaxException {
