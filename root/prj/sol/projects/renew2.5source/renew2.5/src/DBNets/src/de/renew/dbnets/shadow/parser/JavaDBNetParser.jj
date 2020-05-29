@@ -35,12 +35,13 @@ options {
 
 PARSER_BEGIN(JavaDBNetParser)
 
-package de.renew.dbnets.shadow;
+package de.renew.dbnets.shadow.parser;
 
 import de.renew.dbnets.datalogic.Action;
 import de.renew.dbnets.datalogic.EditedFact;
 import de.renew.dbnets.datalogic.Query;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
+import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
 
 import de.renew.expression.CallExpression;
 import de.renew.expression.ConstantExpression;
@@ -99,7 +100,7 @@ public class JavaDBNetParser implements InscriptionParser {
   public static org.apache.log4j.Logger logger = org.apache.log4j.Logger
                                                  .getLogger(JavaDBNetParser.class);
   ShadowLookup lookup=null;
-  ParsedDeclarationNode decl=null;
+  ParsedDBNetDeclarationNode decl = null;
   boolean inAction=false;
   NetLoader netLoader = null;
   public boolean refactoring = false;
@@ -113,7 +114,7 @@ public class JavaDBNetParser implements InscriptionParser {
   }
 
   public void setDeclarationNode(ParsedDeclarationNode decl) {
-    this.decl=decl;
+    this.decl = (ParsedDBNetDeclarationNode) decl;
   }
 }
 
@@ -359,11 +360,16 @@ TOKEN : /* CATCHALL TOKEN DEFINITION */
 
 // Thoroughly parse the declaration node.
 
-ParsedDeclarationNode DeclarationNode() :
+ParsedDBNetDeclarationNode DeclarationNode() :
 {
-  setDeclarationNode(new ParsedDeclarationNode());
+  setDeclarationNode(new ParsedDBNetDeclarationNode());
 
   ParsedImportDecl importDecl;
+
+  DatabaseSchemaDeclaration databaseSchemaDeclaration;
+  Query query;
+  Action action;
+
   Token t;
 }
 {
@@ -378,6 +384,19 @@ ParsedDeclarationNode DeclarationNode() :
     {decl.addImport(importDecl,t.next);}
   )*
   ( VariableDeclaration() )*
+  { t = token; }
+  databaseSchemaDeclaration = DatabaseSchemaDeclaration()
+  { decl.setDatabaseSchemaDeclaration(databaseSchemaDeclaration); }
+  (
+    { t = token; }
+    query = QueryDeclaration()
+    { decl.addQuery(query); }
+  )*
+  (
+    { t = token; }
+    action = ActionDeclaration()
+    { decl.addAction(action); }
+  )*
   <EOF>
   { return decl; }
 }
@@ -897,7 +916,7 @@ DatabaseSchemaDeclaration DatabaseSchemaDeclaration():
   String ddlQueryString;
 }
 {
-  t=<DBN_DDL> "{" ddlQueryString = Name() "}"
+  t= <DBN_DDL> "{" ddlQueryString = Name() "}"
   {
     return new DatabaseSchemaDeclaration(ddlQueryString);
   }
@@ -910,7 +929,7 @@ Query QueryDeclaration():
   String queryString;
 }
 {
-  t=<DBN_QUERY> name = Name() "{" queryString = Name() "}"
+  t = <DBN_QUERY> name = Name() "{" queryString = Name() "}"
   {
       return new Query(name, queryString);
   }
@@ -925,10 +944,10 @@ Action ActionDeclaration():
   Collection<EditedFact> deletedFacts;
 }
 {
-  t=<DBN_ACTION> name = Name()
-    "{" t=<PARAMS> "=" params = ActionParams()
-      (",")? t=<ADD> "=" addedFacts = EditedFacts()
-      (",")? t=<DEL> "=" deletedFacts = EditedFacts() "}"
+  t = <DBN_ACTION> name = Name()
+    "{" t = <PARAMS> "=" params = ActionParams()
+      (",")? t = <ADD> "=" addedFacts = EditedFacts()
+      (",")? t = <DEL> "=" deletedFacts = EditedFacts() "}"
   {
       return new Action(name, params, addedFacts, deletedFacts);
   }
@@ -991,19 +1010,19 @@ Class<?> ClassType() :
   { errToken=token; }
   name=Name()
   {
-    try {
-      obj=decl.interpreteName(name);
-    } catch (LinkageError e) {
-      logger.warn("Encountered " + e, e);
-      throw JavaHelper.makeParseException("Could not load class " + name
-                                          + " due to "
-                                          + e.toString(), errToken);        
-    }
-    if (!(obj instanceof Class)) {
-      throw JavaHelper.makeParseException("No such class: " + name + ".", errToken);
-    }
-    return (Class<?>)obj;
+  try {
+    obj=decl.interpreteName(name);
+  } catch (LinkageError e) {
+    logger.warn("Encountered " + e, e);
+    throw JavaHelper.makeParseException("Could not load class " + name
+                                        + " due to "
+                                        + e.toString(), errToken);
   }
+  if (!(obj instanceof Class)) {
+    throw JavaHelper.makeParseException("No such class: " + name + "", errToken);
+  }
+  return (Class<?>)obj;
+}
 }
 
 /**
@@ -1082,7 +1101,7 @@ String Name() :
 {
   t=<IDENTIFIER> { s.append(t.image); }
   ( LOOKAHEAD(2) "." t=<IDENTIFIER>
-    { s.append("."); s.append(t.image); }
+    { s.append(""); s.append(t.image); }
   )*
   {
     return s.toString();

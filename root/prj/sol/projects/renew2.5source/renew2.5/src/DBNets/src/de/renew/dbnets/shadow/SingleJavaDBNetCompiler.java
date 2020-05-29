@@ -5,6 +5,7 @@ import de.renew.dbnets.shadow.node.ShadowDBNetTransition;
 import de.renew.dbnets.shadow.node.ShadowReadArc;
 import de.renew.dbnets.shadow.node.ShadowRollbackArc;
 import de.renew.dbnets.shadow.node.ShadowViewPlace;
+import de.renew.dbnets.shadow.parser.JavaDBNetParser;
 import de.renew.formalism.java.InscriptionParser;
 import de.renew.formalism.java.SingleJavaNetCompiler;
 import de.renew.net.DBNetControlLayer;
