@@ -5,8 +5,9 @@ import de.renew.dbnets.shadow.node.ShadowDBNetTransition;
 import de.renew.dbnets.shadow.node.ShadowReadArc;
 import de.renew.dbnets.shadow.node.ShadowRollbackArc;
 import de.renew.dbnets.shadow.node.ShadowViewPlace;
+import de.renew.dbnets.shadow.parser.DBNetInscriptionParser;
 import de.renew.dbnets.shadow.parser.JavaDBNetParser;
-import de.renew.formalism.java.InscriptionParser;
+import de.renew.formalism.java.ParseException;
 import de.renew.formalism.java.SingleJavaNetCompiler;
 import de.renew.net.DBNetControlLayer;
 import de.renew.net.DBNetTransition;
@@ -16,7 +17,9 @@ import de.renew.net.TransitionInscription;
 import de.renew.net.UplinkInscription;
 import de.renew.net.ViewPlace;
 import de.renew.shadow.ShadowArc;
+import de.renew.shadow.ShadowDeclarationNode;
 import de.renew.shadow.ShadowInscription;
+import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowPlace;
 import de.renew.shadow.ShadowTransition;
 import de.renew.shadow.SyntaxException;
@@ -50,6 +53,26 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
     }
 
     @Override
+    public String checkDeclarationNode(String inscr, boolean special, ShadowNet shadowNet) throws SyntaxException {
+        parseDeclarationNode(inscr);
+        return "declaration";
+    }
+
+    @Override
+    protected ParsedDBNetDeclarationNode compile(ShadowDeclarationNode declaration) throws SyntaxException {
+        try {
+            return parseDeclarationNode(declaration.inscr);
+        } catch (SyntaxException e) {
+            throw e.addObject(declaration);
+        }
+    }
+
+    @Override
+    protected ParsedDBNetDeclarationNode makeEmptyDeclarationNode(ShadowNet net) {
+        return new ParsedDBNetDeclarationNode();
+    }
+
+    @Override
     protected void compile(ShadowPlace shadowPlace, Net net) throws SyntaxException {
         if (shadowPlace instanceof ShadowViewPlace) {
             compile((ShadowViewPlace) shadowPlace, (DBNetControlLayer) net);
@@ -68,11 +91,24 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
     }
 
     @Override
-    protected InscriptionParser makeParser(String inscr) {
+    protected DBNetInscriptionParser makeParser(String inscr) {
         logger.info("Making JavaDBNetParser");
         JavaDBNetParser parser = new JavaDBNetParser(new StringReader(inscr));
         parser.setNetLoader(loopbackNetLoader);
         return parser;
+    }
+
+    private ParsedDBNetDeclarationNode parseDeclarationNode(String inscr) throws SyntaxException {
+        if (inscr != null) {
+            DBNetInscriptionParser parser = makeParser(inscr);
+            try {
+                return parser.DeclarationNode();
+            } catch (ParseException e) {
+                throw makeSyntaxException(e);
+            }
+        } else {
+            return makeEmptyDeclarationNode(null);
+        }
     }
 
     private void compile(ShadowViewPlace shadowPlace, DBNetControlLayer net) throws SyntaxException {

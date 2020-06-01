@@ -38,8 +38,10 @@ PARSER_BEGIN(JavaDBNetParser)
 package de.renew.dbnets.shadow.parser;
 
 import de.renew.dbnets.datalogic.Action;
+import de.renew.dbnets.datalogic.ActionCall;
 import de.renew.dbnets.datalogic.EditedFact;
 import de.renew.dbnets.datalogic.Query;
+import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
 
@@ -55,7 +57,6 @@ import de.renew.formalism.function.DynamicConstructorFunction;
 import de.renew.formalism.function.InstanceofFunction;
 
 import de.renew.formalism.java.ChannelInscription;
-import de.renew.formalism.java.InscriptionParser;
 import de.renew.formalism.java.JavaHelper;
 import de.renew.formalism.java.LiteralParser;
 import de.renew.formalism.java.ParsedDeclarationNode;
@@ -96,7 +97,7 @@ import java.util.Vector;
 //Default case is to suppress unused warnings, because the generator produces lots of unused code.
 // when working on this class, turn the suppression off.
  @SuppressWarnings("unused")
-public class JavaDBNetParser implements InscriptionParser {
+public class JavaDBNetParser implements DBNetInscriptionParser {
   public static org.apache.log4j.Logger logger = org.apache.log4j.Logger
                                                  .getLogger(JavaDBNetParser.class);
   ShadowLookup lookup=null;
@@ -488,6 +489,7 @@ Object SinglePlaceInscription() :
   Vector<PrimaryPart> vector;
   Object obj;
   Token errToken;
+  QueryCall queryCall;
 }
 {
   { errToken=token; }
@@ -547,6 +549,11 @@ Object SinglePlaceInscription() :
   |
     expr=Expression()
     { return expr; }
+  |
+    queryCall = QueryCall()
+    {
+      return queryCall;
+    }
   )
 }
 
@@ -614,6 +621,9 @@ Collection<TransitionInscription> SingleTransitionInscription(boolean create, Tr
   |
     inscr=ManualInscription(transition)
     { result=Collections.singleton(inscr); }
+  |
+    inscr = ActionCall()
+    { result = Collections.singleton(inscr); }
   )
   { return result; }
 }
@@ -989,6 +999,33 @@ EditedFact EditedFact() :
     ( ","  paramValue = Name() { paramsValues.add(paramValue); } )* ")"
   {
     return new EditedFact(relationName, paramsValues);
+  }
+}
+
+QueryCall QueryCall():
+{
+  Token t;
+  String queryName;
+}
+{
+  t = <DBN_QUERY> ":" queryName = Name()
+  {
+    return new QueryCall(queryName);
+  }
+}
+
+ActionCall ActionCall():
+{
+  Token t;
+  String actionName;
+  String param;
+  Collection<String> params = new ArrayList<String>();
+}
+{
+  t = <DBN_ACTION> ":" actionName = Name() "(" param = Name() { params.add(param); }
+  ( "," param = Name() { params.add(param); } )* ")"
+  {
+    return new ActionCall(actionName, params);
   }
 }
 
