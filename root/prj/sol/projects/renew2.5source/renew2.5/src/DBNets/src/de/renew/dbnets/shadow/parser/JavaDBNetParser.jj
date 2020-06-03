@@ -354,6 +354,12 @@ TOKEN : /* CATCHALL TOKEN DEFINITION */
   < OTHERCHAR: ["\u0000"-"\uffff"] >
 }
 
+TOKEN : /* MULTILINE_STRING */
+{
+  < MULTILINE_STRING:
+        "{" (~["{", "}"])+ "}"
+  >
+}
 
 /*********************************
  * THE RENEW GRAMMAR STARTS HERE *
@@ -926,7 +932,7 @@ DatabaseSchemaDeclaration DatabaseSchemaDeclaration():
   String ddlQueryString;
 }
 {
-  t= <DBN_DDL> "{" ddlQueryString = Name() "}"
+  t = <DBN_DDL> ddlQueryString = MultilineString()
   {
     return new DatabaseSchemaDeclaration(ddlQueryString);
   }
@@ -939,7 +945,7 @@ Query QueryDeclaration():
   String queryString;
 }
 {
-  t = <DBN_QUERY> name = Name() "{" queryString = Name() "}"
+  t = <DBN_QUERY> name = Name() queryString = MultilineString()
   {
       return new Query(name, queryString);
   }
@@ -1145,6 +1151,17 @@ String Name() :
   }
 }
 
+String MultilineString() :
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<MULTILINE_STRING> { s.append(t.image); }
+  {
+    return s.toString().replace("{", "").replace("}", "");
+  }
+}
 
 /*
  * Expression syntax follows.

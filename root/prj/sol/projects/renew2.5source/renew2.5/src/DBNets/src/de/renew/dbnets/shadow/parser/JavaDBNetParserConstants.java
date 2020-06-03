@@ -252,6 +252,8 @@ public interface JavaDBNetParserConstants {
   int RUNSIGNEDSHIFTASSIGN = 125;
   /** RegularExpression Id. */
   int OTHERCHAR = 126;
+  /** RegularExpression Id. */
+  int MULTILINE_STRING = 127;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -385,6 +387,7 @@ public interface JavaDBNetParserConstants {
     "\">>=\"",
     "\">>>=\"",
     "<OTHERCHAR>",
+    "<MULTILINE_STRING>",
   };
 
 }
