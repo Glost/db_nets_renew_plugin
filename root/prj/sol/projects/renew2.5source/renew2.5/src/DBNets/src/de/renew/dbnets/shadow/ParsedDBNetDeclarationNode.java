@@ -3,6 +3,7 @@ package de.renew.dbnets.shadow;
 import de.renew.dbnets.datalogic.Action;
 import de.renew.dbnets.datalogic.Query;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
+import de.renew.dbnets.persistence.JdbcConnection;
 import de.renew.formalism.java.ParsedDeclarationNode;
 
 import java.util.HashMap;
@@ -14,7 +15,17 @@ public class ParsedDBNetDeclarationNode extends ParsedDeclarationNode {
 
     private final Map<String, Action> actions = new HashMap<>();
 
+    private JdbcConnection jdbcConnection;
+
     private DatabaseSchemaDeclaration databaseSchemaDeclaration;
+
+    public JdbcConnection getJdbcConnection() {
+        return jdbcConnection;
+    }
+
+    public void setJdbcConnection(JdbcConnection jdbcConnection) {
+        this.jdbcConnection = jdbcConnection;
+    }
 
     public DatabaseSchemaDeclaration getDatabaseSchemaDeclaration() {
         return databaseSchemaDeclaration;

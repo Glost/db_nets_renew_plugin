@@ -43,6 +43,7 @@ import de.renew.dbnets.datalogic.EditedFact;
 import de.renew.dbnets.datalogic.Query;
 import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
+import de.renew.dbnets.persistence.JdbcConnection;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
 
 import de.renew.expression.CallExpression;
@@ -155,6 +156,7 @@ TOKEN : /* RESERVED WORDS AND LITERALS */
 | < _DEFAULT: "default" >
 | < DBN_ACTION: "dbn_action" >
 | < DBN_DDL: "dbn_ddl" >
+| < DBN_JDBC_URL: "dbn_jdbc_url" >
 | < DBN_QUERY: "dbn_query" >
 | < DEL: "del" >
 | < DO: "do" >
@@ -373,6 +375,7 @@ ParsedDBNetDeclarationNode DeclarationNode() :
 
   ParsedImportDecl importDecl;
 
+  JdbcConnection jdbcConnection;
   DatabaseSchemaDeclaration databaseSchemaDeclaration;
   Query query;
   Action action;
@@ -392,6 +395,8 @@ ParsedDBNetDeclarationNode DeclarationNode() :
   )*
   ( VariableDeclaration() )*
   { t = token; }
+  jdbcConnection = JdbcConnection()
+  { decl.setJdbcConnection(jdbcConnection); }
   databaseSchemaDeclaration = DatabaseSchemaDeclaration()
   { decl.setDatabaseSchemaDeclaration(databaseSchemaDeclaration); }
   (
@@ -925,6 +930,18 @@ TypedExpression VariableInscription() :
 /*********************************
  * THE DB-NETS GRAMMAR STARTS HERE *
  *********************************/
+
+JdbcConnection JdbcConnection():
+{
+  Token t;
+  String jdbcUrl;
+}
+{
+  t = <DBN_JDBC_URL> jdbcUrl = MultilineString()
+  {
+    return new JdbcConnection(jdbcUrl);
+  }
+}
 
 DatabaseSchemaDeclaration DatabaseSchemaDeclaration():
 {
