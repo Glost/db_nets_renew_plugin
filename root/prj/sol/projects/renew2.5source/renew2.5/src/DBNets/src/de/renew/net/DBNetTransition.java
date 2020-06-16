@@ -1,21 +1,28 @@
 package de.renew.net;
 
-import de.renew.dbnets.datalogic.Action;
+import de.renew.dbnets.datalogic.ActionCall;
 
 public class DBNetTransition extends Transition {
 
-    private final Action action;
+    private ActionCall actionCall;
 
-    public DBNetTransition(DBNetControlLayer net, String name, NetElementID id, Action action) {
+    public DBNetTransition(DBNetControlLayer net, String name, NetElementID id) {
         super(net, name, id);
-        this.action = action;
     }
 
-    public void performAction() {
-        action.performAction();
+    public ActionCall getActionCall() {
+        return actionCall;
     }
 
-    public void rollbackAction() {
-        action.rollbackAction();
+    public void setActionCall(ActionCall actionCall) {
+        this.actionCall = actionCall;
     }
+
+    //    public void performAction() {
+//        action.performAction();
+//    }
+//
+//    public void rollbackAction() {
+//        action.rollbackAction();
+//    }
 }

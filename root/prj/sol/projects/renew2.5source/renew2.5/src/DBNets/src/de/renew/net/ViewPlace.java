@@ -1,19 +1,22 @@
 package de.renew.net;
 
-import de.renew.dbnets.datalogic.Query;
+import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.unify.Impossible;
 
 public class ViewPlace extends Place {
 
-    private final Query query;
+    private QueryCall queryCall;
 
-    public ViewPlace(DBNetControlLayer net, String name, NetElementID id, Query query) {
+    public ViewPlace(DBNetControlLayer net, String name, NetElementID id) {
         super(net, name, id);
-        this.query = query;
     }
 
-    public Query getQuery() {
-        return query;
+    public QueryCall getQueryCall() {
+        return queryCall;
+    }
+
+    public void setQueryCall(QueryCall queryCall) {
+        this.queryCall = queryCall;
     }
 
     @Override

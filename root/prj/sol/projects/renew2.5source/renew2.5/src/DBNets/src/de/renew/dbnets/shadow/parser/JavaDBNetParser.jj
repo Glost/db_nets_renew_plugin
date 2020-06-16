@@ -68,6 +68,7 @@ import de.renew.formalism.java.TimedExpression;
 import de.renew.formalism.java.Token;
 import de.renew.formalism.java.TypedExpression;
 
+import de.renew.net.DBNetTransition;
 import de.renew.net.Net;
 import de.renew.net.NetInstance;
 import de.renew.net.NetNotFoundException;
@@ -92,7 +93,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Vector;
+import java.util.function.Supplier;
 
 //TODO: Please switch on or off this flag to suppress all "unused" warnings in this code.
 //Default case is to suppress unused warnings, because the generator produces lots of unused code.
@@ -359,7 +362,7 @@ TOKEN : /* CATCHALL TOKEN DEFINITION */
 TOKEN : /* MULTILINE_STRING */
 {
   < MULTILINE_STRING:
-        "{" (~["{", "}"])+ "}"
+        "<" "{" (~["{", "}"])+ "}" ">"
   >
 }
 
@@ -634,7 +637,10 @@ Collection<TransitionInscription> SingleTransitionInscription(boolean create, Tr
     { result=Collections.singleton(inscr); }
   |
     inscr = ActionCall()
-    { result = Collections.singleton(inscr); }
+    {
+        ((DBNetTransition) transition).setActionCall((ActionCall) inscr);
+        result = Collections.singleton(inscr);
+    }
   )
   { return result; }
 }
@@ -972,7 +978,7 @@ Action ActionDeclaration():
 {
   Token t;
   String name;
-  Collection<String> params;
+  java.util.List<String> params;
   Collection<EditedFact> addedFacts;
   Collection<EditedFact> deletedFacts;
 }
@@ -986,10 +992,10 @@ Action ActionDeclaration():
   }
 }
 
-Collection<String> ActionParams() :
+java.util.List<String> ActionParams() :
 {
   String param;
-  Collection<String> params = new ArrayList<String>();
+  java.util.List<String> params = new ArrayList<String>();
 }
 {
   "<" param = Name() { params.add(param); } ( "," param = Name() { params.add(param); } )* ">"
@@ -1015,7 +1021,7 @@ EditedFact EditedFact() :
 {
   String relationName;
   String paramValue;
-  Collection<String> paramsValues = new ArrayList<String>();
+  java.util.List<String> paramsValues = new ArrayList<String>();
 }
 {
   relationName = Name() "(" paramValue = Name() { paramsValues.add(paramValue); }
@@ -1033,7 +1039,13 @@ QueryCall QueryCall():
 {
   t = <DBN_QUERY> ":" queryName = Name()
   {
-    return new QueryCall(queryName);
+    Optional<Query> query = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getQueryByName(queryName));
+
+    if (query.isPresent()) {
+        return new QueryCall(query.get());
+    } else {
+        throw JavaHelper.makeParseException("No query with name " + queryName + " found", t);
+    }
   }
 }
 
@@ -1042,14 +1054,20 @@ ActionCall ActionCall():
   Token t;
   String actionName;
   String param;
-  Collection<String> params = new ArrayList<String>();
+  java.util.List<String> params = new ArrayList<String>();
 }
 {
   t = <DBN_ACTION> ":" actionName = Name() "(" param = Name() { params.add(param); }
   ( "," param = Name() { params.add(param); } )* ")"
   {
-    return new ActionCall(actionName, params);
-  }
+    Optional<Action> action = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getActionByName(actionName));
+
+    if (action.isPresent()) {
+        return new ActionCall(action.get(), params);
+    } else {
+        throw JavaHelper.makeParseException("No action with name " + actionName + " found", t);
+    }
+}
 }
 
 /********************************
@@ -1174,9 +1192,10 @@ String MultilineString() :
   StringBuffer s=new StringBuffer();
 }
 {
-  t=<MULTILINE_STRING> { s.append(t.image); }
+  t=<MULTILINE_STRING>
   {
-    return s.toString().replace("{", "").replace("}", "");
+    s.append(t.image);
+    return s.toString().replace("<{", "").replace("}>", "");
   }
 }
 

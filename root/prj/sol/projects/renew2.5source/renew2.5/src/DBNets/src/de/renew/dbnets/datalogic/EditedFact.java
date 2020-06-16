@@ -1,15 +1,15 @@
 package de.renew.dbnets.datalogic;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class EditedFact {
 
     private final String relationName;
 
-    private final Collection<String> paramsValues;
+    private final List<String> paramsValues;
 
-    public EditedFact(String relationName, Collection<String> paramsValues) {
+    public EditedFact(String relationName, List<String> paramsValues) {
         this.relationName = relationName;
         this.paramsValues = paramsValues;
     }
@@ -18,7 +18,7 @@ public class EditedFact {
         return relationName;
     }
 
-    public Collection<String> getParamsValues() {
-        return Collections.unmodifiableCollection(paramsValues);
+    public List<String> getParamsValues() {
+        return Collections.unmodifiableList(paramsValues);
     }
 }

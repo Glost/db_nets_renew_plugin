@@ -15,7 +15,7 @@ public class RollbackArcFactory extends SimpleArcFactory {
     }
 
     @Override
-    protected Arc getArc(Place place, Transition transition, int arcType, Expression expr, Expression timeExpr) {
+    protected RollbackArc getArc(Place place, Transition transition, int arcType, Expression expr, Expression timeExpr) {
         if (!(transition instanceof DBNetTransition)) {
             throw new IllegalArgumentException();
         }

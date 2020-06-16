@@ -11,11 +11,13 @@ import de.renew.unify.Variable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ActionCall implements TransitionInscription {
 
@@ -25,30 +27,15 @@ public class ActionCall implements TransitionInscription {
 
     private static final Random RANDOM = new Random();
 
-    private final String actionName;
+    private final Action action;
 
-    // TODO: List<String> (because we need ordered collection).
-    private final Collection<String> params;
-
-    private Action action;
+    private final List<String> params;
 
     private VariableMapper variableMapper;
 
-    public ActionCall(String actionName, Collection<String> params) {
-        this.actionName = actionName;
-        this.params = params;
-    }
-
-    public String getActionName() {
-        return actionName;
-    }
-
-    public Collection<String> getParams() {
-        return params;
-    }
-
-    public void setAction(Action action) {
+    public ActionCall(Action action, List<String> params) {
         this.action = action;
+        this.params = params;
     }
 
     public void setVariableMapper(VariableMapper variableMapper) {
@@ -61,9 +48,13 @@ public class ActionCall implements TransitionInscription {
         return Collections.emptySet();
     }
 
-    public void executeAction() {
-        List<Variable> paramsValues = params.stream().map(this::mapParamToRandomValue).collect(Collectors.toList());
+    public void performAction() {
+        List<Variable> paramsValues = params.stream().map(this::mapParamToValue).collect(Collectors.toList());
 
+        Map<String, Variable> paramsValuesMap = IntStream.range(0, action.getParams().size()).boxed()
+                .collect(Collectors.toMap(action.getParams()::get, paramsValues::get));
+
+//        action.getAddedFacts().
         // TODO: execute.
     }
 

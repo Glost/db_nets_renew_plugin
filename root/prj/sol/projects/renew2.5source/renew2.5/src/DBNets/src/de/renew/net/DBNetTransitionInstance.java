@@ -28,7 +28,6 @@ public class DBNetTransitionInstance extends TransitionInstance {
     @Override
     synchronized void firingStarted(FiringEvent fe) {
         super.firingStarted(fe);
-        transition.performAction();
     }
 
     @Override
@@ -41,7 +40,7 @@ public class DBNetTransitionInstance extends TransitionInstance {
 
         try {
             if (Objects.isNull(occurrence)) {
-                occurrence = new TransitionOccurrence(this, params, searcher);
+                occurrence = new DBNetTransitionOccurence(this, params, searcher);
             }
 
             searcher.search(occurrence);

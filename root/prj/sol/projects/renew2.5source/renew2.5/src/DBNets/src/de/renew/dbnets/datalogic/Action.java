@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class Action {
 
@@ -11,14 +12,14 @@ public class Action {
 
     private final String name;
 
-    private final Collection<String> params;
+    private final List<String> params;
 
     private final Collection<EditedFact> addedFacts;
 
     private final Collection<EditedFact> deletedFacts;
 
     public Action(String name,
-                  Collection<String> params,
+                  List<String> params,
                   Collection<EditedFact> addedFacts,
                   Collection<EditedFact> deletedFacts) {
         this.name = name;
@@ -31,8 +32,8 @@ public class Action {
         return name;
     }
 
-    public Collection<String> getParams() {
-        return Collections.unmodifiableCollection(params);
+    public List<String> getParams() {
+        return Collections.unmodifiableList(params);
     }
 
     public Collection<EditedFact> getAddedFacts() {

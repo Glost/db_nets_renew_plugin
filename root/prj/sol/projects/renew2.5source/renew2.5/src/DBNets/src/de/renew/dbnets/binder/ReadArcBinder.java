@@ -1,5 +1,6 @@
 package de.renew.dbnets.binder;
 
+import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.engine.searcher.BindingBadness;
 import de.renew.engine.searcher.Searcher;
 import de.renew.net.PlaceInstance;
@@ -54,9 +55,9 @@ public class ReadArcBinder extends InputArcBinder {
             return;
         }
 
-        ViewPlaceInstance placeInstance = (ViewPlaceInstance) getPlaceInstance();
+        QueryCall queryCall = ((ViewPlaceInstance) getPlaceInstance()).getPlace().getQueryCall();
 
-        Object queryResult = placeInstance.executeQuery();
+        Variable queryResult = queryCall.executeQuery();
 
         try {
             Unify.unify(tokenVariable, queryResult, stateRecorder);

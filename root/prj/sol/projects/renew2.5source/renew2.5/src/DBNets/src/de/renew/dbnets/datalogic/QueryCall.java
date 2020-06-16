@@ -4,25 +4,15 @@ import de.renew.unify.Variable;
 
 public class QueryCall {
 
-    private String queryName;
+    private final Query query;
 
-    private Query query;
-
-    public QueryCall(String queryName) {
-        this.queryName = queryName;
-    }
-
-    public String getQueryName() {
-        return queryName;
-    }
-
-    public void setQuery(Query query) {
+    public QueryCall(Query query) {
         this.query = query;
     }
 
     public Variable executeQuery() {
 //        query.getQueryString()
         // TODO: ...
-        return null;
+        return new Variable(42, null);
     }
 }
