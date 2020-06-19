@@ -43,6 +43,7 @@ import de.renew.net.loading.NetLoader;
 import de.renew.shadow.ShadowLookup;
 import de.renew.unify.List;
 import de.renew.unify.Tuple;
+import de.renew.unify.Variable;
 import de.renew.util.Types;
 import de.renew.util.Value;
 import java.util.ArrayList;

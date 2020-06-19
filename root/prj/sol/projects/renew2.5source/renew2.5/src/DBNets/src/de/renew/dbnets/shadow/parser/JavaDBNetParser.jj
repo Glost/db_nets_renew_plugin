@@ -85,6 +85,7 @@ import de.renew.shadow.ShadowLookup;
 
 import de.renew.unify.List;
 import de.renew.unify.Tuple;
+import de.renew.unify.Variable;
 
 import de.renew.util.Types;
 import de.renew.util.Value;
@@ -1000,7 +1001,7 @@ java.util.List<String> ActionParams() :
   java.util.List<String> params = new ArrayList<String>();
 }
 {
-  "<" param = Name() { params.add(param); } ( "," param = Name() { params.add(param); } )* ">"
+  "<" ( param = Name() { params.add(param); } ( "," param = Name() { params.add(param); } )* )? ">"
   {
       return params;
   }
@@ -1012,8 +1013,8 @@ Collection<EditedFact> EditedFacts() :
   Collection<EditedFact> editedFacts = new ArrayList<EditedFact>();
 }
 {
-  "{" editedFact = EditedFact() { editedFacts.add(editedFact); }
-    ( "," editedFact = EditedFact() { editedFacts.add(editedFact); } )* "}"
+  "{" ( editedFact = EditedFact() { editedFacts.add(editedFact); }
+    ( "," editedFact = EditedFact() { editedFacts.add(editedFact); } )* )? "}"
     {
         return editedFacts;
     }
@@ -1082,7 +1083,7 @@ Object LiteralObject():
 {
   typedExpression = Literal()
   {
-    return ((ConstantExpression) typedExpression.getExpression()).getConstant();
+    return new Variable(((ConstantExpression) typedExpression.getExpression()).getConstant(), null);
   }
 }
 

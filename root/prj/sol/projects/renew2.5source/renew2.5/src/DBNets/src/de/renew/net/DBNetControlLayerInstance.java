@@ -161,6 +161,16 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
                 statement.execute(sql);
             }
 
+//            String seqSql = "CREATE TABLE IF NOT EXISTS dbn_seq (id BIGSERIAL PRIMARY KEY AUTOINCREMENT);";
+//
+//            Statement statement = connection.createStatement();
+//            statement.execute(seqSql);
+//
+//            String seqInsertSql = "INSERT INTO dbn_seq DEFAULT VALUES;";
+//
+//            statement = connection.createStatement();
+//            statement.execute(seqInsertSql);
+
             connection.commit();
         } catch (SQLException e) {
             throw new Impossible("Error while creating the database schema: " + e.getMessage(), e);

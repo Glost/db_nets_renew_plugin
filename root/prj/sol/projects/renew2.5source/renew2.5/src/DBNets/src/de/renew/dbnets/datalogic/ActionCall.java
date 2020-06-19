@@ -21,21 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ActionCall implements TransitionInscription {
-
-    private static final String STRING_LITERAL_REGEX = "\\\"(?<value>.*)\\\"";
-
-    private static final Pattern STRING_LITERAL_PATTERN = Pattern.compile(STRING_LITERAL_REGEX);
-
-    private static final Random RANDOM = new Random();
 
     private final Action action;
 
@@ -46,26 +36,23 @@ public class ActionCall implements TransitionInscription {
         this.params = params;
     }
 
+    public Action getAction() {
+        return action;
+    }
+
+    public List<Object> getParams() {
+        return Collections.unmodifiableList(params);
+    }
+
     @Override
     public Collection<Occurrence> makeOccurrences(VariableMapper mapper, NetInstance netInstance, Searcher searcher) {
         // TODO: Check whether occurrences are necessary here or not.
         return Collections.emptySet();
     }
 
-    public void performAction(VariableMapper variableMapper,
-                              StateRecorder stateRecorder,
-                              Connection connection) throws Impossible {
-        List<String> paramsNames = params.stream()
-                .filter(param -> param instanceof String)
-                .map(param -> (String) param)
-                .collect(Collectors.toList());
-
-        List<Variable> namedParamsValues = paramsNames.stream()
-                .map(paramName -> mapParamToValue(paramName, stateRecorder, variableMapper))
-                .collect(Collectors.toList());
-
-        Map<String, Variable> paramsValuesMap = IntStream.range(0, paramsNames.size()).boxed()
-                .collect(Collectors.toMap(paramsNames::get, namedParamsValues::get));
+    public void performAction(VariableMapper variableMapper, Connection connection) throws Impossible {
+        Map<String, Object> paramsValuesMap = IntStream.range(0, action.getParams().size()).boxed()
+                .collect(Collectors.toMap(action.getParams()::get, params::get));
 
         List<Optional<PreparedStatementWithParams>> preparedStatementsOptionals = Stream.concat(
                 action.getDeletedFacts().stream()
@@ -86,7 +73,7 @@ public class ActionCall implements TransitionInscription {
 
         for (PreparedStatementWithParams preparedStatement : preparedStatements) {
             try {
-                executePreparedStatement(preparedStatement, paramsValuesMap);
+                executePreparedStatement(preparedStatement, paramsValuesMap, variableMapper);
             } catch (SQLException e) {
                 isSuccess = false;
                 break;
@@ -109,36 +96,6 @@ public class ActionCall implements TransitionInscription {
             }
 
             // TODO: mark for rollback?..
-        }
-    }
-
-    private Variable mapParamToValue(String param, StateRecorder stateRecorder, VariableMapper variableMapper) {
-        param = param.trim();
-
-        Matcher stringLiteralMatcher = STRING_LITERAL_PATTERN.matcher(param);
-
-        if (stringLiteralMatcher.matches()) {
-            return new Variable(stringLiteralMatcher.group("value"), null);
-        }
-
-        Variable randomValue = mapParamToRandomValue(param, stateRecorder);
-
-        if (randomValue.isComplete() && randomValue.isBound()) {
-            return randomValue;
-        }
-
-        return variableMapper.map(new LocalVariable(param)); // TODO: if no such variable?
-    }
-
-    private Variable mapParamToRandomValue(String param, StateRecorder stateRecorder) {
-        switch (param) {
-            case "dbn_rand_int": return new Variable(RANDOM.nextInt(), stateRecorder);
-            case "dbn_rand_long": return new Variable(RANDOM.nextLong(), stateRecorder);
-            case "dbn_rand_float": return new Variable(RANDOM.nextFloat(), stateRecorder);
-            case "dbn_rand_double": return new Variable(RANDOM.nextDouble(), stateRecorder);
-            case "dbn_rand_boolean": return new Variable(RANDOM.nextBoolean(), stateRecorder);
-            case "dbn_rand_string": return new Variable(UUID.randomUUID().toString(), stateRecorder);
-            default: return new Variable();
         }
     }
 
@@ -189,7 +146,8 @@ public class ActionCall implements TransitionInscription {
     }
 
     private void executePreparedStatement(PreparedStatementWithParams preparedStatement,
-                                          Map<String, Variable> paramsValuesMap) throws SQLException, Impossible {
+                                          Map<String, Object> paramsValuesMap,
+                                          VariableMapper variableMapper) throws SQLException, Impossible {
         int i = 1;
 
         for (Object param : preparedStatement.params) {
@@ -198,7 +156,19 @@ public class ActionCall implements TransitionInscription {
             if (param instanceof Variable) {
                 paramValue = (Variable) param;
             } else if (param instanceof String) {
-                paramValue = paramsValuesMap.get(param);
+                Object paramValueObject = paramsValuesMap.get(param);
+
+                if (paramValueObject instanceof Variable) {
+                    paramValue = (Variable) paramValueObject;
+                } else if (paramValueObject instanceof String) {
+                    paramValue = variableMapper.map(new LocalVariable((String) paramValueObject));
+
+                    if (!paramValue.isBound() || !paramValue.isComplete()) {
+                        paramValue = variableMapper.map(new LocalVariable((String) param));
+                    }
+                } else {
+                    throw new Impossible(); // TODO: ...
+                }
             } else {
                 throw new Impossible(); // TODO: ...
             }
