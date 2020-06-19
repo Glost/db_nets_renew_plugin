@@ -21,7 +21,6 @@ import de.renew.net.TransitionInscription;
 import de.renew.net.UplinkInscription;
 import de.renew.net.ViewPlace;
 import de.renew.shadow.ShadowArc;
-import de.renew.shadow.ShadowDeclarationNode;
 import de.renew.shadow.ShadowInscription;
 import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
@@ -57,10 +56,19 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
     }
 
     @Override
-    public Net createNet(String name) {
-        Net net = new DBNetControlLayer(name);
+    public DBNetControlLayer createNet(String name) {
+        DBNetControlLayer net = new DBNetControlLayer(name);
 //        net.setEarlyTokens(wantEarlyTokens); // TODO: ...
         return net;
+    }
+
+    @Override
+    public ParsedDBNetDeclarationNode makeDeclarationNode(ShadowNet shadowNet) throws SyntaxException {
+        ParsedDBNetDeclarationNode declarationNode = (ParsedDBNetDeclarationNode) super.makeDeclarationNode(shadowNet);
+        DBNetControlLayer net = (DBNetControlLayer) lookup.getNet(shadowNet.getName());
+        net.setJdbcConnection(declarationNode.getJdbcConnection());
+        net.setDatabaseSchemaDeclaration(declarationNode.getDatabaseSchemaDeclaration());
+        return declarationNode;
     }
 
     @Override

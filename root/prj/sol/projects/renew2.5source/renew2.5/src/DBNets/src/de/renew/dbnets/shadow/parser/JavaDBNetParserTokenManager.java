@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Supplier;
@@ -1127,7 +1129,8 @@ private int jjMoveNfa_0(int startState, int curPos)
                      jjstateSet[jjnewStateCnt++] = 31;
                   break;
                case 32:
-                  { jjAddStates(28, 29); }
+                  if ((0xafffffffffffffffL & l) != 0L)
+                     { jjAddStates(28, 29); }
                   break;
                case 34:
                   if (curChar == 62 && kind > 128)
@@ -1363,8 +1366,7 @@ private int jjMoveNfa_0(int startState, int curPos)
                      { jjCheckNAdd(32); }
                   break;
                case 32:
-                  if ((0xd7ffffffffffffffL & l) != 0L)
-                     { jjCheckNAddTwoStates(32, 33); }
+                  { jjCheckNAddTwoStates(32, 33); }
                   break;
                case 33:
                   if (curChar == 125)

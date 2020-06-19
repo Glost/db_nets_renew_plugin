@@ -9,6 +9,10 @@ import de.renew.engine.simulator.SimulationThreadPool;
 import de.renew.unify.Impossible;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +22,8 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     private DBNetControlLayer net;
 
     private Map<Object, Object> instanceLookup;
+
+    private Connection connection;
 
     public DBNetControlLayerInstance() {
     }
@@ -33,6 +39,10 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     @Override
     public DBNetControlLayer getNet() {
         return net;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override
@@ -120,6 +130,41 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
         }
 
         net.transitions().forEach(transition -> instanceLookup.put(transition, makeTransitionInstance(transition)));
+
+        createPersistenceLayer();
+    }
+
+    private void createPersistenceLayer() throws Impossible {
+        createDatabaseConnection();
+        createDatabaseSchema();
+    }
+
+    private void createDatabaseConnection() throws Impossible {
+        try {
+            connection = DriverManager.getConnection(net.getJdbcConnection().getUrl().trim());
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new Impossible("Error while connecting to the database: " + e.getMessage(), e);
+        }
+    }
+
+    private void createDatabaseSchema() throws Impossible {
+        try {
+            String[] sqls = net.getDatabaseSchemaDeclaration().getDdlQueryString().split(";");
+
+            for (String sql : sqls) {
+                if (sql.trim().isEmpty()) {
+                    continue;
+                }
+
+                Statement statement = connection.createStatement();
+                statement.execute(sql);
+            }
+
+            connection.commit();
+        } catch (SQLException e) {
+            throw new Impossible("Error while creating the database schema: " + e.getMessage(), e);
+        }
     }
 
     private TransitionInstance makeTransitionInstance(Transition transition) {

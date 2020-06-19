@@ -7,10 +7,12 @@ import de.renew.engine.searcher.Searcher;
 import de.renew.engine.searcher.VariableMapperCopier;
 import de.renew.expression.VariableMapper;
 import de.renew.net.DBNetControlLayerInstance;
+import de.renew.net.DBNetTransitionInstance;
 import de.renew.unify.Impossible;
 import de.renew.unify.UnifyUtils;
 import de.renew.unify.Variable;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -36,11 +38,11 @@ public class ReadArcOccurence extends ArcOccurrence {
                 searcher.calcChecker
         );
 
-        tokenVar = UnifyUtils.isInstanceOfUnknown(evaluated) ?
-                new Variable(evaluated, searcher.recorder) :
-                new Variable();
+        tokenVar = new Variable(evaluated, searcher.recorder);
 
-        binder = new ReadArcBinder(tokenVar, delayVar, placeInstance, searcher.recorder);
+        ((DBNetTransitionInstance) getTransition()).setVariableMapper(mapper);
+        Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
+        binder = new ReadArcBinder(tokenVar, delayVar, placeInstance, mapper, searcher.recorder, connection);
 
         return Collections.singleton(binder);
     }

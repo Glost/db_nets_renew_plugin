@@ -1,5 +1,7 @@
 package de.renew.net;
 
+import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
+import de.renew.dbnets.persistence.JdbcConnection;
 import de.renew.engine.simulator.SimulationThreadPool;
 import de.renew.unify.Impossible;
 
@@ -8,6 +10,10 @@ import java.util.HashSet;
 
 public class DBNetControlLayer extends Net {
 
+    private JdbcConnection jdbcConnection;
+
+    private DatabaseSchemaDeclaration databaseSchemaDeclaration;
+
     private Collection<ViewPlace> viewPlaces = new HashSet<>();
 
     public DBNetControlLayer() {
@@ -15,6 +21,22 @@ public class DBNetControlLayer extends Net {
 
     public DBNetControlLayer(String name) {
         super(name);
+    }
+
+    public JdbcConnection getJdbcConnection() {
+        return jdbcConnection;
+    }
+
+    public void setJdbcConnection(JdbcConnection jdbcConnection) {
+        this.jdbcConnection = jdbcConnection;
+    }
+
+    public DatabaseSchemaDeclaration getDatabaseSchemaDeclaration() {
+        return databaseSchemaDeclaration;
+    }
+
+    public void setDatabaseSchemaDeclaration(DatabaseSchemaDeclaration databaseSchemaDeclaration) {
+        this.databaseSchemaDeclaration = databaseSchemaDeclaration;
     }
 
     @Override

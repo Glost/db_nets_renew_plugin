@@ -93,6 +93,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Supplier;
@@ -362,7 +364,7 @@ TOKEN : /* CATCHALL TOKEN DEFINITION */
 TOKEN : /* MULTILINE_STRING */
 {
   < MULTILINE_STRING:
-        "<" "{" (~["{", "}"])+ "}" ">"
+        "<" "{" (~["<", ">"])+ "}" ">"
   >
 }
 
@@ -1020,14 +1022,17 @@ Collection<EditedFact> EditedFacts() :
 EditedFact EditedFact() :
 {
   String relationName;
-  String paramValue;
-  java.util.List<String> paramsValues = new ArrayList<String>();
+  String columnName;
+  Object param;
+  Map<String, Object> columnsToParams = new HashMap<String, Object>();
 }
 {
-  relationName = Name() "(" paramValue = Name() { paramsValues.add(paramValue); }
-    ( ","  paramValue = Name() { paramsValues.add(paramValue); } )* ")"
+  relationName = Name() "(" columnName = Name() ":" (param = Name() | param = LiteralObject())
+    { columnsToParams.put(columnName, param); }
+    ( "," columnName = Name() ":" (param = Name() | param = LiteralObject())
+    { columnsToParams.put(columnName, param); } )* ")"
   {
-    return new EditedFact(relationName, paramsValues);
+    return new EditedFact(relationName, columnsToParams);
   }
 }
 
@@ -1053,12 +1058,12 @@ ActionCall ActionCall():
 {
   Token t;
   String actionName;
-  String param;
-  java.util.List<String> params = new ArrayList<String>();
+  Object param;
+  java.util.List<Object> params = new ArrayList<Object>();
 }
 {
-  t = <DBN_ACTION> ":" actionName = Name() "(" param = Name() { params.add(param); }
-  ( "," param = Name() { params.add(param); } )* ")"
+  t = <DBN_ACTION> ":" actionName = Name() "(" (param = Name() | param = LiteralObject()) { params.add(param); }
+  ( "," (param = Name() | param = LiteralObject()) { params.add(param); } )* ")"
   {
     Optional<Action> action = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getActionByName(actionName));
 
@@ -1067,7 +1072,18 @@ ActionCall ActionCall():
     } else {
         throw JavaHelper.makeParseException("No action with name " + actionName + " found", t);
     }
+  }
 }
+
+Object LiteralObject():
+{
+  TypedExpression typedExpression;
+}
+{
+  typedExpression = Literal()
+  {
+    return ((ConstantExpression) typedExpression.getExpression()).getConstant();
+  }
 }
 
 /********************************

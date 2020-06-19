@@ -1,14 +1,14 @@
 package de.renew.net.arc;
 
 import de.renew.engine.common.StepIdentifier;
+import de.renew.net.DBNetTransitionInstance;
 import de.renew.net.PlaceInstance;
-import de.renew.net.TransitionInstance;
 import de.renew.unify.Variable;
 
 public class RollbackArcExecutable extends OutputArcExecutable {
 
     public RollbackArcExecutable(PlaceInstance pInstance,
-                                 TransitionInstance tInstance,
+                                 DBNetTransitionInstance tInstance,
                                  Variable tokenVar,
                                  Variable timeVar,
                                  boolean trace) {
@@ -17,6 +17,8 @@ public class RollbackArcExecutable extends OutputArcExecutable {
 
     @Override
     public void execute(StepIdentifier stepIdentifier) {
-        super.execute(stepIdentifier); // TODO: if...
+        if (((DBNetTransitionInstance) tInstance).needRollback()) {
+            super.execute(stepIdentifier);
+        }
     }
 }

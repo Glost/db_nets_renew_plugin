@@ -1,24 +1,24 @@
 package de.renew.dbnets.datalogic;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 public class EditedFact {
 
     private final String relationName;
 
-    private final List<String> paramsValues;
+    private final Map<String, Object> columnsToParams;
 
-    public EditedFact(String relationName, List<String> paramsValues) {
+    public EditedFact(String relationName, Map<String, Object> columnsToParams) {
         this.relationName = relationName;
-        this.paramsValues = paramsValues;
+        this.columnsToParams = columnsToParams;
     }
 
     public String getRelationName() {
         return relationName;
     }
 
-    public List<String> getParamsValues() {
-        return Collections.unmodifiableList(paramsValues);
+    public Map<String, Object> getColumnsToParams() {
+        return Collections.unmodifiableMap(columnsToParams);
     }
 }

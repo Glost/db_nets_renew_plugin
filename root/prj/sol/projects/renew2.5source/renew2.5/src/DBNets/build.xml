@@ -26,9 +26,11 @@ Renew-DBNets is the Renew plugin for supporting the DB-nets.
 
     <path id="ref.classpath">
         <path refid="ref.antclasspath"/>
-	<path refid="ref.sharedlibs"/>
-     	<fileset dir="${dir.renew.dist.plugins}">
-	</fileset>
+        <path refid="ref.sharedlibs"/>
+        <fileset dir="${dir.renew.dist.libs}">
+            <include name="sqlite-jdbc/sqlite-jdbc*.jar"/>
+        </fileset>
+     	<fileset dir="${dir.renew.dist.plugins}"/>
         <fileset dir="${dir.renew.dist}">
             <include name="ch*.jar"/>
             <include name="formalism*.jar"/>

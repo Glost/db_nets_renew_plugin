@@ -2,6 +2,7 @@ package de.renew.net;
 
 import de.renew.engine.searcher.Searcher;
 import de.renew.engine.simulator.SimulationThreadPool;
+import de.renew.expression.VariableMapper;
 import de.renew.net.event.FiringEvent;
 import de.renew.unify.Impossible;
 import de.renew.unify.Variable;
@@ -14,9 +15,29 @@ public class DBNetTransitionInstance extends TransitionInstance {
 
     private TransitionOccurrence occurrence;
 
+    private VariableMapper variableMapper;
+
+    private boolean needRollback = false;
+
     public DBNetTransitionInstance(DBNetControlLayerInstance netInstance, DBNetTransition transition) {
         super(netInstance, transition);
         this.transition = transition;
+    }
+
+    public VariableMapper getVariableMapper() {
+        return variableMapper;
+    }
+
+    public void setVariableMapper(VariableMapper variableMapper) {
+        this.variableMapper = variableMapper;
+    }
+
+    public boolean needRollback() {
+        return needRollback;
+    }
+
+    public void setNeedRollback(boolean needRollback) {
+        this.needRollback = needRollback;
     }
 
     @Override
@@ -40,7 +61,7 @@ public class DBNetTransitionInstance extends TransitionInstance {
 
         try {
             if (Objects.isNull(occurrence)) {
-                occurrence = new DBNetTransitionOccurence(this, params, searcher);
+                occurrence = new DBNetTransitionOccurrence(this, params, searcher);
             }
 
             searcher.search(occurrence);
