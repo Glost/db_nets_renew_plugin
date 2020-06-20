@@ -37,20 +37,22 @@ public class ActionCallValuesBinder implements Binder {
 
     private final DBNetTransitionInstance transitionInstance;
 
+    private final VariableMapper variableMapper;
+
     private final StateRecorder stateRecorder;
 
     private final Connection connection;
-
-    private VariableMapper variableMapper;
 
     private boolean isBound = false;
 
     public ActionCallValuesBinder(ActionCall actionCall,
                                   DBNetTransitionInstance transitionInstance,
+                                  VariableMapper variableMapper,
                                   StateRecorder stateRecorder,
                                   Connection connection) {
         this.actionCall = actionCall;
         this.transitionInstance = transitionInstance;
+        this.variableMapper = variableMapper;
         this.stateRecorder = stateRecorder;
         this.connection = connection;
     }
@@ -62,8 +64,18 @@ public class ActionCallValuesBinder implements Binder {
 
     @Override
     public void bind(Searcher searcher) {
-        if (Objects.isNull(variableMapper)) {
-            variableMapper = transitionInstance.getVariableMapper();
+        if (isBound) {
+            searcher.search();
+
+            return;
+        }
+
+        if (Objects.isNull(actionCall)) {
+            isBound = true;
+
+            searcher.search();
+
+            return;
         }
 
         Map<String, Object> paramsNamesToParams = IntStream.range(0, actionCall.getAction().getParams().size()).boxed()

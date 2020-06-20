@@ -1028,9 +1028,9 @@ EditedFact EditedFact() :
   Map<String, Object> columnsToParams = new HashMap<String, Object>();
 }
 {
-  relationName = Name() "(" columnName = Name() ":" (param = Name() | param = LiteralObject())
+  relationName = Name() "(" columnName = Name() ":" (param = LiteralObject() | param = Name())
     { columnsToParams.put(columnName, param); }
-    ( "," columnName = Name() ":" (param = Name() | param = LiteralObject())
+    ( "," columnName = Name() ":" (param = LiteralObject() | param = Name())
     { columnsToParams.put(columnName, param); } )* ")"
   {
     return new EditedFact(relationName, columnsToParams);
@@ -1063,8 +1063,8 @@ ActionCall ActionCall():
   java.util.List<Object> params = new ArrayList<Object>();
 }
 {
-  t = <DBN_ACTION> ":" actionName = Name() "(" (param = Name() | param = LiteralObject()) { params.add(param); }
-  ( "," (param = Name() | param = LiteralObject()) { params.add(param); } )* ")"
+  t = <DBN_ACTION> ":" actionName = Name() "(" (param = LiteralObject() | param = Name()) { params.add(param); }
+  ( "," (param = LiteralObject() | param = Name()) { params.add(param); } )* ")"
   {
     Optional<Action> action = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getActionByName(actionName));
 

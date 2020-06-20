@@ -831,9 +831,9 @@ editedFacts.add(editedFact);
     columnName = Name();
     jj_consume_token(COLON);
     if (jj_2_44(3)) {
-      param = Name();
-    } else if (jj_2_45(3)) {
       param = LiteralObject();
+    } else if (jj_2_45(3)) {
+      param = Name();
     } else {
       jj_consume_token(-1);
       throw new ParseException();
@@ -850,9 +850,9 @@ columnsToParams.put(columnName, param);
       columnName = Name();
       jj_consume_token(COLON);
       if (jj_2_47(3)) {
-        param = Name();
-      } else if (jj_2_48(3)) {
         param = LiteralObject();
+      } else if (jj_2_48(3)) {
+        param = Name();
       } else {
         jj_consume_token(-1);
         throw new ParseException();
@@ -888,9 +888,9 @@ Optional<Query> query = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).
     actionName = Name();
     jj_consume_token(LPAREN);
     if (jj_2_49(3)) {
-      param = Name();
-    } else if (jj_2_50(3)) {
       param = LiteralObject();
+    } else if (jj_2_50(3)) {
+      param = Name();
     } else {
       jj_consume_token(-1);
       throw new ParseException();
@@ -905,9 +905,9 @@ params.add(param);
       }
       jj_consume_token(COMMA);
       if (jj_2_52(3)) {
-        param = Name();
-      } else if (jj_2_53(3)) {
         param = LiteralObject();
+      } else if (jj_2_53(3)) {
+        param = Name();
       } else {
         jj_consume_token(-1);
         throw new ParseException();
@@ -3021,6 +3021,12 @@ Object[] result=new Object[vector.size()];
     return false;
   }
 
+  private boolean jj_3_50()
+ {
+    if (jj_3R_51()) return true;
+    return false;
+  }
+
   private boolean jj_3_92()
  {
     if (jj_scan_token(STAR)) return true;
@@ -3088,12 +3094,6 @@ Object[] result=new Object[vector.size()];
     return false;
   }
 
-  private boolean jj_3_50()
- {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
   private boolean jj_3R_49()
  {
     Token xsp;
@@ -3118,6 +3118,12 @@ Object[] result=new Object[vector.size()];
   }
 
   private boolean jj_3_49()
+ {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3_45()
  {
     if (jj_3R_51()) return true;
     return false;
@@ -3159,9 +3165,9 @@ Object[] result=new Object[vector.size()];
     return false;
   }
 
-  private boolean jj_3_45()
+  private boolean jj_3_53()
  {
-    if (jj_3R_53()) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -3182,9 +3188,9 @@ Object[] result=new Object[vector.size()];
     return false;
   }
 
-  private boolean jj_3_53()
+  private boolean jj_3_48()
  {
-    if (jj_3R_53()) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -3208,12 +3214,6 @@ Object[] result=new Object[vector.size()];
     return false;
   }
 
-  private boolean jj_3_48()
- {
-    if (jj_3R_53()) return true;
-    return false;
-  }
-
   private boolean jj_3_129()
  {
     if (jj_scan_token(CHARACTER_LITERAL)) return true;
@@ -3222,7 +3222,7 @@ Object[] result=new Object[vector.size()];
 
   private boolean jj_3_44()
  {
-    if (jj_3R_51()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -3267,7 +3267,7 @@ Object[] result=new Object[vector.size()];
 
   private boolean jj_3_52()
  {
-    if (jj_3R_51()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 
@@ -3310,7 +3310,7 @@ Object[] result=new Object[vector.size()];
 
   private boolean jj_3_47()
  {
-    if (jj_3R_51()) return true;
+    if (jj_3R_53()) return true;
     return false;
   }
 

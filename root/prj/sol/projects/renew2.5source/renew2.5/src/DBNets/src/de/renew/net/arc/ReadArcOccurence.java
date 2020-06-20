@@ -7,9 +7,7 @@ import de.renew.engine.searcher.Searcher;
 import de.renew.engine.searcher.VariableMapperCopier;
 import de.renew.expression.VariableMapper;
 import de.renew.net.DBNetControlLayerInstance;
-import de.renew.net.DBNetTransitionInstance;
 import de.renew.unify.Impossible;
-import de.renew.unify.UnifyUtils;
 import de.renew.unify.Variable;
 
 import java.sql.Connection;
@@ -40,7 +38,6 @@ public class ReadArcOccurence extends ArcOccurrence {
 
         tokenVar = new Variable(evaluated, searcher.recorder);
 
-        ((DBNetTransitionInstance) getTransition()).setVariableMapper(mapper);
         Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
         binder = new ReadArcBinder(tokenVar, delayVar, placeInstance, mapper, searcher.recorder, connection);
 

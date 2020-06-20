@@ -44,7 +44,7 @@ public class ReadArcBinder extends InputArcBinder {
 
     @Override
     public int bindingBadness(Searcher searcher) {
-        return isBound ? BindingBadness.max : 1;
+        return isBound ? BindingBadness.max : 2;
     }
 
     @Override

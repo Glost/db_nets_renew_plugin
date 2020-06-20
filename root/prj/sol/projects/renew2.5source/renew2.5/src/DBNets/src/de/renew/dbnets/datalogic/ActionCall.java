@@ -9,6 +9,7 @@ import de.renew.net.TransitionInscription;
 import de.renew.unify.Impossible;
 import de.renew.unify.StateRecorder;
 import de.renew.unify.Variable;
+import de.renew.util.Value;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -181,6 +182,10 @@ public class ActionCall implements TransitionInscription {
     private void setPreparedStatementColumnValue(PreparedStatement preparedStatement, Variable columnValue, int i)
             throws SQLException {
         Object value = columnValue.getValue();
+
+        if (value instanceof Value) {
+            value = ((Value) value).value;
+        }
 
         if (Objects.isNull(value)) {
             preparedStatement.setNull(i, Types.NULL);
