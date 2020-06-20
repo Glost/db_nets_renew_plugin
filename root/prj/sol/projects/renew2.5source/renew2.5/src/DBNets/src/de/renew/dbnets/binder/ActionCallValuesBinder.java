@@ -64,6 +64,10 @@ public class ActionCallValuesBinder implements Binder {
 
     @Override
     public void bind(Searcher searcher) {
+//        transitionInstance.lock();
+
+        transitionInstance.acquire();
+
         if (isBound) {
             searcher.search();
 
@@ -72,6 +76,7 @@ public class ActionCallValuesBinder implements Binder {
 
         if (Objects.isNull(actionCall)) {
             isBound = true;
+//            transitionInstance.setBound(true);
 
             searcher.search();
 
@@ -90,6 +95,7 @@ public class ActionCallValuesBinder implements Binder {
         }
 
         isBound = true;
+//        transitionInstance.setBound(true);
 
         searcher.search();
     }
@@ -146,15 +152,15 @@ public class ActionCallValuesBinder implements Binder {
             PreparedStatement insertPreparedStatement = connection.prepareStatement(insertSql);
             insertPreparedStatement.setString(1, tableName);
 
-            return new Variable(1L, stateRecorder);
+            return new Variable(1, stateRecorder);
         }
 
-        long seq = resultSet.getLong(1);
+        int seq = resultSet.getInt(1);
 
         String updateSql = "UPDATE sqlite_sequence SET seq = ? WHERE name = ?;";
 
         PreparedStatement updatePreparedStatement = connection.prepareStatement(updateSql);
-        updatePreparedStatement.setLong(1, seq + 1);
+        updatePreparedStatement.setInt(1, seq + 1);
         updatePreparedStatement.setString(2, tableName);
 
         updatePreparedStatement.executeUpdate();

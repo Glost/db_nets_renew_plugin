@@ -49,6 +49,23 @@ public class QueryCall {
         }
     }
 
+    public boolean checkBoundness(VariableMapper variableMapper) {
+        String sqlQueryString = query.getQueryString();
+
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(sqlQueryString);
+
+        while (matcher.find()) {
+            String variableName = matcher.group("variableName");
+            Variable variable = variableMapper.map(new LocalVariable(variableName));
+
+            if (!variable.isBound() || !variable.isComplete()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private String formSqlQueryString(VariableMapper variableMapper) {
         String sqlQueryString = query.getQueryString();
 

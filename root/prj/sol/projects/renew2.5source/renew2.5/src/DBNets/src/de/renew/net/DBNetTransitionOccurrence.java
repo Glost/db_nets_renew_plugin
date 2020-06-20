@@ -121,7 +121,12 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
 
         Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
 
-        executables.add(new ActionCallExecutable(actionCall, copier.makeCopy(mapper), connection));
+        executables.add(new ActionCallExecutable(
+                actionCall,
+                (DBNetTransitionInstance) getTransition(),
+                copier.makeCopy(mapper),
+                connection
+        ));
 
         return executables;
     }

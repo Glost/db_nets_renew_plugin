@@ -4,6 +4,7 @@ import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.engine.searcher.BindingBadness;
 import de.renew.engine.searcher.Searcher;
 import de.renew.expression.VariableMapper;
+import de.renew.net.DBNetTransitionInstance;
 import de.renew.net.PlaceInstance;
 import de.renew.net.TokenReserver;
 import de.renew.net.ViewPlaceInstance;
@@ -21,6 +22,8 @@ public class ReadArcBinder extends InputArcBinder {
 
     private final Variable tokenVariable;
 
+    private final DBNetTransitionInstance transitionInstance;
+
     private final VariableMapper variableMapper;
 
     private final StateRecorder stateRecorder;
@@ -32,11 +35,13 @@ public class ReadArcBinder extends InputArcBinder {
     public ReadArcBinder(Variable tokenVariable,
                          Variable delayVariable,
                          PlaceInstance placeInstance,
+                         DBNetTransitionInstance transitionInstance,
                          VariableMapper variableMapper,
                          StateRecorder stateRecorder,
                          Connection connection) {
         super(tokenVariable, delayVariable, placeInstance);
         this.tokenVariable = tokenVariable;
+        this.transitionInstance = transitionInstance;
         this.variableMapper = variableMapper;
         this.stateRecorder = stateRecorder;
         this.connection = connection;
@@ -44,12 +49,14 @@ public class ReadArcBinder extends InputArcBinder {
 
     @Override
     public int bindingBadness(Searcher searcher) {
-        return isBound ? BindingBadness.max : 2;
+        QueryCall queryCall = ((ViewPlaceInstance) getPlaceInstance()).getPlace().getQueryCall();
+
+        return isBound || !queryCall.checkBoundness(variableMapper) ? BindingBadness.max : BindingBadness.max - 1;
     }
 
     @Override
     protected boolean mayBind() {
-        return !isBound;
+        return true;
     }
 
     @Override
@@ -64,7 +71,11 @@ public class ReadArcBinder extends InputArcBinder {
 
     @Override
     public void bind(Searcher searcher) {
+//        transitionInstance.lock();
+
         if (isBound) {
+            searcher.search();
+
             return;
         }
 
@@ -78,12 +89,17 @@ public class ReadArcBinder extends InputArcBinder {
             } else if (!queryResult.isEmpty()) {
                 Unify.unify(tokenVariable, queryResult.get(0), stateRecorder);
             }
+
+            isBound = true;
         } catch (Impossible e) {
-            throw new RuntimeException(); // TODO: ...
+            e.printStackTrace();
+//            throw new RuntimeException(); // TODO: ...
         }
 
-        isBound = true;
-
         searcher.search();
+    }
+
+    private void tryBind(Searcher searcher) {
+
     }
 }
