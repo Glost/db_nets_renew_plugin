@@ -12,4 +12,4 @@ The `config`, `libs` and `plugins` folders should be in one folder with the `loa
 
 The Java should be installed for the running.
 
-The samples of the db-nets are in the `../samples` folder (files with the `.rnw` extension).
+The samples of the db-nets are in the [`../samples`](../samples) folder (files with the `.rnw` extension).
