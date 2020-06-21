@@ -3,7 +3,7 @@ package de.renew.net;
 import de.renew.unify.Impossible;
 
 /**
- * The db-net's view place's instance.
+ * The db-net's view place's instance for the simulation.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

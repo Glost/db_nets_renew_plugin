@@ -1,18 +1,18 @@
 11 
     de.renew.gui.CPNDrawing 59 
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 563 "FillColor" "Color" 112 219 147 255 14 434 30 28 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 563 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 14 434 30 28 NULL  
         de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 1 "FigureWithID" "Int" 564 85 425 60 49 NULL  
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 565 "FillColor" "Color" 112 219 147 255 228 435 30 27 NULL  
-        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 566 "FillColor" "Color" 112 219 147 255 306 428 60 46 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 565 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 228 435 30 27 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 566 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 306 428 60 46 NULL  
         de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 567 324 275 31 31 NULL  
         de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 568 467 399 41 38 NULL  
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 569 "FillColor" "Color" 112 219 147 255 673 269 48 39 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 569 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 673 269 48 39 NULL  
         de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 570 454 528 47 49 NULL  
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 571 "FillColor" "Color" 112 219 147 255 808 393 49 40 NULL  
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 572 "FillColor" "Color" 112 219 147 255 810 553 55 50 NULL  
-        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 573 "FillColor" "Color" 112 219 147 255 1137 415 56 46 NULL  
-        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 574 "FillColor" "Color" 112 219 147 255 601 399 58 47 NULL  
-        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 575 "FillColor" "Color" 112 219 147 255 589 535 62 55 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 571 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 808 393 49 40 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 572 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 810 553 55 50 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 573 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 1137 415 56 46 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 574 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 601 399 58 47 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 575 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 589 535 62 55 NULL  
         de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 576 2 44 448 85 449 NULL 
             CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
             CH.ifa.draw.figures.ChopEllipseConnector REF 1  
@@ -25,17 +25,17 @@
             CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
             CH.ifa.draw.figures.ChopEllipseConnector REF 3  
             CH.ifa.draw.standard.ChopBoxConnector REF 4   
-        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FrameColor" "Color" 0 0 0 255 "FigureWithID" "Int" 579 "FillColor" "Color" 112 219 147 255 952 408 122 72 NULL  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 580 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 179 440 "sid" "SansSerif" 0 12 0 REF 18 
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 579 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 952 408 122 72 NULL  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 580 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 179 440 "sid" "SansSerif" 0 12 0 REF 18 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 581 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 202 411 "sid" "SansSerif" 0 12 0 REF 22 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 581 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 202 411 "sid" "SansSerif" 0 12 0 REF 22 
             CH.ifa.draw.standard.OffsetLocator -72 -30 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
         de.renew.gui.ReadArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 582 2 339 305 336 428 NULL NULL "CH.ifa.draw.figures.ArrowTip" 
             CH.ifa.draw.figures.ChopEllipseConnector REF 5  
             CH.ifa.draw.standard.ChopBoxConnector REF 4   
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 583 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 273 282 "dbn_query : free_drivers" "SansSerif" 0 12 0 REF 5 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 583 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 273 282 "dbn_query : free_drivers" "SansSerif" 0 12 0 REF 5 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
         de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 584 2 507 419 601 421 NULL 
@@ -82,82 +82,82 @@
             CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
             CH.ifa.draw.standard.ChopBoxConnector REF 26  
             CH.ifa.draw.figures.ChopEllipseConnector REF 11   
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 595 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 409 425 "sid" "SansSerif" 0 12 0 REF 55 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 595 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 409 425 "sid" "SansSerif" 0 12 0 REF 55 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 596 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 546 412 "sid" "SansSerif" 0 12 0 REF 39 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 596 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 546 412 "sid" "SansSerif" 0 12 0 REF 39 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 597 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 404 497 "sid" "SansSerif" 0 12 0 REF 59 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 597 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 404 497 "sid" "SansSerif" 0 12 0 REF 59 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 598 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 536 549 "sid" "SansSerif" 0 12 0 REF 43 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 598 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 536 549 "sid" "SansSerif" 0 12 0 REF 43 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 599 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 500 359 "[sid, tid]" "SansSerif" 0 12 0 REF 63 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 599 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 500 359 "[sid, tid]" "SansSerif" 0 12 0 REF 63 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 600 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 565 430 "action n = \"8-800-555-35-35\";" "SansSerif" 0 12 0 REF 12 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 600 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 565 430 "action n = \"8-800-555-35-35\";" "SansSerif" 0 12 0 REF 12 
             CH.ifa.draw.standard.OffsetLocator 15 16 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 601 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 575 563 "action a = \"here\";" "SansSerif" 0 12 0 REF 13 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 601 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 575 563 "action a = \"here\";" "SansSerif" 0 12 0 REF 13 
             CH.ifa.draw.standard.OffsetLocator 1 9 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 602 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 716 409 "[sid, n]" "SansSerif" 0 12 0 REF 47 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 602 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 716 409 "[sid, n]" "SansSerif" 0 12 0 REF 47 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 603 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 713 562 "[sid, a]" "SansSerif" 0 12 0 REF 51 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 603 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 713 562 "[sid, a]" "SansSerif" 0 12 0 REF 51 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 604 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 885 417 "[sid, n]" "SansSerif" 0 12 0 REF 67 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 604 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 885 417 "[sid, n]" "SansSerif" 0 12 0 REF 67 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 605 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 26 440 "[]" "SansSerif" 0 12 0 REF 1 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 605 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 26 440 "[]" "SansSerif" 0 12 0 REF 1 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 606 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 318 358 "[tid, pn]" "SansSerif" 0 12 0 REF 33 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 606 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 318 358 "[tid, pn]" "SansSerif" 0 12 0 REF 33 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 607 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 814 347 "[sid, tid]" "SansSerif" 0 12 0 REF 75 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 607 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 814 347 "[sid, tid]" "SansSerif" 0 12 0 REF 75 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 608 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 893 513 "[sid, a]" "SansSerif" 0 12 0 REF 71 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 608 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 893 513 "[sid, a]" "SansSerif" 0 12 0 REF 71 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 609 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 259 443 "dbn_action : reserve (tid, pn)" "SansSerif" 0 12 0 REF 4 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 609 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 259 443 "dbn_action : reserve (tid, pn)" "SansSerif" 0 12 0 REF 4 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 610 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 29 458 "action sid = Integer.valueOf(1);" "SansSerif" 0 12 0 REF 2 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 610 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 29 458 "action sid = Integer.valueOf(1);" "SansSerif" 0 12 0 REF 2 
             CH.ifa.draw.standard.OffsetLocator -3 17 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.DeclarationFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 611 "TextAlignment" "Int" 0 "FillColor" "Color" 255 199 158 255 407 20 "dbn_jdbc_url <{ jdbc:sqlite:taxi.db }>\ndbn_ddl <{\nCREATE TABLE IF NOT EXISTS taxi (tid INTEGER PRIMARY KEY AUTOINCREMENT, plate_num TEXT, is_free BOOLEAN);\nCREATE TABLE IF NOT EXISTS pickup_data (pdid INTEGER PRIMARY KEY AUTOINCREMENT, address TEXT);\nCREATE TABLE IF NOT EXISTS phone (pid INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT);\nCREATE TABLE IF NOT EXISTS booking (bid INTEGER PRIMARY KEY AUTOINCREMENT,\ntaxi_id INTEGER,\npickup_id INTEGER,\nphone_id INTEGER,\nFOREIGN KEY (taxi_id) REFERENCES taxi (tid),\nFOREIGN KEY (pickup_id) REFERENCES pickup_data (pdid),\nFOREIGN KEY (phone_id) REFERENCES phone (pid));\nDELETE FROM taxi;\nDELETE FROM pickup_data;\nDELETE FROM phone;\nDELETE FROM booking;\nINSERT INTO taxi (plate_num, is_free) VALUES (\"AAA\", TRUE), (\"BBB\", TRUE), (\"CCC\", TRUE);\n}>\ndbn_query free_drivers <{ SELECT tid, plate_num FROM taxi WHERE is_free IS TRUE; }>\ndbn_action reserve { params = <tid, pn>, add = { taxi(tid: tid, plate_num: pn, is_free: false) }, del = { taxi(tid: tid, plate_num: pn, is_free: true) } }\ndbn_action add_booking { params = <sid, tid, pdid, pid, n, a>, add = { phone(pid: pid, phone: n), pickup_data(pdid: pdid, address: a), booking(bid: sid, taxi_id: tid, pickup_id: pdid, phone_id: pid) }, del = { } }" "SansSerif" 0 9 0 NULL NULL 1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 612 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 64 392 "Proceed to Booking" "SansSerif" 1 12 0 REF 2 
+        de.renew.gui.DeclarationFigure "attributes" "attributes" 4 "TextAlignment" "Int" 0 "FigureWithID" "Int" 611 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 407 20 "dbn_jdbc_url <{ jdbc:sqlite:taxi.db }>\ndbn_ddl <{\nCREATE TABLE IF NOT EXISTS taxi (tid INTEGER PRIMARY KEY AUTOINCREMENT, plate_num TEXT, is_free BOOLEAN);\nCREATE TABLE IF NOT EXISTS pickup_data (pdid INTEGER PRIMARY KEY AUTOINCREMENT, address TEXT);\nCREATE TABLE IF NOT EXISTS phone (pid INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT);\nCREATE TABLE IF NOT EXISTS booking (bid INTEGER PRIMARY KEY AUTOINCREMENT,\ntaxi_id INTEGER,\npickup_id INTEGER,\nphone_id INTEGER,\nFOREIGN KEY (taxi_id) REFERENCES taxi (tid),\nFOREIGN KEY (pickup_id) REFERENCES pickup_data (pdid),\nFOREIGN KEY (phone_id) REFERENCES phone (pid));\nDELETE FROM taxi;\nDELETE FROM pickup_data;\nDELETE FROM phone;\nDELETE FROM booking;\nINSERT INTO taxi (plate_num, is_free) VALUES (\"AAA\", TRUE), (\"BBB\", TRUE), (\"CCC\", TRUE);\n}>\ndbn_query free_drivers <{ SELECT tid, plate_num FROM taxi WHERE is_free IS TRUE; }>\ndbn_action reserve { params = <tid, pn>, add = { taxi(tid: tid, plate_num: pn, is_free: false) }, del = { taxi(tid: tid, plate_num: pn, is_free: true) } }\ndbn_action add_booking { params = <sid, tid, pdid, pid, n, a>, add = { phone(pid: pid, phone: n), pickup_data(pdid: pdid, address: a), booking(bid: sid, taxi_id: tid, pickup_id: pdid, phone_id: pid) }, del = { } }" "SansSerif" 0 9 0 NULL NULL 1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 612 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 64 392 "Proceed to Booking" "SansSerif" 1 12 0 REF 2 
             CH.ifa.draw.standard.OffsetLocator 4 -49 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 613 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 285 479 "Create Booking" "SansSerif" 1 12 0 REF 4 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 613 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 285 479 "Create Booking" "SansSerif" 1 12 0 REF 4 
             CH.ifa.draw.standard.OffsetLocator -8 36 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 614 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 788 377 "Phone Number" "SansSerif" 1 12 0 REF 9 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 614 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 788 377 "Phone Number" "SansSerif" 1 12 0 REF 9 
             CH.ifa.draw.standard.OffsetLocator -2 -28 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 615 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 809 615 "Pickup Data" "SansSerif" 1 12 0 REF 10 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 615 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 809 615 "Pickup Data" "SansSerif" 1 12 0 REF 10 
             CH.ifa.draw.standard.OffsetLocator 6 45 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 616 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 574 370 "Leave Phone Number" "SansSerif" 1 12 0 REF 12 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 616 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 574 370 "Leave Phone Number" "SansSerif" 1 12 0 REF 12 
             CH.ifa.draw.standard.OffsetLocator 4 -44 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 617 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 567 502 "Leave Pickup Data" "SansSerif" 1 12 0 REF 13 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 617 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 567 502 "Leave Pickup Data" "SansSerif" 1 12 0 REF 13 
             CH.ifa.draw.standard.OffsetLocator -1 -52 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 618 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 971 374 "Finalize Booking" "SansSerif" 1 12 0 REF 26 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 618 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 971 374 "Finalize Booking" "SansSerif" 1 12 0 REF 26 
             CH.ifa.draw.standard.OffsetLocator 3 -62 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 619 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 305 253 "Free Drivers" "SansSerif" 1 12 0 REF 5 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 619 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 305 253 "Free Drivers" "SansSerif" 1 12 0 REF 5 
             CH.ifa.draw.standard.OffsetLocator 0 -29 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 620 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 655 314 "Reserved Taxi" "SansSerif" 1 12 0 REF 7 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 620 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 655 314 "Reserved Taxi" "SansSerif" 1 12 0 REF 7 
             CH.ifa.draw.standard.OffsetLocator -2 34 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 621 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 676 459 "dbn_action : add_booking (sid, tid, dbn_autoincrement_pickup_data, dbn_autoincrement_phone, n, a)" "SansSerif" 0 12 0 REF 26 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 621 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 676 459 "dbn_action : add_booking (sid, tid, dbn_autoincrement_pickup_data, dbn_autoincrement_phone, n, a)" "SansSerif" 0 12 0 REF 26 
             CH.ifa.draw.standard.OffsetLocator -59 23 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  NULL  -11 -11 1300 740 

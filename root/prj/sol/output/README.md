@@ -10,4 +10,6 @@ The `.lnk` file may be used on the Windows as well, but changing the path to the
 
 The `config`, `libs` and `plugins` folders should be in one folder with the `loader.jar` file.
 
+The Java should be installed for the running.
+
 The samples of the db-nets are in the `../samples` folder (files with the `.rnw` extension).

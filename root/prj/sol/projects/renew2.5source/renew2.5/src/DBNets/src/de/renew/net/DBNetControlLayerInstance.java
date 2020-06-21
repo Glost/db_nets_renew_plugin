@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The db-net's control layer's instance.
+ * The db-net's control layer's instance for the simulation.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

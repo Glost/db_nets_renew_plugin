@@ -9,7 +9,7 @@ import de.renew.net.arc.Arc;
 import de.renew.net.arc.RollbackArc;
 
 /**
- * The factory for the db-net's rollback arcs' instances creating.
+ * The factory for the db-net's rollback arcs' instances creating during the net's parsing and compiling.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

@@ -5,7 +5,7 @@
         de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 385 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 16 572 "dbn_query : idle_employees" "SansSerif" 0 10 0 REF 1 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 386 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 28 714 "dbn_query : tickets" "SansSerif" 0 12 0 REF 2 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 386 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 35 715 "dbn_query : tickets" "SansSerif" 0 10 0 REF 2 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
         de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 4 "FigureWithID" "Int" 387 "FrameColor" "Color" 0 0 0 255 "FontSize" "Int" 9 "FillColor" "Color" 112 219 147 255 250 505 237 105 NULL  
@@ -44,7 +44,7 @@
             CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
             CH.ifa.draw.figures.ChopEllipseConnector REF 13  
             CH.ifa.draw.standard.ChopBoxConnector REF 11   
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 401 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 214 551 "dbn_action : register (dbn_autoincrement_ticket, emp_name, \"test_descr\")" "SansSerif" 0 9 0 REF 9 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 401 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 193 550 "dbn_action : register (dbn_autoincrement_ticket, emp_name, \"test_descr\")" "SansSerif" 0 10 0 REF 9 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
         de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 402 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 165 564 "emp_name" "SansSerif" 0 10 0 REF 15 
@@ -71,7 +71,7 @@
         de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 409 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 692 608 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 37 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
-        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 410 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 155 714 "[ticket_id, ticket_description]" "SansSerif" 0 12 0 REF 18 
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 410 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 164 715 "[ticket_id, ticket_description]" "SansSerif" 0 10 0 REF 18 
             CH.ifa.draw.standard.OffsetLocator 0 0 
                 CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
         de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 411 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 745 723 "dbn_action : assign (ticket_id, emp_name)" "SansSerif" 0 10 0 REF 12 

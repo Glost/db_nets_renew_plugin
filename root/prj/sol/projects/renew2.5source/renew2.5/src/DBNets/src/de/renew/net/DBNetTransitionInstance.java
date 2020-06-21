@@ -9,7 +9,7 @@ import de.renew.unify.Variable;
 import java.util.concurrent.Semaphore;
 
 /**
- * The db-net's transition's instance.
+ * The db-net's transition's instance for the simulation.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

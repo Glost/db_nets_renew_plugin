@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * The parsed db-net's declaration node.
- * Includes the db-net's persistence layer's JDBC connection URL, database schema DDL declarations,
+ * Includes the db-net's persistence layer's JDBC connection URL, database schema DDL/DML declarations,
  * data logic layer's queries and actions as well as the net's imports and variables declarations.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
