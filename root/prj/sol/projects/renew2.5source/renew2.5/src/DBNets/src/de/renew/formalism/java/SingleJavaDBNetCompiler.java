@@ -273,6 +273,23 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
     }
 
     /**
+     * Compiles the arc.
+     *
+     * @param shadowArc The arc which should be compiled.
+     * @throws SyntaxException If the error occurred during the arc compiling.
+     */
+    @Override
+    protected void compileArc(ShadowArc shadowArc) throws SyntaxException {
+        if (shadowArc instanceof ShadowReadArc) {
+            compileReadArc((ShadowReadArc) shadowArc);
+        } else if (shadowArc instanceof ShadowRollbackArc) {
+            compileRollbackArc((ShadowRollbackArc) shadowArc);
+        } else {
+            super.compileArc(shadowArc);
+        }
+    }
+
+    /**
      * Compiles the db-net's view place.
      *
      * @param shadowPlace The db-net's view place which should be compiled.
@@ -339,23 +356,6 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
         // Insert inscriptions.
         for (int i = 0; i < parsedInscriptions.size(); i++) {
             transition.add(parsedInscriptions.elementAt(i));
-        }
-    }
-
-    /**
-     * Compiles the arc.
-     *
-     * @param shadowArc The arc which should be compiled.
-     * @throws SyntaxException If the error occurred during the arc compiling.
-     */
-    @Override
-    protected void compileArc(ShadowArc shadowArc) throws SyntaxException {
-        if (shadowArc instanceof ShadowReadArc) {
-            compileReadArc((ShadowReadArc) shadowArc);
-        } else if (shadowArc instanceof ShadowRollbackArc) {
-            compileRollbackArc((ShadowRollbackArc) shadowArc);
-        } else {
-            super.compileArc(shadowArc);
         }
     }
 

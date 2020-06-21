@@ -17,20 +17,20 @@ public class JdbcConnection {
     private final String url;
 
     /**
-     * Returns the db-net's persistence layer's JDBC connection url.
-     *
-     * @return The db-net's persistence layer's JDBC connection url.
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
      * The db-net's persistence layer's JDBC connection data's constructor.
      *
      * @param url The db-net's persistence layer's JDBC connection url.
      */
     public JdbcConnection(String url) {
         this.url = url;
+    }
+
+    /**
+     * Returns the db-net's persistence layer's JDBC connection url.
+     *
+     * @return The db-net's persistence layer's JDBC connection url.
+     */
+    public String getUrl() {
+        return url;
     }
 }
