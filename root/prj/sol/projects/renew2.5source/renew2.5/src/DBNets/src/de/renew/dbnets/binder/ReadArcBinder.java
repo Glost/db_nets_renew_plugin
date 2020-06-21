@@ -4,9 +4,7 @@ import de.renew.dbnets.datalogic.QueryCall;
 import de.renew.engine.searcher.BindingBadness;
 import de.renew.engine.searcher.Searcher;
 import de.renew.expression.VariableMapper;
-import de.renew.net.DBNetTransitionInstance;
 import de.renew.net.PlaceInstance;
-import de.renew.net.TokenReserver;
 import de.renew.net.ViewPlaceInstance;
 import de.renew.net.arc.InputArcBinder;
 import de.renew.unify.Impossible;
@@ -18,61 +16,91 @@ import de.renew.unify.Variable;
 import java.sql.Connection;
 import java.util.List;
 
+/**
+ * The db-net's read arc's binder.
+ * Maps the read arc's variables to the retrieved (from the db-net's persistence layer) values
+ * through the corresponding view place's query call.
+ *
+ * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ *         Master Degree Program "System and Software Engineering", the 1st year student.
+ *         Term Project (Coursework) on the Topic
+ *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ *         HSE University, Moscow, Russia, 2019 - 2020.
+ */
 public class ReadArcBinder extends InputArcBinder {
 
+    /**
+     * The read arc's token inscription variable.
+     */
     private final Variable tokenVariable;
 
-    private final DBNetTransitionInstance transitionInstance;
-
+    /**
+     * The transition instance's variable mapper. Maps the net's variables' names into their values.
+     */
     private final VariableMapper variableMapper;
 
+    /**
+     * The state recorder instance.
+     */
     private final StateRecorder stateRecorder;
 
+    /**
+     * The database connection instance.
+     */
     private final Connection connection;
 
+    /**
+     * Stores whether this binder was bound or not.
+     */
     private boolean isBound = false;
 
+    /**
+     * The binder's constructor.
+     *
+     * @param tokenVariable The read arc's token inscription variable.
+     * @param delayVariable The read arc's delay variable.
+     * @param placeInstance The instance of the view place which is one of the ends of the read arc.
+     * @param variableMapper The transition instance's variable mapper.
+     *                       Maps the net's variables' names into their values.
+     * @param stateRecorder The state recorder instance.
+     * @param connection The database connection instance.
+     */
     public ReadArcBinder(Variable tokenVariable,
                          Variable delayVariable,
                          PlaceInstance placeInstance,
-                         DBNetTransitionInstance transitionInstance,
                          VariableMapper variableMapper,
                          StateRecorder stateRecorder,
                          Connection connection) {
         super(tokenVariable, delayVariable, placeInstance);
         this.tokenVariable = tokenVariable;
-        this.transitionInstance = transitionInstance;
         this.variableMapper = variableMapper;
         this.stateRecorder = stateRecorder;
         this.connection = connection;
     }
 
+    /**
+     * Returns how possible the binder can be bound.
+     * The higher badness - the worse. The binders with the max badness cannot be bound.
+     *
+     * @param searcher The searcher instance.
+     * @return How possible the binder can be bound.
+     * The higher badness - the worse. The binders with the max badness cannot be bound.
+     */
     @Override
     public int bindingBadness(Searcher searcher) {
         QueryCall queryCall = ((ViewPlaceInstance) getPlaceInstance()).getPlace().getQueryCall();
 
-        return isBound || !queryCall.checkBoundness(variableMapper) ? BindingBadness.max : BindingBadness.max - 1;
+        return isBound || !queryCall.checkBoundedness(variableMapper) ? BindingBadness.max : BindingBadness.max - 1;
     }
 
-    @Override
-    protected boolean mayBind() {
-        return true;
-    }
-
-    @Override
-    protected boolean possible(TokenReserver reserver, Object token) {
-        return true;
-    }
-
-    @Override
-    protected boolean remove(TokenReserver reserver, Object token) {
-        return true;
-    }
-
+    /**
+     * Maps the read arc's variables to the retrieved (from the db-net's persistence layer) values
+     * through the corresponding view place's query call.
+     *
+     * @param searcher The searcher instance.
+     */
     @Override
     public void bind(Searcher searcher) {
-//        transitionInstance.lock();
-
         if (isBound) {
             searcher.search();
 
@@ -93,13 +121,8 @@ public class ReadArcBinder extends InputArcBinder {
             isBound = true;
         } catch (Impossible e) {
             e.printStackTrace();
-//            throw new RuntimeException(); // TODO: ...
         }
 
         searcher.search();
-    }
-
-    private void tryBind(Searcher searcher) {
-
     }
 }

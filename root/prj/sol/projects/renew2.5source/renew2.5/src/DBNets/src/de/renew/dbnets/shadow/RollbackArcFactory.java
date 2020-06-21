@@ -8,12 +8,34 @@ import de.renew.net.Transition;
 import de.renew.net.arc.Arc;
 import de.renew.net.arc.RollbackArc;
 
+/**
+ * The factory for the db-net's rollback arcs' instances creating.
+ *
+ * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ *         Master Degree Program "System and Software Engineering", the 1st year student.
+ *         Term Project (Coursework) on the Topic
+ *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ *         HSE University, Moscow, Russia, 2019 - 2020.
+ */
 public class RollbackArcFactory extends SimpleArcFactory {
 
+    /**
+     * The factory's constructor.
+     */
     public RollbackArcFactory() {
         super(Arc.out, false);
     }
 
+    /**
+     * Creates the db-net's rollback arc's instance.
+     *
+     * @param place The net's place which is one of the ends of the rollback arc.
+     * @param transition The db-net's transition which is one of the ends of the rollback arc.
+     * @param arcType The rollback arc type number.
+     * @param expr The rollback arc token inscription expression.
+     * @param timeExpr The rollback arc time expression.
+     * @return The db-net's rollback arc's instance.
+     */
     @Override
     protected RollbackArc getArc(Place place, Transition transition, int arcType, Expression expr, Expression timeExpr) {
         if (!(transition instanceof DBNetTransition)) {

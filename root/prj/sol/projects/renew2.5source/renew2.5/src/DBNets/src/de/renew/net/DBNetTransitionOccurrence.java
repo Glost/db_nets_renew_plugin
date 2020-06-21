@@ -13,6 +13,8 @@ import de.renew.engine.searcher.VariableMapperCopier;
 import de.renew.engine.simulator.SimulationThreadPool;
 import de.renew.expression.LocalVariable;
 import de.renew.expression.VariableMapper;
+import de.renew.net.arc.ArcUtils;
+import de.renew.net.arc.RollbackArcExecutable;
 import de.renew.net.event.FiringEvent;
 import de.renew.unify.Impossible;
 import de.renew.unify.StateRecorder;
@@ -20,19 +22,43 @@ import de.renew.unify.Unify;
 import de.renew.unify.Variable;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * The db-net's transition's occurrence for the concrete transition firing.
+ *
+ * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ *         Master Degree Program "System and Software Engineering", the 1st year student.
+ *         Term Project (Coursework) on the Topic
+ *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ *         HSE University, Moscow, Russia, 2019 - 2020.
+ */
 public class DBNetTransitionOccurrence extends CompositeOccurrence {
 
+    /**
+     * The transition instance's variable mapper.
+     * Maps the net's variables' names into their values.
+     */
     private final VariableMapper mapper;
 
+    /**
+     * The state recorder instance.
+     */
     private final StateRecorder stateRecorder;
 
+    /**
+     * The db-net's transition's occurrence's constructor.
+     * Based on the {@link CompositeOccurrence#CompositeOccurrence(TransitionInstance)} implementation.
+     *
+     * @param transitionInstance The db-net's transition's instance.
+     * @param params The param variables of the transition.
+     * @param searcher The searcher instance.
+     * @throws Impossible If the error occurred during the db-net's transition's occurrence initialization.
+     */
     public DBNetTransitionOccurrence(TransitionInstance transitionInstance,
                                      Variable params,
                                      Searcher searcher) throws Impossible {
@@ -73,6 +99,14 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
         stateRecorder = searcher.recorder;
     }
 
+    /**
+     * Makes the transition's occurrence's binders - the binders for the transition's arcs as well as
+     * the binder for binding the transition's action call's generated values and literals.
+     *
+     * @param searcher The searcher instance.
+     * @return The transition's occurrences' binders.
+     * @throws Impossible If the error occurred during the binders making.
+     */
     @Override
     public Collection<Binder> makeBinders(Searcher searcher) throws Impossible {
         ActionCall actionCall = ((DBNetTransition) getTransition().getTransition()).getActionCall();
@@ -90,11 +124,27 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
         ).collect(Collectors.toList());
     }
 
+    /**
+     * Makes the transition's occurrence's executables including the transition's action call's executable.
+     * Based on the {@link super#makeExecutables(VariableMapperCopier)} implementation.
+     *
+     * @param copier The variable mappers' copier.
+     * @return The transition's occurrence's executables.
+     */
     @Override
     public Collection<Executable> makeExecutables(VariableMapperCopier copier) {
         assert SimulationThreadPool.isSimulationThread() : "is not in a simulation thread";
-        Collection<Executable> executables = new ArrayList<Executable>();
-        executables.addAll(super.makeExecutables(copier));
+        Collection<Executable> superExecutables = super.makeExecutables(copier);
+
+        RollbackArcExecutable rollbackArcExecutable = superExecutables.stream()
+                .filter(executable -> executable instanceof RollbackArcExecutable)
+                .map(executable -> (RollbackArcExecutable) executable)
+                .findFirst()
+                .orElse(null);
+
+        Collection<Executable> executables = superExecutables.stream()
+                .map(executable -> ArcUtils.wrapOutputArcExecutable(executable, rollbackArcExecutable))
+                .collect(Collectors.toList());
 
         // Possibly insert a trace object.
         if (getTransition().getTransition().getTrace()) {
@@ -123,7 +173,7 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
 
         executables.add(new ActionCallExecutable(
                 actionCall,
-                (DBNetTransitionInstance) getTransition(),
+                ((DBNetTransitionInstance) getTransition()),
                 copier.makeCopy(mapper),
                 connection
         ));
@@ -131,6 +181,13 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
         return executables;
     }
 
+    /**
+     * Makes the occurrence description.
+     * Copied from the {@link super#makeOccurrenceDescription(VariableMapperCopier)} implementation.
+     *
+     * @param copier The variable mappers' copier.
+     * @return The occurrence description.
+     */
     @Override
     public OccurrenceDescription makeOccurrenceDescription(VariableMapperCopier copier) {
         assert SimulationThreadPool.isSimulationThread() : "is not in a simulation thread";
@@ -138,6 +195,11 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
                 copier.makeCopy(mapper));
     }
 
+    /**
+     * Returns the db-net's transition's occurrence's string representation.
+     *
+     * @return The db-net's transition's occurrence's string representation.
+     */
     @Override
     public String toString() {
         return getTransition().toString();

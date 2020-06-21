@@ -1,4 +1,11 @@
 /**
+ * Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ * Master Degree Program "System and Software Engineering", the 1st year student.
+ * Term Project (Coursework) on the Topic
+ * "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ * HSE University, Moscow, Russia, 2019 - 2020.
+ *
+ * This db-net's parser is based on the Renew's net parser (JavaNetParser.jj). Its original copyright is as follows.
  *
  * Copyright (C) 1996, 1997 Sun Microsystems Inc.
  *
@@ -100,8 +107,8 @@ import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Supplier;
 
-//TODO: Please switch on or off this flag to suppress all "unused" warnings in this code.
-//Default case is to suppress unused warnings, because the generator produces lots of unused code.
+// Please switch on or off this flag to suppress all "unused" warnings in this code.
+// Default case is to suppress unused warnings, because the generator produces lots of unused code.
 // when working on this class, turn the suppression off.
  @SuppressWarnings("unused")
 public class JavaDBNetParser implements DBNetInscriptionParser {
@@ -1068,10 +1075,11 @@ ActionCall ActionCall():
   {
     Optional<Action> action = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getActionByName(actionName));
 
-    if (action.isPresent()) {
+    if (action.isPresent() && action.get().getParams().size() == params.size()) {
         return new ActionCall(action.get(), params);
     } else {
-        throw JavaHelper.makeParseException("No action with name " + actionName + " found", t);
+        throw JavaHelper.makeParseException("No action with name " + actionName + " found or params list size " +
+         "was invalid", t);
     }
   }
 }
@@ -1084,6 +1092,19 @@ Object LiteralObject():
   typedExpression = Literal()
   {
     return new Variable(((ConstantExpression) typedExpression.getExpression()).getConstant(), null);
+  }
+}
+
+String MultilineString() :
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<MULTILINE_STRING>
+  {
+    s.append(t.image);
+    return s.toString().replace("<{", "").replace("}>", "");
   }
 }
 
@@ -1200,19 +1221,6 @@ String Name() :
   )*
   {
     return s.toString();
-  }
-}
-
-String MultilineString() :
-{
-  Token t;
-  StringBuffer s=new StringBuffer();
-}
-{
-  t=<MULTILINE_STRING>
-  {
-    s.append(t.image);
-    return s.toString().replace("<{", "").replace("}>", "");
   }
 }
 

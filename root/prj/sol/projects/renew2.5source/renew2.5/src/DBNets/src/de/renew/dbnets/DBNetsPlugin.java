@@ -17,13 +17,33 @@ import de.renew.plugin.PluginProperties;
 
 import java.net.URL;
 
-public class DBNets extends PluginAdapter {
+/**
+ * The DB-Nets Renew tool plugin main class.
+ *
+ * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ *         Master Degree Program "System and Software Engineering", the 1st year student.
+ *         Term Project (Coursework) on the Topic
+ *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ *         HSE University, Moscow, Russia, 2019 - 2020.
+ */
+public class DBNetsPlugin extends PluginAdapter {
 
-    public DBNets(URL location) throws PluginException {
+    /**
+     * The DB-Nets Renew tool plugin main class's constructor.
+     *
+     * @param location The URL of the plugin file's location.
+     * @throws PluginException If the error occured while loading the plugin.
+     */
+    public DBNetsPlugin(URL location) throws PluginException {
         super(location);
     }
 
-    public DBNets(PluginProperties props) {
+    /**
+     * The DB-Nets Renew tool plugin main class's constructor.
+     *
+     * @param props The plugin's properties object.
+     */
+    public DBNetsPlugin(PluginProperties props) {
         super(props);
     }
 
@@ -41,10 +61,15 @@ public class DBNets extends PluginAdapter {
     }
 
     // TODO: implement palette creating.
+    /**
+     * Creates the db-nets plugin's UI tools palette.
+     *
+     * @param guiPlugin The Renew GUI plugin's instance.
+     */
     private void createPalette(GuiPlugin guiPlugin) {
         DrawingEditor drawingEditor = guiPlugin.getDrawingEditor();
 
-        Palette palette = new DBNetsPalette("DBNetsPalette", guiPlugin, drawingEditor);
+        Palette palette = new DBNetsPalette(guiPlugin, drawingEditor);
 
         PaletteHolder paletteHolder = guiPlugin.getPaletteHolder();
 
