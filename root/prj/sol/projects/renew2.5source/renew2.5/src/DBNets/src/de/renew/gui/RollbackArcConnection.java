@@ -6,6 +6,7 @@ import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
 import de.renew.shadow.ShadowPlace;
 
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -81,5 +82,15 @@ public class RollbackArcConnection extends ArcConnection {
     @Override
     public int getArcType() {
         return ShadowRollbackArc.ROLLBACK_ARC;
+    }
+
+    /**
+     * Returns the red arc color.
+     *
+     * @return The red arc color.
+     */
+    @Override
+    public Color getFrameColor() {
+        return Color.RED;
     }
 }

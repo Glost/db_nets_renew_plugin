@@ -49,8 +49,6 @@ public class DBNetsPlugin extends PluginAdapter {
 
     @Override
     public void init() {
-        logger.info("Initializing DB-Nets Plugin..."); // TODO: remove this line, it is only for the debugging purposes.
-
         GuiPlugin guiPlugin = GuiPlugin.getCurrent();
 
         createPalette(guiPlugin);
@@ -60,7 +58,6 @@ public class DBNetsPlugin extends PluginAdapter {
         super.init();
     }
 
-    // TODO: implement palette creating.
     /**
      * Creates the db-nets plugin's UI tools palette.
      *
@@ -76,7 +73,7 @@ public class DBNetsPlugin extends PluginAdapter {
         DBNetTransitionFigureCreationTool dbNetTransitionTool = new DBNetTransitionFigureCreationTool(drawingEditor);
 
         palette.add(paletteHolder.createToolButton(
-                "/CH/ifa/draw/images/TEXT",
+                "/de/renew/dbnets/gui/images/DBN_TRANSITION",
                 "DB-net transition tool",
                 dbNetTransitionTool
         ));
@@ -84,7 +81,7 @@ public class DBNetsPlugin extends PluginAdapter {
         ViewPlaceFigureCreationTool viewPlaceTool = new ViewPlaceFigureCreationTool(drawingEditor);
 
         palette.add(paletteHolder.createToolButton(
-                "/CH/ifa/draw/images/TEXT",
+                "/de/renew/dbnets/gui/images/VIEW_PLACE",
                 "View place tool",
                 viewPlaceTool
         ));
@@ -92,7 +89,7 @@ public class DBNetsPlugin extends PluginAdapter {
         ReadArcConnectionCreationTool readArcTool = new ReadArcConnectionCreationTool(drawingEditor);
 
         palette.add(paletteHolder.createToolButton(
-                "/CH/ifa/draw/images/TEXT",
+                "/de/renew/dbnets/gui/images/READ_ARC",
                 "Read arc tool",
                 readArcTool
         ));
@@ -100,7 +97,7 @@ public class DBNetsPlugin extends PluginAdapter {
         RollbackArcConnectionCreationTool rollbackArcTool = new RollbackArcConnectionCreationTool(drawingEditor);
 
         palette.add(paletteHolder.createToolButton(
-                "/CH/ifa/draw/images/TEXT",
+                "/de/renew/dbnets/gui/images/ROLLBACK_ARC",
                 "Rollback arc tool",
                 rollbackArcTool
         ));

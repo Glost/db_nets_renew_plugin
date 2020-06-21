@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The query call - the query's usage in the concrete db-net's view place.
+ * The query call - the db-net's data logic layer's query's usage in the concrete db-net's view place.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * The action call - the action's usage in the concrete db-net's transition.
+ * The action call - the db-net's data logic layer's action's usage in the concrete db-net's transition.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.

@@ -5,6 +5,7 @@ import de.renew.shadow.ShadowNet;
 import de.renew.shadow.ShadowNetElement;
 import de.renew.shadow.ShadowPlace;
 
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -59,5 +60,15 @@ public class ViewPlaceFigure extends PlaceFigure {
     @Override
     public ShadowPlace getShadow() {
         return shadow;
+    }
+
+    /**
+     * Returns the brown (RGB: #BFBF00) view place's fill color.
+     *
+     * @return The brown (RGB: #BFBF00) view place's fill color.
+     */
+    @Override
+    public Color getFillColor() {
+        return new Color(0xBFBF00);
     }
 }

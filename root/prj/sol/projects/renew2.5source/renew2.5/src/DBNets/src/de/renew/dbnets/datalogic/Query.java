@@ -1,7 +1,7 @@
 package de.renew.dbnets.datalogic;
 
 /**
- * The query for retrieving the persistence layer's data.
+ * The db-net's data logic layer's query for retrieving the persistence layer's data.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  *         Master Degree Program "System and Software Engineering", the 1st year student.
