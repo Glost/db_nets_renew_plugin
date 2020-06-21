@@ -1,0 +1,70 @@
+package de.renew.net;
+
+import de.renew.dbnets.datalogic.QueryCall;
+import de.renew.unify.Impossible;
+
+/**
+ * The db-net's view place.
+ *
+ * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ *         Master Degree Program "System and Software Engineering", the 1st year student.
+ *         Term Project (Coursework) on the Topic
+ *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ *         HSE University, Moscow, Russia, 2019 - 2020.
+ */
+public class ViewPlace extends Place {
+
+    /**
+     * The db-net's view place's query call (the usage of the declared query
+     * for retrieving the persistence layer's data).
+     */
+    private QueryCall queryCall;
+
+    /**
+     * The db-net's view place's constructor.
+     *
+     * @param net The db-net's control layer.
+     * @param name The db-net's view place's name.
+     * @param id The db-net's view place's id.
+     */
+    public ViewPlace(DBNetControlLayer net, String name, NetElementID id) {
+        super(net, name, id);
+    }
+
+    /**
+     * Returns the db-net's view place's query call (the usage of the declared query
+     * for retrieving the persistence layer's data).
+     *
+     * @return The db-net's view place's query call.
+     */
+    public QueryCall getQueryCall() {
+        return queryCall;
+    }
+
+    /**
+     * Sets the db-net's view place's query call (the usage of the declared query
+     * for retrieving the persistence layer's data).
+     *
+     * @param queryCall The db-net's view place's query call.
+     */
+    public void setQueryCall(QueryCall queryCall) {
+        this.queryCall = queryCall;
+    }
+
+    /**
+     * Makes the db-net's view place's instance.
+     *
+     * @param netInstance The db-net's control layer's instance.
+     * @param wantInitialTokens Not used, always true.
+     * @return The db-net's view place's instance.
+     * @throws Impossible If the error occurred during the db-net's view place's instance creation,
+     */
+    @Override
+    PlaceInstance makeInstance(NetInstance netInstance, boolean wantInitialTokens) throws Impossible {
+        if (!(netInstance instanceof DBNetControlLayerInstance)) {
+            Impossible.THROW();
+        }
+
+        return new ViewPlaceInstance((DBNetControlLayerInstance) netInstance, this, wantInitialTokens);
+    }
+}

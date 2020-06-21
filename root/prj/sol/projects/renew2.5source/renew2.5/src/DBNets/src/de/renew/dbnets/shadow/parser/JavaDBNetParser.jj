@@ -1,0 +1,1977 @@
+/**
+ * Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
+ * Master Degree Program "System and Software Engineering", the 1st year student.
+ * Term Project (Coursework) on the Topic
+ * "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
+ * HSE University, Moscow, Russia, 2019 - 2020.
+ *
+ * This db-net's parser is based on the Renew's net parser (JavaNetParser.jj). Its original copyright is as follows.
+ *
+ * Copyright (C) 1996, 1997 Sun Microsystems Inc.
+ *
+ * This file was modified from billsJava1.0.2.jj .
+ *
+ * Use of this file and the system it is part of is constrained by the
+ * file COPYRIGHT distributed with JavaCC version 7.0.  You may, however,
+ * make any modifications you wish to this file.
+ *
+ * Author: Sriram Sankar
+ * Date: 3/5/97
+ *
+ * Author: Olaf Kummer
+ * Date: 10/9/98
+ *
+ * This file contains a net grammar and a partial Java grammar.
+ *
+ * From Java expressions I removed ++ and -- expressions, as well
+ * as updating assignments (+=, -=, etc.) They make no sense
+ * due to the write-once semantics of the variables. The
+ * ternary ?: operator was removed, too. The shortcut
+ * operators && and || were removed, too.
+ *
+ * As this parser is based on Java 1.0.2, no inner classes are admitted.
+ *
+ */
+
+options {
+  LOOKAHEAD = 3;
+  STATIC = false;
+  JAVA_UNICODE_ESCAPE = true;
+  UNICODE_INPUT = false;
+}
+
+PARSER_BEGIN(JavaDBNetParser)
+
+package de.renew.dbnets.shadow.parser;
+
+import de.renew.dbnets.datalogic.Action;
+import de.renew.dbnets.datalogic.ActionCall;
+import de.renew.dbnets.datalogic.EditedFact;
+import de.renew.dbnets.datalogic.Query;
+import de.renew.dbnets.datalogic.QueryCall;
+import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
+import de.renew.dbnets.persistence.JdbcConnection;
+import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
+
+import de.renew.expression.CallExpression;
+import de.renew.expression.ConstantExpression;
+import de.renew.expression.Function;
+import de.renew.expression.LocalVariable;
+import de.renew.expression.VariableExpression;
+
+import de.renew.formalism.function.BasicFunction;
+import de.renew.formalism.function.BasicUnaryFunction;
+import de.renew.formalism.function.DynamicConstructorFunction;
+import de.renew.formalism.function.InstanceofFunction;
+
+import de.renew.formalism.java.ChannelInscription;
+import de.renew.formalism.java.JavaHelper;
+import de.renew.formalism.java.LiteralParser;
+import de.renew.formalism.java.ParsedDeclarationNode;
+import de.renew.formalism.java.ParsedImportDecl;
+import de.renew.formalism.java.ParseException;
+import de.renew.formalism.java.PrimaryPart;
+import de.renew.formalism.java.TimedExpression;
+import de.renew.formalism.java.Token;
+import de.renew.formalism.java.TypedExpression;
+
+import de.renew.net.DBNetTransition;
+import de.renew.net.Net;
+import de.renew.net.NetInstance;
+import de.renew.net.NetNotFoundException;
+import de.renew.net.Transition;
+import de.renew.net.TransitionInscription;
+import de.renew.net.UplinkInscription;
+import de.renew.net.inscription.ActionInscription;
+import de.renew.net.inscription.CreationInscription;
+import de.renew.net.inscription.DownlinkInscription;
+import de.renew.net.inscription.ExpressionInscription;
+import de.renew.net.loading.NetLoader;
+
+import de.renew.shadow.ShadowLookup;
+
+import de.renew.unify.List;
+import de.renew.unify.Tuple;
+import de.renew.unify.Variable;
+
+import de.renew.util.Types;
+import de.renew.util.Value;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Vector;
+import java.util.function.Supplier;
+
+// Please switch on or off this flag to suppress all "unused" warnings in this code.
+// Default case is to suppress unused warnings, because the generator produces lots of unused code.
+// when working on this class, turn the suppression off.
+ @SuppressWarnings("unused")
+public class JavaDBNetParser implements DBNetInscriptionParser {
+  public static org.apache.log4j.Logger logger = org.apache.log4j.Logger
+                                                 .getLogger(JavaDBNetParser.class);
+  ShadowLookup lookup=null;
+  ParsedDBNetDeclarationNode decl = null;
+  boolean inAction=false;
+  NetLoader netLoader = null;
+  public boolean refactoring = false;
+
+  public void setLookup(ShadowLookup lookup) {
+    this.lookup=lookup;
+  }
+
+  public void setNetLoader(NetLoader netLoader) {
+    this.netLoader = netLoader;
+  }
+
+  public void setDeclarationNode(ParsedDeclarationNode decl) {
+    this.decl = (ParsedDBNetDeclarationNode) decl;
+  }
+}
+
+PARSER_END(JavaDBNetParser)
+
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
+| <FORMAL_COMMENT: "/**" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+TOKEN : /* RESERVED WORDS AND LITERALS */
+{
+  < ABSTRACT: "abstract" >
+| < ADD: "add" >
+| < ACTION: "action" >
+| < BOOLEAN: "boolean" >
+| < BREAK: "break" >
+| < BYTE: "byte" >
+| < CASE: "case" >
+| < CATCH: "catch" >
+| < CHAR: "char" >
+| < CLASS: "class" >
+| < CONST: "const" >
+| < CONTINUE: "continue" >
+| < _DEFAULT: "default" >
+| < DBN_ACTION: "dbn_action" >
+| < DBN_DDL: "dbn_ddl" >
+| < DBN_JDBC_URL: "dbn_jdbc_url" >
+| < DBN_QUERY: "dbn_query" >
+| < DEL: "del" >
+| < DO: "do" >
+| < DOUBLE: "double" >
+| < ELSE: "else" >
+| < EXTENDS: "extends" >
+| < FALSE: "false" >
+| < FINAL: "final" >
+| < FINALLY: "finally" >
+| < FLOAT: "float" >
+| < FOR: "for" >
+| < GOTO: "goto" >
+| < GUARD: "guard" >
+| < IF: "if" >
+| < IMPLEMENTS: "implements" >
+| < IMPORT: "import" >
+| < INSTANCEOF: "instanceof" >
+| < INT: "int" >
+| < INTERFACE: "interface" >
+| < LONG: "long" >
+| < MANUAL: "manual" >
+| < NATIVE: "native" >
+| < NEW: "new" >
+| < NULL: "null" >
+| < PACKAGE: "package">
+| < PARAMS: "params">
+| < PRIVATE: "private" >
+| < PROTECTED: "protected" >
+| < PUBLIC: "public" >
+| < RETURN: "return" >
+| < SHORT: "short" >
+| < STATIC: "static" >
+| < SUPER: "super" >
+| < SWITCH: "switch" >
+| < SYNCHRONIZED: "synchronized" >
+| < THIS: "this" >
+| < THROW: "throw" >
+| < THROWS: "throws" >
+| < TRANSIENT: "transient" >
+| < TRUE: "true" >
+| < TRY: "try" >
+| < VOID: "void" >
+| < VOLATILE: "volatile" >
+| < WHILE: "while" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+|
+  < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+  >
+|
+  < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|
+  < #LETTER:
+      [
+       "\u0024",
+       "\u0041"-"\u005a",
+       "\u005f",
+       "\u0061"-"\u007a",
+       "\u00c0"-"\u00d6",
+       "\u00d8"-"\u00f6",
+       "\u00f8"-"\u00ff",
+       "\u0100"-"\u1fff",
+       "\u3040"-"\u318f",
+       "\u3300"-"\u337f",
+       "\u3400"-"\u3d2d",
+       "\u4e00"-"\u9fff",
+       "\uf900"-"\ufaff"
+      ]
+  >
+|
+  < #DIGIT:
+      [
+       "\u0030"-"\u0039",
+       "\u0660"-"\u0669",
+       "\u06f0"-"\u06f9",
+       "\u0966"-"\u096f",
+       "\u09e6"-"\u09ef",
+       "\u0a66"-"\u0a6f",
+       "\u0ae6"-"\u0aef",
+       "\u0b66"-"\u0b6f",
+       "\u0be7"-"\u0bef",
+       "\u0c66"-"\u0c6f",
+       "\u0ce6"-"\u0cef",
+       "\u0d66"-"\u0d6f",
+       "\u0e50"-"\u0e59",
+       "\u0ed0"-"\u0ed9",
+       "\u1040"-"\u1049"
+      ]
+  >
+}
+
+TOKEN : /* SEPARATORS */
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < ASSIGN: "=" >
+| < AT: "@" >
+| < GT: ">" >
+| < LT: "<" >
+| < BANG: "!" >
+| < TILDE: "~" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < INCR: "++" >
+| < DECR: "--" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < RSIGNEDSHIFT: ">>" >
+| < RUNSIGNEDSHIFT: ">>>" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RUNSIGNEDSHIFTASSIGN: ">>>=" >
+}
+
+TOKEN : /* CATCHALL TOKEN DEFINITION */
+{
+  < OTHERCHAR: ["\u0000"-"\uffff"] >
+}
+
+TOKEN : /* MULTILINE_STRING */
+{
+  < MULTILINE_STRING:
+        "<" "{" (~["<", ">"])+ "}" ">"
+  >
+}
+
+/*********************************
+ * THE RENEW GRAMMAR STARTS HERE *
+ *********************************/
+
+// Thoroughly parse the declaration node.
+
+ParsedDBNetDeclarationNode DeclarationNode() :
+{
+  setDeclarationNode(new ParsedDBNetDeclarationNode());
+
+  ParsedImportDecl importDecl;
+
+  JdbcConnection jdbcConnection;
+  DatabaseSchemaDeclaration databaseSchemaDeclaration;
+  Query query;
+  Action action;
+
+  Token t;
+}
+{
+  ( {t=token;
+     String ignoreMe;}
+    ignoreMe = PackageDeclaration()
+    {logger.warn("Ignoring declaration of package " + ignoreMe); }
+  )?
+  (
+    {t=token;}
+    importDecl=ImportDeclaration()
+    {decl.addImport(importDecl,t.next);}
+  )*
+  ( VariableDeclaration() )*
+  { t = token; }
+  jdbcConnection = JdbcConnection()
+  { decl.setJdbcConnection(jdbcConnection); }
+  databaseSchemaDeclaration = DatabaseSchemaDeclaration()
+  { decl.setDatabaseSchemaDeclaration(databaseSchemaDeclaration); }
+  (
+    { t = token; }
+    query = QueryDeclaration()
+    { decl.addQuery(query); }
+  )*
+  (
+    { t = token; }
+    action = ActionDeclaration()
+    { decl.addAction(action); }
+  )*
+  <EOF>
+  { return decl; }
+}
+
+String PackageDeclaration() :
+{
+  String name;
+}
+{
+  <PACKAGE> name=Name() ";"
+  { return name; }
+}
+
+ParsedImportDecl ImportDeclaration() :
+{
+  String name;
+  boolean star=false;
+}
+{
+  <IMPORT> name=Name() [ "." "*" { star=true; } ] ";"
+  { return new ParsedImportDecl(name,star); }
+}
+
+void VariableDeclaration() :
+{
+  Class<?> clazz;
+}
+{
+  clazz=Type()
+  VariableNamePart(clazz)
+  ( "," VariableNamePart(clazz) )* ";"
+}
+
+void VariableNamePart(Class<?> clazz) :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  ( "[" "]"
+    { clazz=JavaHelper.increaseArrayLevel(clazz,token); }
+  )*
+  {
+    decl.addVariable(clazz,t.image,t);
+  }
+
+}
+
+/**
+ * A place inscription consists of one or more
+ * <code>SinglePlaceInscription</code>s, separated
+ * by semicolons.
+ **/
+Collection<Object> PlaceInscription() :
+{
+  Object single;
+  Collection<Object> inscriptions=new ArrayList<Object>();
+}
+{
+  single=SinglePlaceInscription()
+  { inscriptions.add(single); }
+  (
+    ";"
+    [
+      single=SinglePlaceInscription()
+      { inscriptions.add(single); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+/**
+ * A single place inscription may be either a type, a
+ * <code>PlaceBehaviourModifier</code> or an expression.
+ *
+ * A type can be in this case <UL>
+ * <LI> an array type,        </LI>
+ * <LI> a primitive type or   </LI>
+ * <LI> a class name.         </LI></UL>
+ *
+ * @return a <code>Class</code>, <code>TypedExpression</code>
+ *         or <code>PlaceBehaviourModifier</code> instance.
+ **/
+Object SinglePlaceInscription() :
+{
+  Class<?> type;
+  TypedExpression expr;
+  Vector<PrimaryPart> vector;
+  Object obj;
+  Token errToken;
+  QueryCall queryCall;
+}
+{
+  { errToken=token; }
+  (
+    LOOKAHEAD(NonArrayType() ("[" "]")+)
+    type=Type()
+    { return type; }
+  |
+    type=PrimitiveType()
+    { return type; }
+  |
+    LOOKAHEAD(PrimaryExpression() (";" | <EOF>))
+    vector=PrimaryExpression()
+    {
+      // We have to check, if the inscription is a primary
+      // expression which can be interpreted as a class name
+      // or as a place behaviour modifier.
+      StringBuffer name=new StringBuffer();
+      boolean isName=true;
+      for (int i=0;i<vector.size();i++) {
+        PrimaryPart part=vector.elementAt(i);
+	if (part.type!=PrimaryPart.NAME) {
+          isName=false;
+        } else {
+          if (i>0) {
+            name.append('.');
+          }
+          name.append((String)part.obj);
+        }
+      }
+
+      String aName = name.toString();
+// Currently, FIFO places are not supported, so that we
+// need not support the special place modifiers.
+//      if ("fifo".equals(aName)) {
+//        return new PlaceBehaviourModifier(Place.FIFOPLACE);
+//      }
+//      if ("multiset".equals(aName)) {
+//        return new PlaceBehaviourModifier(Place.MULTISETPLACE);
+//      }
+      if (isName) {
+	try {
+          obj=decl.interpreteName(aName);
+          if (obj instanceof Class) {
+            return obj;
+          }
+        } catch (LinkageError e) {
+          logger.warn("Encountered " + e, e);
+          throw JavaHelper.makeParseException("Class " + aName
+                                              + " could not be loaded due to "
+                                              + e.toString(), errToken);
+        }
+      }
+
+      return JavaHelper.makeExpression(vector,null,decl,errToken,refactoring);
+    }
+  |
+    expr=Expression()
+    { return expr; }
+  |
+    queryCall = QueryCall()
+    {
+      return queryCall;
+    }
+  )
+}
+
+/**
+ * Parses a complete transition inscription, which can possibly contain
+ * multiple {@link #SingleTransitionInscription}s.  Those can be
+ * separated by semicolon and terminate with EOF.
+ *
+ * @param transition the {@link Transition} where this
+ *                   inscription is attached
+ * @param create  if <false>, ignore creation inscriptions
+ *                (they are parsed, but not evaluated)
+ **/
+Collection<TransitionInscription> TransitionInscription(boolean create, Transition transition) :
+{
+  Collection<TransitionInscription> collection;
+  Collection<TransitionInscription> inscriptions=new ArrayList<TransitionInscription>();
+}
+{
+  collection=SingleTransitionInscription(create, transition)
+  { inscriptions.addAll(collection); }
+  (
+    ";"
+    [
+      collection=SingleTransitionInscription(create, transition)
+      { inscriptions.addAll(collection); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+/**
+ * A single transition inscription is either an uplink, an
+ * instantiation expression, a downlink, a guard, an action
+ * inscription or a manual inscription.
+ *
+ * @param transition the {@link Transition} where this
+ *                   inscription is attached
+ * @param create  if <false>, ignore creation inscriptions
+ *                (they are parsed, but not evaluated)
+ **/
+Collection<TransitionInscription> SingleTransitionInscription(boolean create, Transition transition) :
+{
+  TransitionInscription inscr;
+  Collection<TransitionInscription> result;
+}
+{
+  (
+    inscr=UplinkInscription()
+    { result=Collections.singleton(inscr); }
+  |
+    LOOKAHEAD(<IDENTIFIER> ":" "new" <IDENTIFIER>)
+    result=CreationInscription(create, transition)
+  |
+    LOOKAHEAD(Expression() ":")
+    inscr=DownlinkInscription(transition)
+    { result=Collections.singleton(inscr); }
+  |
+    inscr=GuardInscription(transition)
+    { result=Collections.singleton(inscr); }
+  |
+    inscr=ActionInscription(transition)
+    { result=Collections.singleton(inscr); }
+  |
+    inscr=ManualInscription(transition)
+    { result=Collections.singleton(inscr); }
+  |
+    inscr = ActionCall()
+    {
+        ((DBNetTransition) transition).setActionCall((ActionCall) inscr);
+        result = Collections.singleton(inscr);
+    }
+  )
+  { return result; }
+}
+
+/**
+   * Depending on given Tokens, this method returns an {@link UplinkInscription}, which is an {@link TransitionInscription}.
+   * @return an {@link UplinkInscription}
+   * @throws ParseException
+   */
+TransitionInscription UplinkInscription() :
+{
+  Token t;
+  Token colon, end;
+  Vector<TypedExpression> args;
+}
+{
+  colon=":" ( t=<IDENTIFIER> | t="new" ) "(" args=ArgumentList() end=")"
+  {
+    UplinkInscription up = new UplinkInscription(t.image,
+      JavaHelper.makeGuardedTupleExpression(args));
+    if (refactoring) {
+      up.uplinkBeginLine = colon.beginLine;
+      up.uplinkBeginColumn = colon.beginColumn;
+      up.uplinkEndLine = end.endLine;
+      up.uplinkEndColumn = end.endColumn;
+
+      up.nameBeginLine = t.beginLine;
+      up.nameBeginColumn = t.beginColumn;
+      up.nameEndLine = t.endLine;
+      up.nameEndColumn = t.endColumn;
+    }
+    return up;
+  }
+}
+
+/**
+ * Parses a creation inscription <code> var:new netname(args) </code>.
+ * The result is ignored, if <code>create</code>is false.
+ *
+ * @param create  determines whether the inscription should be transformed
+ *                into parsed objects or not.
+ * @param transition  the context of this inscription.
+ * @return list with at most one element (the parsed inscription).
+ **/
+Collection<TransitionInscription> CreationInscription(boolean create, Transition transition) :
+{
+  Token varT;
+  Token netT;
+  LocalVariable local;
+  Class<?> type;
+  TransitionInscription createInscr;
+  TransitionInscription channelInscr;
+  Vector<TypedExpression> args=null;
+  Token errToken;
+}
+{
+  { errToken=token; }
+  varT=<IDENTIFIER>
+  {    
+    Object loc;
+    try {
+      loc=decl.interpreteName(varT.image);
+    } catch (LinkageError e) {
+      logger.warn("Encountered " + e, e);
+      throw JavaHelper.makeParseException("Variable name expected, but "
+                                          + varT.image
+                                          + " is class with linkage problem: "
+                                          + e.toString(), errToken);
+    }
+    if (!(loc instanceof LocalVariable)) {
+      throw JavaHelper.makeParseException("Variable name expected: "
+                                          + varT.image, errToken);
+    }
+    local=(LocalVariable)loc;
+    if (refactoring) {
+      local.variableBeginLine = varT.beginLine;
+      local.variableBeginColumn = varT.beginColumn;
+      local.variableEndLine = varT.endLine;
+      local.variableEndColumn = varT.endColumn;
+    }
+
+    type=decl.findType(local);
+    if (type!=Types.UNTYPED &&
+      !Types.allowsWideningConversion(de.renew.net.NetInstance.class,
+        type))
+    {
+      throw JavaHelper.makeParseException("Variable " + local.name
+                                          + " must be assignable "
+                                          + "from de.renew.net.NetInstance.",
+                                          errToken);
+    }
+  }
+  ":" "new" { errToken=token; } netT=<IDENTIFIER>
+  [
+    // Arguments are optional.
+    "(" args=ArgumentList() ")"
+  ]
+  {
+    if (create) {
+      Net net=lookup.getNet(netT.image);
+      if (net==null) {
+        if (netLoader == null) {
+          throw JavaHelper.makeParseException("Unknown net: "+netT.image,
+	 	   errToken);
+        } else {
+	      try {
+            net = netLoader.loadNet(netT.image);
+          } catch (NetNotFoundException e) {
+            Throwable ex = e.getCause();
+            if (ex != null) {
+               throw JavaHelper.makeParseException("Could not load net "
+                 +netT.image+": "+ex.toString(), errToken);
+            } else {
+              throw JavaHelper.makeParseException("Unknown net: "+netT.image,
+                errToken);
+            }
+          }
+        }
+      }
+      createInscr=new CreationInscription(net,local, transition);
+      if (args==null) {
+        return Collections.singleton(createInscr);
+      } else {
+        channelInscr=new DownlinkInscription("new",
+          JavaHelper.makeGuardedTupleExpression(args),
+          new VariableExpression(type,local),
+          false, transition);
+        return Arrays.asList(new TransitionInscription[]{createInscr,channelInscr});
+      }
+    } else if (refactoring) { // return a creation inscription with a null net
+      createInscr=new CreationInscription(null,local,transition);
+      if (args==null) {
+        return Collections.singleton(createInscr);
+      } else {
+        channelInscr=new DownlinkInscription("new",
+          JavaHelper.makeGuardedTupleExpression(args),
+          new VariableExpression(type,local),
+          false, transition);
+        return Arrays.asList(new TransitionInscription[]{createInscr,channelInscr});
+      } 
+    } else {
+      return Collections.emptySet();
+    }
+  }
+}
+
+TransitionInscription DownlinkInscription(Transition transition) :
+{
+  TypedExpression callee;
+  Token t;
+  Token begin, end;
+  Vector<TypedExpression> args;
+  Token errToken;
+}
+{
+  { errToken=token; begin=token.next; }
+  callee=Expression() ":"
+  {
+    if (callee.isTyped() &&
+      !Types.allowsWideningConversion(callee.getType(),NetInstance.class))
+    {
+      throw JavaHelper.makeParseException(
+        "Expression of net instance type expected.",errToken);
+    }
+  }
+  ( t=<IDENTIFIER> | t="new" )
+  "(" args=ArgumentList() end=")"
+  {
+    DownlinkInscription d = new DownlinkInscription(t.image,
+      JavaHelper.makeGuardedTupleExpression(args),
+      callee.getExpression(),
+      false, transition);
+	if (refactoring) {
+      d.downlinkBeginLine = begin.beginLine;
+      d.downlinkBeginColumn = begin.beginColumn;
+      d.downlinkEndLine = end.endLine;
+      d.downlinkEndColumn = end.endColumn;
+
+      d.nameBeginLine = t.beginLine;
+      d.nameBeginColumn = t.beginColumn;
+      d.nameEndLine = t.endLine;
+      d.nameEndColumn = t.endColumn;
+    }
+    return d;
+  }
+}
+
+TransitionInscription GuardInscription(Transition transition) :
+{
+  TypedExpression expr;
+}
+{
+  "guard" expr=Expression()
+  {
+    if (expr.isTyped()) {
+      if (expr.getType()!=Boolean.TYPE) {
+	throw JavaHelper.makeParseException("Boolean expression expected.",token);
+      }
+    }
+    return new de.renew.net.inscription.GuardInscription(expr.getExpression());
+  }
+}
+
+TransitionInscription ManualInscription(Transition transition) :
+{
+}
+{
+  "manual"
+  {
+    return de.renew.net.ManualInscription.getInstance();
+  }
+}
+
+TransitionInscription ActionInscription(Transition transition) :
+{
+  boolean isAction=false;
+  TypedExpression expr;
+}
+{
+  [ "action" {isAction=true;} ]
+  { inAction=isAction; }
+  expr=Expression()
+  {
+    if (isAction) {
+      return new ActionInscription(expr.getExpression(), transition);
+    } else {
+      return new ExpressionInscription(expr.getExpression());
+    }
+  }
+}
+
+ChannelInscription tryParseChannelInscription() :
+{
+  boolean isUplink=true;
+  Token t;
+  Vector<?> args;
+}
+{
+  [ Expression() {isUplink=false;} ]
+  ":" ( t=<IDENTIFIER> | t="new" ) "(" args=ArgumentList() ")" <EOF>
+  {
+    return new ChannelInscription(isUplink,t.image,args.size());
+  }
+}
+
+Collection<TimedExpression> ArcInscription() :
+{
+  TimedExpression expr;
+  Collection<TimedExpression> inscriptions=new ArrayList<TimedExpression>();
+}
+{
+  expr=SingleArcInscription()
+  { inscriptions.add(expr); }
+  (
+    ";"
+    [
+      expr=SingleArcInscription()
+      { inscriptions.add(expr); }
+    ]
+  )*
+  <EOF>
+  { return inscriptions; }
+}
+
+TimedExpression SingleArcInscription() :
+{
+  TypedExpression expr;
+  TypedExpression time=null;
+}
+{
+  expr=Expression()
+  [
+    "@"
+    time=Expression()
+  ]
+  {
+     return new TimedExpression(expr,time);
+  }
+}
+
+TypedExpression VariableInscription() :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER> [";"] <EOF>
+  {
+    return JavaHelper.makeSinglePartExpression(
+      new PrimaryPart(PrimaryPart.NAME,t.image,t),null,decl,refactoring);
+  }
+}
+
+/*********************************
+ * THE DB-NETS GRAMMAR STARTS HERE *
+ *********************************/
+
+JdbcConnection JdbcConnection():
+{
+  Token t;
+  String jdbcUrl;
+}
+{
+  t = <DBN_JDBC_URL> jdbcUrl = MultilineString()
+  {
+    return new JdbcConnection(jdbcUrl);
+  }
+}
+
+DatabaseSchemaDeclaration DatabaseSchemaDeclaration():
+{
+  Token t;
+  String ddlQueryString;
+}
+{
+  t = <DBN_DDL> ddlQueryString = MultilineString()
+  {
+    return new DatabaseSchemaDeclaration(ddlQueryString);
+  }
+}
+
+Query QueryDeclaration():
+{
+  Token t;
+  String name;
+  String queryString;
+}
+{
+  t = <DBN_QUERY> name = Name() queryString = MultilineString()
+  {
+      return new Query(name, queryString);
+  }
+}
+
+Action ActionDeclaration():
+{
+  Token t;
+  String name;
+  java.util.List<String> params;
+  Collection<EditedFact> addedFacts;
+  Collection<EditedFact> deletedFacts;
+}
+{
+  t = <DBN_ACTION> name = Name()
+    "{" t = <PARAMS> "=" params = ActionParams()
+      (",")? t = <ADD> "=" addedFacts = EditedFacts()
+      (",")? t = <DEL> "=" deletedFacts = EditedFacts() "}"
+  {
+      return new Action(name, params, addedFacts, deletedFacts);
+  }
+}
+
+java.util.List<String> ActionParams() :
+{
+  String param;
+  java.util.List<String> params = new ArrayList<String>();
+}
+{
+  "<" ( param = Name() { params.add(param); } ( "," param = Name() { params.add(param); } )* )? ">"
+  {
+      return params;
+  }
+}
+
+Collection<EditedFact> EditedFacts() :
+{
+  EditedFact editedFact;
+  Collection<EditedFact> editedFacts = new ArrayList<EditedFact>();
+}
+{
+  "{" ( editedFact = EditedFact() { editedFacts.add(editedFact); }
+    ( "," editedFact = EditedFact() { editedFacts.add(editedFact); } )* )? "}"
+    {
+        return editedFacts;
+    }
+}
+
+EditedFact EditedFact() :
+{
+  String relationName;
+  String columnName;
+  Object param;
+  Map<String, Object> columnsToParams = new HashMap<String, Object>();
+}
+{
+  relationName = Name() "(" columnName = Name() ":" (param = LiteralObject() | param = Name())
+    { columnsToParams.put(columnName, param); }
+    ( "," columnName = Name() ":" (param = LiteralObject() | param = Name())
+    { columnsToParams.put(columnName, param); } )* ")"
+  {
+    return new EditedFact(relationName, columnsToParams);
+  }
+}
+
+QueryCall QueryCall():
+{
+  Token t;
+  String queryName;
+}
+{
+  t = <DBN_QUERY> ":" queryName = Name()
+  {
+    Optional<Query> query = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getQueryByName(queryName));
+
+    if (query.isPresent()) {
+        return new QueryCall(query.get());
+    } else {
+        throw JavaHelper.makeParseException("No query with name " + queryName + " found", t);
+    }
+  }
+}
+
+ActionCall ActionCall():
+{
+  Token t;
+  String actionName;
+  Object param;
+  java.util.List<Object> params = new ArrayList<Object>();
+}
+{
+  t = <DBN_ACTION> ":" actionName = Name() "(" (param = LiteralObject() | param = Name()) { params.add(param); }
+  ( "," (param = LiteralObject() | param = Name()) { params.add(param); } )* ")"
+  {
+    Optional<Action> action = Optional.ofNullable(((ParsedDBNetDeclarationNode) decl).getActionByName(actionName));
+
+    if (action.isPresent() && action.get().getParams().size() == params.size()) {
+        return new ActionCall(action.get(), params);
+    } else {
+        throw JavaHelper.makeParseException("No action with name " + actionName + " found or params list size " +
+         "was invalid", t);
+    }
+  }
+}
+
+Object LiteralObject():
+{
+  TypedExpression typedExpression;
+}
+{
+  typedExpression = Literal()
+  {
+    return new Variable(((ConstantExpression) typedExpression.getExpression()).getConstant(), null);
+  }
+}
+
+String MultilineString() :
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<MULTILINE_STRING>
+  {
+    s.append(t.image);
+    return s.toString().replace("<{", "").replace("}>", "");
+  }
+}
+
+/********************************
+ * THE JAVA GRAMMAR STARTS HERE *
+ ********************************/
+
+/*
+ * Type, name and expression syntax follows.
+ */
+
+Class<?> ClassType() :
+{
+  Token errToken;
+  String name;
+  Object obj;
+}
+{
+  { errToken=token; }
+  name=Name()
+  {
+  try {
+    obj=decl.interpreteName(name);
+  } catch (LinkageError e) {
+    logger.warn("Encountered " + e, e);
+    throw JavaHelper.makeParseException("Could not load class " + name
+                                        + " due to "
+                                        + e.toString(), errToken);
+  }
+  if (!(obj instanceof Class)) {
+    throw JavaHelper.makeParseException("No such class: " + name + "", errToken);
+  }
+  return (Class<?>)obj;
+}
+}
+
+/**
+   * Depending on some Lookaheads the outcome of this method is either a {@link #PrimitiveType()} or
+   * a {@link #ClassType()}. This method never returns an array type.
+   * @return a Type which is different from an Array
+   * @throws ParseException
+   */
+Class<?> NonArrayType() :
+{
+  Class<?> clazz=null;
+}
+{
+  (
+    clazz=PrimitiveType()
+  |
+    clazz=ClassType()
+  )
+  { return clazz; }
+}
+
+Class<?> Type() :
+{
+  Class<?> clazz;
+}
+{
+  clazz=NonArrayType()
+  ( "[" "]"
+    { clazz=JavaHelper.increaseArrayLevel(clazz,token); }
+  )*
+  { return clazz; }
+}
+
+Class<?> PrimitiveType() :
+{
+  Class<?> clazz;
+}
+{
+  (
+    "boolean"
+    { clazz=Boolean.TYPE; }
+  |
+    "char"
+    { clazz=Character.TYPE; }
+  |
+    "byte"
+    { clazz=Byte.TYPE; }
+  |
+    "short"
+    { clazz=Short.TYPE; }
+  |
+    "int"
+    { clazz=Integer.TYPE; }
+  |
+    "long"
+    { clazz=Long.TYPE; }
+  |
+    "float"
+    { clazz=Float.TYPE; }
+  |
+    "double"
+    { clazz=Double.TYPE; }
+  )
+  { return clazz; }
+}
+
+String Name() :
+/*
+ * A lookahead of 2 is required below since "Name" can be followed
+ * by a ".*" when used in the context of an "ImportDeclaration".
+ */
+{
+  Token t;
+  StringBuffer s=new StringBuffer();
+}
+{
+  t=<IDENTIFIER> { s.append(t.image); }
+  ( LOOKAHEAD(2) "." t=<IDENTIFIER>
+    { s.append(""); s.append(t.image); }
+  )*
+  {
+    return s.toString();
+  }
+}
+
+/*
+ * Expression syntax follows.
+ */
+/**
+   * Returns a TypedExpression depending on some LookAhead Flags. It can either be a {@link #Assignment()} 
+   * or a {@link #NonAssignmentExpression()}, which are both TypedExpressions
+   */
+TypedExpression Expression() :
+{
+  TypedExpression expr;
+}
+{
+  LOOKAHEAD( NonAssignmentExpression() "=" )
+  expr=Assignment()
+  { return expr; }
+|
+  expr=NonAssignmentExpression()
+  { return expr; }
+}
+
+TypedExpression Assignment() :
+{
+  Token errToken;
+  Vector<PrimaryPart> vector;
+  TypedExpression left;
+  TypedExpression right;
+}
+{
+  LOOKAHEAD( PrimaryExpression() "=" )
+  vector=PrimaryExpression() {errToken=token;} "=" right=Expression()
+  {
+    if (inAction) {
+      return JavaHelper.makeExpression(vector,right,decl,errToken.next,refactoring);
+    } else {
+      return JavaHelper.makeEqualityAssertion(
+        JavaHelper.makeExpression(vector,null,decl,errToken.next,refactoring),
+        right,errToken);
+    }
+  }
+|
+  {
+    if (inAction) {
+      throw JavaHelper.makeParseException(
+	"Invalid left hand side of assignment.",token);
+    }
+  }
+  left=NonAssignmentExpression() {errToken=token;} "=" right=Expression()
+  {
+    return JavaHelper.makeEqualityAssertion(left,right,errToken);
+  }
+}
+
+TypedExpression NonAssignmentExpression() :
+{
+  TypedExpression expr;
+}
+{
+  // Currently, we forbid the operators "||" and "&&" completely.
+  // They would behave just like "|" and "&", so we prefer to reserve
+  // them for future use. Otherwise we would use
+  // ConditionalOrExpression() in this place.
+  expr=InclusiveOrExpression()
+  { return expr; }
+}
+
+TypedExpression ConditionalOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=ConditionalAndExpression()
+  ( {t=token;} "||" right=ConditionalAndExpression()
+    {
+      JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Boolean.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.LOR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ConditionalAndExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=InclusiveOrExpression()
+  ( {t=token;} "&&" right=InclusiveOrExpression()
+    {
+      JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Boolean.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.LAND,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression InclusiveOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=ExclusiveOrExpression()
+  ( {t=token;} "|" right=ExclusiveOrExpression()
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.OR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ExclusiveOrExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=AndExpression()
+  ( {t=token;} "^" right=AndExpression()
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.XOR,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression AndExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=EqualityExpression()
+  ( {t=token;} "&" right=EqualityExpression()
+    {
+      JavaHelper.ensureEnumerateability(expr,t);
+      JavaHelper.ensureEnumerateability(right,t.next);
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.AND,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression EqualityExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=InstanceOfExpression()
+  (
+   {t=token;}
+    ( "==" {fun=BasicFunction.EQUAL;}
+    | "!=" {fun=BasicFunction.NEQUAL;} )
+    right=InstanceOfExpression()
+    {
+      JavaHelper.ensureBinaryMatch(expr,right,t);
+      expr=JavaHelper.makeBooleanBinary(expr,right,fun);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression InstanceOfExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  Class<?> clazz;
+}
+{
+  {t=token;}
+  expr=RelationalExpression()
+  [ "instanceof" clazz=Type()
+    {
+      JavaHelper.ensureConvertability(Object.class,expr,t);
+      expr=new TypedExpression(Boolean.TYPE,
+	new CallExpression(Boolean.TYPE,expr.getExpression(),
+	  new InstanceofFunction(clazz,false,false)));
+    }
+  ]
+  { return expr; }
+}
+
+TypedExpression RelationalExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=ShiftExpression()
+  (
+    {t=token;}
+    ( "<" {fun=BasicFunction.LESS;}
+    | ">" {fun=BasicFunction.GREATER;}
+    | "<=" {fun=BasicFunction.LESSEQUAL;}
+    | ">=" {fun=BasicFunction.GREATEREQUAL;} )
+    right=ShiftExpression()
+    {
+      JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      expr=JavaHelper.makeBooleanBinary(expr,right,fun);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression ShiftExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=AdditiveExpression()
+  (
+    { t=token; }
+    ( "<<" {fun=BasicFunction.SHL;}
+    | ">>" {fun=BasicFunction.SHR;}
+    | ">>>" {fun=BasicFunction.SSHR;} )
+    right=AdditiveExpression()
+    {
+      JavaHelper.ensureConvertability(Long.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Long.TYPE,right,t.next);
+
+      expr=JavaHelper.makeTypedBinary(expr,right,fun,
+        JavaHelper.unaryIntegralPromotion(expr.getType(),t));
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression AdditiveExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+}
+{
+  expr=MultiplicativeExpression()
+  (
+    {t=token;}
+    "+" right=MultiplicativeExpression()
+    {
+      if (expr.getType()==String.class || right.getType()==String.class) {
+	expr=JavaHelper.makeTypedBinary(expr,right,
+          BasicFunction.PLUS,String.class);
+      } else {
+	JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+	JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+	expr=JavaHelper.makeBinary(expr,right,BasicFunction.PLUS,t);
+      }
+    }
+  |
+    {t=token;}
+    "-" right=MultiplicativeExpression()
+    {
+      JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,BasicFunction.MINUS,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression MultiplicativeExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  TypedExpression right;
+  Function fun;
+}
+{
+  expr=UnaryExpression()
+  (
+    {t=token;}
+    ( "*" {fun=BasicFunction.TIMES;}
+    | "/" {fun=BasicFunction.DIVIDE;}
+    | "%" {fun=BasicFunction.MOD;} )
+    right=UnaryExpression()
+    {
+      JavaHelper.ensureConvertability(Double.TYPE,expr,t);
+      JavaHelper.ensureConvertability(Double.TYPE,right,t.next);
+      expr=JavaHelper.makeBinary(expr,right,fun,t);
+    }
+  )*
+  {return expr;}
+}
+
+TypedExpression UnaryExpression() :
+{
+  Token t;
+  TypedExpression expr;
+  Function fun;
+  Class<?> type;
+}
+{
+  t="!" expr=UnaryExpression()
+  {
+    JavaHelper.ensureConvertability(Boolean.TYPE,expr,t);
+
+    return new TypedExpression(Boolean.TYPE,
+      new CallExpression(Boolean.TYPE,expr.getExpression(),
+	BasicUnaryFunction.LNOT));
+  }
+|
+  t="~" expr=UnaryExpression()
+  {
+    type=JavaHelper.unaryIntegralPromotion(expr.getType(),t);
+    return new TypedExpression(type,
+      new CallExpression(type,expr.getExpression(),BasicUnaryFunction.NOT));
+  }
+|
+  ( t="+" {fun=BasicUnaryFunction.POS;}
+  | t="-" {fun=BasicUnaryFunction.NEG;} )
+  expr=UnaryExpression()
+  {
+    type=JavaHelper.unaryNumericPromotion(expr.getType(),t);
+    return new TypedExpression(type,
+      new CallExpression(type,expr.getExpression(),fun));
+  }
+|
+  expr=SimpleUnaryExpression()
+  { return expr; }
+}
+
+TypedExpression SimpleUnaryExpression() :
+{
+  Vector<PrimaryPart> vector;
+  TypedExpression expr;
+}
+{
+  LOOKAHEAD( CastLookahead() )
+  expr=CastExpression()
+  {
+    return expr;
+  }
+|
+  vector=PrimaryExpression()
+  {
+    return JavaHelper.makeExpression(vector,null,decl,null,refactoring);
+  }
+}
+
+// This production is to determine lookahead only.
+// The LOOKAHEAD specifications below are not used,
+// but they are there just to indicate that we know about this.
+void CastLookahead() :
+{}
+{
+  LOOKAHEAD(2)
+  "(" PrimitiveType()
+|
+  LOOKAHEAD("(" Name() "[")
+  "(" Name() "[" "]"
+|
+  "(" Name() ")"
+  ( "(" | <IDENTIFIER> | "this" | "super" | "new" | Literal() )
+}
+
+TypedExpression CastExpression() :
+{
+  Token errToken;
+  Class<?> clazz;
+  TypedExpression expr;
+}
+{
+  (
+    LOOKAHEAD("(" PrimitiveType() ")")
+    "(" clazz=PrimitiveType() ")"
+    {errToken=token;}
+    expr=UnaryExpression()
+  |
+    "(" clazz=Type() ")"
+    {errToken=token;}
+    expr=SimpleUnaryExpression()
+  )
+  {
+    return JavaHelper.makeExplicitCastExpression(clazz,expr,errToken);
+  }
+}
+
+/**
+ * A primary expression can be many things like literals, constants, names,
+ * or expressions with suffixes for array access or method call arguments.
+ * More strictly, a primary expression consists of exactly one
+ * {@link #PrimaryPrefix} followed by any number of {@link #PrimarySuffix}
+ * parts.
+ * All prefix and suffix constituents are parsed into a {@link Vector} of
+ * individual {@link PrimaryPart}s.
+ *
+ * @return a {@link Vector} of {@link PrimaryPart}s
+ * @throws ParseException
+ * @see PrimaryPart
+ **/
+Vector<PrimaryPart> PrimaryExpression() :
+{
+  PrimaryPart part;
+  Vector<PrimaryPart> parts=new Vector<PrimaryPart>();
+}
+{
+  part=PrimaryPrefix()
+  { parts.addElement(part); }
+  (
+    part=PrimarySuffix()
+    { parts.addElement(part); }
+  )*
+  { return parts; }
+}
+
+/**
+ * The prefix of a primary expression can be
+ * <ul>
+ * <li>a {@link #Literal},</li>
+ * <li>a {@link #ClassType} ending in <code>.class</code>,</li>
+ * <li>an {@link #IDENTIFIER},</li>
+ * <li>the reserved variable <code>this</code>,</li>
+ * <li>a nested {@link #Expression} in parentheses,</li>
+ * <li>a tuple expression ({@link #ArgumentList} in brackets),</li>
+ * <li>a list expression ({@link #ArgumentList} in curly braces with optional
+ *     colon separating head and tail), or</li>
+ * <li>an {@link #AllocationExpression}.</li>
+ * </ul>
+ * Depending on the current kind of prefix, an appropriate
+ * {@link PrimaryPart} is created and returned.
+ *
+ * @return a PrimaryPart parsed from the current token
+ * @throws ParseException
+ * @see PrimaryPart
+ **/
+PrimaryPart PrimaryPrefix() :
+{
+  Token t;
+  Token thisToken;
+  TypedExpression expr;
+  Vector<TypedExpression> vector;
+  boolean tailed=false;
+  Token errToken;
+  Class<?> clazz;
+}
+{
+  { errToken=token; }
+  expr=Literal()
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,expr,errToken);
+  }
+|
+  LOOKAHEAD(Name() "." "class")
+  { errToken=token; }
+  clazz=ClassType() "." "class"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(Class.class,
+        new ConstantExpression(Class.class,clazz)),errToken);
+  }
+|
+  { errToken=token; }
+  t=<IDENTIFIER>
+  {
+    return new PrimaryPart(PrimaryPart.NAME,t.image,errToken);
+  }
+|
+  { errToken=token; }
+  thisToken="this"
+  {
+    LocalVariable thisVariable = new LocalVariable("this");
+    if (refactoring) {
+      thisVariable.variableBeginLine = thisToken.beginLine;
+      thisVariable.variableBeginColumn = thisToken.beginColumn;
+      thisVariable.variableEndLine = thisToken.endLine;
+      thisVariable.variableEndColumn = thisToken.endColumn;
+    }
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(
+        de.renew.net.NetInstance.class,
+	  new VariableExpression(de.renew.net.NetInstance.class,
+            thisVariable)),
+      errToken);
+  }
+|
+  { errToken=token; }
+  "(" expr=Expression() ")"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,expr,errToken);
+  }
+|
+  { errToken=token; }
+  "[" vector=ArgumentList() "]"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(Tuple.class,
+        JavaHelper.makeGuardedTupleExpression(vector)),
+      errToken);
+  }
+|
+  // Our list support.
+  // <1,2,3> was out, because of <1,2>+o.toString() and
+  // <1>=x and <1,<2>> and <<<<<1>>>>> and o.m(<1>=x,2>=y) and
+  // many others.
+  //
+  // Probably (1,2,3) for tuples and [1,2,3] for lists would have been best,
+  // as unary tuple are not needed, but this was impossible due to
+  // compatibility reasons.
+  { errToken=token; }
+  "{" vector=ArgumentList()
+  [ ":"
+    {
+      if (vector.isEmpty()) {
+	throw JavaHelper.makeParseException("Tailed lists must not be empty.",
+          errToken.next);
+      }
+    }
+    expr=Expression()
+    {
+      vector.addElement(expr);
+      tailed=true;
+    }
+  ]
+  "}"
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,
+      new TypedExpression(List.class,
+        JavaHelper.makeListExpression(vector,tailed)),
+      errToken);
+  }
+|
+  { errToken=token; }
+  expr=AllocationExpression()
+  {
+    return new PrimaryPart(PrimaryPart.EXPR,expr,errToken);
+  }
+}
+
+/**
+ * A primary expression can be suffixed by
+ * array index expressions (in brackets),
+ * more qualified name parts in dot notation, or
+ * method call argument lists (in parentheses).
+ * Depending on the current kind of suffix, an appropriate
+ * {@link PrimaryPart} is created and returned.
+ *
+ * @return a {@link PrimaryPart} denoting the suffix represented by the
+ *         current token.
+ * @throws ParseException
+ * @see PrimaryPart
+ **/
+PrimaryPart PrimarySuffix() :
+{
+  Token t;
+  TypedExpression expr;
+  Vector<?> vector;
+  Token errToken;
+}
+{
+  { errToken=token; }
+  "[" expr=Expression() "]"
+  {
+    return new PrimaryPart(PrimaryPart.ARRAY,expr,errToken);
+  }
+|
+  { errToken=token; }
+  "." t=<IDENTIFIER>
+  {
+    return new PrimaryPart(PrimaryPart.NAME,t.image,errToken);
+  }
+|
+  { errToken=token; }
+  "(" vector=ArgumentList() ")"
+  {
+    return new PrimaryPart(PrimaryPart.CALL,vector,errToken);
+  }
+}
+
+TypedExpression Literal() :
+{
+  Token t;
+  Object obj;
+  String s;
+  Class<?> type;
+}
+{
+  (
+    t=<INTEGER_LITERAL>
+    {
+      s=t.image.toLowerCase();
+      if (LiteralParser.denotesLong(s)) {
+        obj=new Value(new Long(LiteralParser.parseLong(s)));
+	type=Long.TYPE;
+      } else {
+        obj=new Value(new Integer(LiteralParser.parseInt(s)));
+	type=Integer.TYPE;
+      }
+    }
+  |
+    t=<FLOATING_POINT_LITERAL>
+    {
+      s=t.image.toLowerCase();
+      if (LiteralParser.denotesFloat(s)) {
+        obj=new Value(LiteralParser.parseFloat(s));
+	type=Float.TYPE;
+      } else {
+        obj=new Value(LiteralParser.parseDouble(s));
+	type=Double.TYPE;
+      }
+    }
+  |
+    t=<CHARACTER_LITERAL>
+    {
+      obj=new Value(new Character(LiteralParser.parseChar(t.image)));
+      type=Character.TYPE;
+    }
+  |
+    t=<STRING_LITERAL>
+    {
+      obj=LiteralParser.parseString(t.image);
+      type=String.class;
+    }
+  |
+    "true"
+    {
+      obj=new Value(Boolean.TRUE);
+      type=Boolean.TYPE;
+    }
+  |
+    "false"
+    {
+      obj=new Value(Boolean.FALSE);
+      type=Boolean.TYPE;
+    }
+  |
+    "null"
+    {
+      obj=null;
+      type=null;
+    }
+  )
+  {
+    return new TypedExpression(type,
+      new ConstantExpression(type,obj));
+  }
+}
+
+/**
+   * Returns a vector consisting of TypedExpressions.
+   * @return a vector of {@link TypedExpression}
+   * @throws ParseException
+   */
+Vector<TypedExpression> ArgumentList() :
+{
+  Vector<TypedExpression> vector=new Vector<TypedExpression>();
+  TypedExpression expr;
+}
+{
+  [
+    expr=Expression()
+    { vector.addElement(expr); }
+    ( "," expr=Expression()
+      { vector.addElement(expr); }
+    )*
+  ]
+  {
+    return vector;
+  }
+}
+
+TypedExpression AllocationExpression() :
+{
+  Token errToken;
+  TypedExpression expr;
+  Vector<TypedExpression> vector;
+  Class<?> clazz;
+}
+{
+  "new"
+  (
+    LOOKAHEAD(PrimitiveType())
+    clazz=PrimitiveType()
+    expr=ArrayDimensions(clazz)
+    { return expr; }
+  |
+    LOOKAHEAD(Name() "[")
+    clazz=NonArrayType()
+    expr=ArrayDimensions(clazz)
+    { return expr; }
+  |
+    { errToken=token; }
+    clazz=NonArrayType() "(" vector=ArgumentList() ")"
+    {
+      return JavaHelper.makeConstructorExpression(clazz,vector,errToken);
+    }
+  )
+}
+
+/*
+ * The second LOOKAHEAD specification below is to parse to PrimarySuffix
+ * if there is an expression between "[" and "]".
+ */
+TypedExpression ArrayDimensions(Class<?> clazz) :
+{
+  Token t;
+  Vector<TypedExpression> vector=new Vector<TypedExpression>();
+  TypedExpression expr;
+}
+{
+  (
+    LOOKAHEAD(2) "[" {t=token;} expr=Expression() "]"
+    {
+      // Make sure the result can be converted to an int.
+      JavaHelper.ensureConvertability(Integer.TYPE,expr,t);
+      // Store another expression in the vector.
+      vector.addElement(expr);
+      clazz=JavaHelper.increaseArrayLevel(clazz,token);
+    }
+  )+
+  (
+    LOOKAHEAD(2) "[" "]"
+    {
+      clazz=JavaHelper.increaseArrayLevel(clazz,token);
+    }
+  )*
+  {
+    Object[] result=new Object[vector.size()];
+    vector.copyInto(result);
+    return new TypedExpression(clazz,
+      new CallExpression(clazz,
+        JavaHelper.makeTupleExpression(vector),
+	new DynamicConstructorFunction(clazz)));
+  }
+}
