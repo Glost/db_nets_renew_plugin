@@ -1,0 +1,13 @@
+de.renew.dbnets
+de.renew.dbnets.binder
+de.renew.dbnets.datalogic
+de.renew.dbnets.gui
+de.renew.dbnets.gui.tool
+de.renew.dbnets.persistence
+de.renew.dbnets.shadow
+de.renew.dbnets.shadow.node
+de.renew.dbnets.shadow.parser
+de.renew.formalism.java
+de.renew.gui
+de.renew.net
+de.renew.net.arc
