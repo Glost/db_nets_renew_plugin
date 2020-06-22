@@ -1,0 +1,111 @@
+11 
+    de.renew.gui.CPNDrawing 40 
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 383 31 527 104 105 NULL  
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 384 28 674 103 97 NULL  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 385 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 16 572 "dbn_query : idle_employees" "SansSerif" 0 10 0 REF 1 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 386 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 28 714 "dbn_query : tickets" "SansSerif" 0 12 0 REF 2 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 4 "FigureWithID" "Int" 387 "FrameColor" "Color" 0 0 0 255 "FontSize" "Int" 9 "FillColor" "Color" 112 219 147 255 250 505 237 105 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 388 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 837 472 254 95 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 389 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 332 665 262 114 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 3 "FigureWithID" "Int" 390 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 728 678 234 104 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 391 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 626 484 78 78 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 3 "FigureWithID" "Int" 392 "FrameColor" "Color" 0 0 0 255 "FillColor" "Color" 112 219 147 255 1104 664 74 60 NULL  
+        de.renew.gui.ReadArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 393 2 135 576 250 566 NULL NULL "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 1  
+            CH.ifa.draw.standard.ChopBoxConnector REF 9   
+        de.renew.gui.ReadArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 394 2 130 722 332 722 NULL NULL "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 2  
+            CH.ifa.draw.standard.ChopBoxConnector REF 11   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 395 2 487 543 627 527 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 9  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 13   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 396 2 704 523 837 521 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 13  
+            CH.ifa.draw.standard.ChopBoxConnector REF 10   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 397 2 1012 567 1119 672 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 10  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 14   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 398 2 1105 698 962 715 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 14  
+            CH.ifa.draw.standard.ChopBoxConnector REF 12   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 399 2 799 678 691 552 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 12  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 13   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 400 2 638 550 520 665 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 13  
+            CH.ifa.draw.standard.ChopBoxConnector REF 11   
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 401 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 214 551 "dbn_action : register (dbn_autoincrement_ticket, emp_name, \"test_descr\")" "SansSerif" 0 9 0 REF 9 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 402 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 165 564 "emp_name" "SansSerif" 0 10 0 REF 15 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 403 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 861 512 "dbn_action : release (ticket_id, emp_name)" "SansSerif" 0 10 0 REF 10 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 404 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 504 528 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 21 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 405 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 526 600 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 41 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 406 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 1012 612 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 29 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 407 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 980 699 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 33 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 408 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 717 515 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 25 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 409 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 692 608 "[ticket_id, emp_name]" "SansSerif" 0 10 0 REF 37 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 410 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 155 714 "[ticket_id, ticket_description]" "SansSerif" 0 12 0 REF 18 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 411 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 745 723 "dbn_action : assign (ticket_id, emp_name)" "SansSerif" 0 10 0 REF 12 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 412 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 312 715 "dbn_action : log_data (ticket_id, emp_name, ticket_description)" "SansSerif" 0 10 0 REF 11 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 413 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 320 484 "Create Ticket" "SansSerif" 1 12 0 REF 9 
+            CH.ifa.draw.standard.OffsetLocator -10 -65 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 414 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 934 446 "Stall" "SansSerif" 1 12 0 REF 10 
+            CH.ifa.draw.standard.OffsetLocator -18 -65 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 415 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 831 786 "Awake" "SansSerif" 1 12 0 REF 12 
+            CH.ifa.draw.standard.OffsetLocator 5 64 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 416 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 433 783 "Resolve" "SansSerif" 1 12 0 REF 11 
+            CH.ifa.draw.standard.OffsetLocator -8 69 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 417 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 622 434 "Active Tickets" "SansSerif" 1 12 0 REF 13 
+            CH.ifa.draw.standard.OffsetLocator -3 -81 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 418 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 1107 600 "Stalled Tickets" "SansSerif" 1 12 0 REF 14 
+            CH.ifa.draw.standard.OffsetLocator 8 -86 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 419 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 48 470 "Idle Employees" "SansSerif" 1 12 0 REF 1 
+            CH.ifa.draw.standard.OffsetLocator 7 -101 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 420 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 56 797 "Tickets" "SansSerif" 1 12 0 REF 2 
+            CH.ifa.draw.standard.OffsetLocator -2 83 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.DeclarationFigure "attributes" "attributes" 4 "TextAlignment" "Int" 0 "FigureWithID" "Int" 421 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 176 10 "dbn_jdbc_url <{ jdbc:sqlite:emp_rollback.db }>\ndbn_ddl <{\nCREATE TABLE IF NOT EXISTS emp (name TEXT PRIMARY KEY);\nCREATE TABLE IF NOT EXISTS ticket (id INTEGER PRIMARY KEY AUTOINCREMENT, description TEXT);\nCREATE TABLE IF NOT EXISTS resp (emp_name TEXT UNIQUE, ticket_id BIGINT,\nFOREIGN KEY (emp_name) REFERENCES emp (name),\nFOREIGN KEY (ticket_id) REFERENCES ticket (id),\nPRIMARY KEY (emp_name, ticket_id));\nCREATE TABLE IF NOT EXISTS log (ticket_id BIGINT, ticket_description TEXT,\nemp_name TEXT, FOREIGN KEY (emp_name) REFERENCES emp (name),\nPRIMARY KEY (ticket_id, emp_name));\nDELETE FROM emp;\nDELETE FROM ticket;\nDELETE FROM resp;\nINSERT INTO emp (name) VALUES (\"Anton\"), (\"Rigin\"), (\"Sergey\"), (\"Shershakov\"),\n(\"A\"), (\"B\"), (\"C\"), (\"D\"), (\"E\"), (\"F\"), (\"G\"), (\"H\"), (\"I\"), (\"J\"), (\"K\"), (\"L\"), (\"M\"), (\"N\"), (\"O\"), (\"P\"), (\"Q\"), (\"R\"), (\"S\"), (\"T\"), (\"U\"), (\"V\"), (\"W\"), (\"X\"), (\"Y\"), (\"Z\"),\n(\"A0\"), (\"B0\"), (\"C0\"), (\"D0\"), (\"E0\"), (\"F0\"), (\"G0\"), (\"H0\"), (\"I0\"), (\"J0\"), (\"K0\"), (\"L0\"), (\"M0\"), (\"N0\"), (\"O0\"), (\"P0\"), (\"Q0\"), (\"R0\"), (\"S0\"), (\"T0\"), (\"U0\"), (\"V0\"), (\"W0\"), (\"X0\"), (\"Y0\"), (\"Z0\"),\n(\"A1\"), (\"B1\"), (\"C1\"), (\"D1\"), (\"E1\"), (\"F1\"), (\"G1\"), (\"H1\"), (\"I1\"), (\"J1\"), (\"K1\"), (\"L1\"), (\"M1\"), (\"N1\"), (\"O1\"), (\"P1\"), (\"Q1\"), (\"R1\"), (\"S1\"), (\"T1\"), (\"U1\"), (\"V1\"), (\"W1\"), (\"X1\"), (\"Y1\"), (\"Z1\"),\n(\"A2\"), (\"B2\"), (\"C2\"), (\"D2\"), (\"E2\"), (\"F2\"), (\"G2\"), (\"H2\"), (\"I2\"), (\"J2\"), (\"K2\"), (\"L2\"), (\"M2\"), (\"N2\"), (\"O2\"), (\"P2\"), (\"Q2\"), (\"R2\"), (\"S2\"), (\"T2\"), (\"U2\"), (\"V2\"), (\"W2\"), (\"X2\"), (\"Y2\"), (\"Z2\"),\n(\"A3\"), (\"B3\"), (\"C3\"), (\"D3\"), (\"E3\"), (\"F3\"), (\"G3\"), (\"H3\"), (\"I3\"), (\"J3\"), (\"K3\"), (\"L3\"), (\"M3\"), (\"N3\"), (\"O3\"), (\"P3\"), (\"Q3\"), (\"R3\"), (\"S3\"), (\"T3\"), (\"U3\"), (\"V3\"), (\"W3\"), (\"X3\"), (\"Y3\"), (\"Z3\"),\n(\"A4\"), (\"B4\"), (\"C4\"), (\"D4\"), (\"E4\"), (\"F4\"), (\"G4\"), (\"H4\"), (\"I4\"), (\"J4\"), (\"K4\"), (\"L4\"), (\"M4\"), (\"N4\"), (\"O4\"), (\"P4\"), (\"Q4\"), (\"R4\"), (\"S4\"), (\"T4\"), (\"U4\"), (\"V4\"), (\"W4\"), (\"X4\"), (\"Y4\"), (\"Z4\"),\n(\"A5\"), (\"B5\"), (\"C5\"), (\"D5\"), (\"E5\"), (\"F5\"), (\"G5\"), (\"H5\"), (\"I5\"), (\"J5\"), (\"K5\"), (\"L5\"), (\"M5\"), (\"N5\"), (\"O5\"), (\"P5\"), (\"Q5\"), (\"R5\"), (\"S5\"), (\"T5\"), (\"U5\"), (\"V5\"), (\"W5\"), (\"X5\"), (\"Y5\"), (\"Z5\"),\n(\"A6\"), (\"B6\"), (\"C6\"), (\"D6\"), (\"E6\"), (\"F6\"), (\"G6\"), (\"H6\"), (\"I6\"), (\"J6\"), (\"K6\"), (\"L6\"), (\"M6\"), (\"N6\"), (\"O6\"), (\"P6\"), (\"Q6\"), (\"R6\"), (\"S6\"), (\"T6\"), (\"U6\"), (\"V6\"), (\"W6\"), (\"X6\"), (\"Y6\"), (\"Z6\"),\n(\"A7\"), (\"B7\"), (\"C7\"), (\"D7\"), (\"E7\"), (\"F7\"), (\"G7\"), (\"H7\"), (\"I7\"), (\"J7\"), (\"K7\"), (\"L7\"), (\"M7\"), (\"N7\"), (\"O7\"), (\"P7\"), (\"Q7\"), (\"R7\"), (\"S7\"), (\"T7\"), (\"U7\"), (\"V7\"), (\"W7\"), (\"X7\"), (\"Y7\"), (\"Z7\"),\n(\"A8\"), (\"B8\"), (\"C8\"), (\"D8\"), (\"E8\"), (\"F8\"), (\"G8\"), (\"H8\"), (\"I8\"), (\"J8\"), (\"K8\"), (\"L8\"), (\"M8\"), (\"N8\"), (\"O8\"), (\"P8\"), (\"Q8\"), (\"R8\"), (\"S8\"), (\"T8\"), (\"U8\"), (\"V8\"), (\"W8\"), (\"X8\"), (\"Y8\"), (\"Z8\"),\n(\"A9\"), (\"B9\"), (\"C9\"), (\"D9\"), (\"E9\"), (\"F9\"), (\"G9\"), (\"H9\"), (\"I9\"), (\"J9\"), (\"K9\"), (\"L9\"), (\"M9\"), (\"N9\"), (\"O9\"), (\"P9\"), (\"Q9\"), (\"R9\"), (\"S9\"), (\"T9\"), (\"U9\"), (\"V9\"), (\"W9\"), (\"X9\"), (\"Y9\"), (\"Z9\"),\n(\"A10\"), (\"B10\"), (\"C10\"), (\"D10\"), (\"E10\"), (\"F10\"), (\"G10\"), (\"H10\"), (\"I10\"), (\"J10\"), (\"K10\"), (\"L10\"), (\"M10\"), (\"N10\"), (\"O10\"), (\"P10\"), (\"Q10\"), (\"R10\"), (\"S10\"), (\"T10\"), (\"U10\"), (\"V10\"), (\"W10\"), (\"X10\"), (\"Y10\"), (\"Z10\");\n}>\ndbn_query idle_employees <{ SELECT name FROM emp WHERE name NOT IN (SELECT emp_name FROM resp); }>\ndbn_query tickets <{ SELECT id, description FROM ticket WHERE id = ${ticket_id}; }>\ndbn_action register { params = <ticket_id, emp_name, ticket_description>, add = { ticket(id: ticket_id, description: ticket_description), resp(emp_name: emp_name, ticket_id: ticket_id) }, del = { } }\ndbn_action release { params = <ticket_id, emp_name>, add = { }, del = { resp(emp_name: emp_name, ticket_id: ticket_id) } }\ndbn_action assign { params = <ticket_id, emp_name>, add = { resp(emp_name: \"Anton\", ticket_id: ticket_id) }, del = { } }\ndbn_action log_data { params = <ticket_id, emp_name, ticket_description>, add = { log(ticket_id: ticket_id, emp_name: emp_name, ticket_description: ticket_description) }, del = { ticket(id: ticket_id), resp(emp_name: emp_name, ticket_id: ticket_id) } }\n" "SansSerif" 0 9 0 NULL NULL 1  
+        de.renew.gui.RollbackArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 422 4 962 758 1048 779 1141 774 1141 724 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 12  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 14   NULL  -8 -8 1296 696 
