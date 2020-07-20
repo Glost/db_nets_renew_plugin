@@ -1,8 +1,6 @@
 # db_nets_renew_plugin
 Renew plugin for supporting the DB-nets
 
-Anton Rigin, HSE University, Moscow, Russia, 2019 - 2020.
-
 The parts of the Renew software tool source code are used.
 
 * [Documents](root/docs)
