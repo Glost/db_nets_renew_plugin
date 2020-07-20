@@ -1,7 +1,5 @@
 # DB-Nets Renew Plugin
 
-Anton Rigin, HSE University, Moscow, Russia, 2019 - 2020.
-
 The parts of the Renew software tool source code are used.
 
 In the current folder the DB-Nets Renew Plugin source code is presented.
