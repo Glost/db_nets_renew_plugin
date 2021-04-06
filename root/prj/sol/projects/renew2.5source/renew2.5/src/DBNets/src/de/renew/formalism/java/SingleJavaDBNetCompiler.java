@@ -1,6 +1,7 @@
 package de.renew.formalism.java;
 
 import de.renew.dbnets.datalogic.QueryCall;
+import de.renew.dbnets.pa.ViewPlacePerformanceAnalysisInfo;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
 import de.renew.dbnets.shadow.ReadArcFactory;
 import de.renew.dbnets.shadow.RollbackArcFactory;
@@ -39,10 +40,10 @@ import java.util.Vector;
  * The db-net's compiler.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Concurrent Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
 
@@ -193,8 +194,14 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
                 behaviour = (PlaceBehaviourModifier) parsedInscriptions
                         .elementAt(i);
                 behaviourCount++;
-            } else if (place instanceof ViewPlace && parsedInscriptions.elementAt(i) instanceof QueryCall) {
-                ((ViewPlace) place).setQueryCall((QueryCall) parsedInscriptions.elementAt(i));
+            } else if (place instanceof ViewPlace) {
+                if (parsedInscriptions.elementAt(i) instanceof QueryCall) {
+                    ((ViewPlace) place).setQueryCall((QueryCall) parsedInscriptions.elementAt(i));
+                } else if (parsedInscriptions.elementAt(i) instanceof ViewPlacePerformanceAnalysisInfo) {
+                    ((ViewPlace) place).setViewPlacePerformanceAnalysisInfo(
+                            (ViewPlacePerformanceAnalysisInfo) parsedInscriptions.elementAt(i)
+                    );
+                }
             }
         }
 

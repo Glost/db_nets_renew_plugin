@@ -1,0 +1,62 @@
+11 
+    de.renew.gui.CPNDrawing 24 
+        de.renew.gui.DeclarationFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 190 "TextAlignment" "Int" 0 "FillColor" "Color" 255 199 158 255 225 70 "dbn_jdbc_url <{  }>\ndbn_ddl <{ }>\ndbn_query create_order_single <{ SELECT cl_ord_id, order_qty, sending_time FROM msg WHERE msg_type = \"D\"; }>\ndbn_query execution_report <{ SELECT cl_ord_id, order_qty, sending_time FROM msg WHERE msg_type = \"8\";; }>\ndbn_action create_order_single { params = < cl_ord_id, order_qty, sending_time >, add = { create_order_single (cl_ord_id : cl_ord_id, order_qty : order_qty, sending_time : sending_time) }, del = { } }" "SansSerif" 0 12 0 NULL NULL 1  
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 191 276 233 200 200 NULL  
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 192 275 520 200 200 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 1 "FigureWithID" "Int" 193 720 259 320 148 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 1 "FigureWithID" "Int" 194 719 547 320 148 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 195 1293 1293 223 223 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 196 1211 372 225 225 NULL  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 197 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 287 325 "dbn_query : create_order_single" "SansSerif" 0 12 0 REF 2 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.ReadArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 200 2 476 333 720 333 NULL NULL "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 2  
+            CH.ifa.draw.standard.ChopBoxConnector REF 4   
+        de.renew.gui.ReadArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 201 2 475 620 719 620 NULL NULL "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.figures.ChopEllipseConnector REF 3  
+            CH.ifa.draw.standard.ChopBoxConnector REF 5   
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 202 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 500 325 "[cl_ord_id, order_qty, sending_time]" "SansSerif" 0 12 0 REF 11 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 203 "TextAlignment" "Int" 1 "FillColor" "Color" 254 254 254 255 499 612 "[cl_ord_id, order_qty, sending_time]" "SansSerif" 0 12 0 REF 14 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 199 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 297 574 "dbn_query : execution_report" "SansSerif" 0 12 0 REF 3 
+            CH.ifa.draw.standard.OffsetLocator 1 -38 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 198 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 235 621 "dbn_pa : {\ndbn_pa_id_col : cl_ord_id,\ndbn_pa_send_time_col : sending_time,\ndbn_pa_req_message_query : create_order_single,\ndbn_pa_max_delay : 100\n}" "SansSerif" 0 12 0 REF 3 
+            CH.ifa.draw.standard.OffsetLocator 3 49 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 204 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 691 339 "dbn_action : create_order_single(cl_ord_id, order_qty, sending_time)" "SansSerif" 0 12 0 REF 4 
+            CH.ifa.draw.standard.OffsetLocator 0 14 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 205 2 1040 387 1218 449 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 4  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 7   
+        de.renew.gui.ArcConnection "attributes" "attributes" 1 "FigureWithID" "Int" 206 2 1039 571 1217 517 NULL 
+            CH.ifa.draw.figures.ArrowTip 0.4 8.0 8.0 1  "CH.ifa.draw.figures.ArrowTip" 
+            CH.ifa.draw.standard.ChopBoxConnector REF 5  
+            CH.ifa.draw.figures.ChopEllipseConnector REF 7   
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 207 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 1031 410 "[cl_ord_id, order_qty, sending_time]" "SansSerif" 0 12 0 REF 32 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 208 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 254 254 254 255 1034 535 "[cl_ord_id, order_qty, sending_time]" "SansSerif" 0 12 0 REF 36 
+            CH.ifa.draw.standard.OffsetLocator 4 -1 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 209 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 323 200 "Request Messages" "SansSerif" 1 12 0 REF 2 
+            CH.ifa.draw.standard.OffsetLocator 1 -125 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 210 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 316 489 "Response Messages" "SansSerif" 1 12 0 REF 3 
+            CH.ifa.draw.standard.OffsetLocator 0 -123 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 211 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 804 221 "Process Request Message" "SansSerif" 1 12 0 REF 4 
+            CH.ifa.draw.standard.OffsetLocator 0 -104 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 212 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 799 505 "Process Response Message" "SansSerif" 1 12 0 REF 5 
+            CH.ifa.draw.standard.OffsetLocator 1 -108 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 213 "TextAlignment" "Int" 1 "FillColor" "Color" 255 199 158 255 1258 324 "Processed Messages" "SansSerif" 1 12 0 REF 7 
+            CH.ifa.draw.standard.OffsetLocator -3 -152 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   2  NULL  -11 -11 1942 1042 

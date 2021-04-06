@@ -1,9 +1,9 @@
 /**
  * Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- * Master Degree Program "System and Software Engineering", the 1st year student.
- * Term Project (Coursework) on the Topic
- * "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- * HSE University, Moscow, Russia, 2019 - 2020.
+ * Master Degree Program "System and Software Engineering", the 2nd year student.
+ * Master Thesis on the Topic
+ * "Method of Performance Analysis of Time-Critical Concurrent Applications Using DB-Nets".
+ * HSE University, Moscow, Russia, 2019 - 2021.
  *
  * This db-net's parser is based on the Renew's net parser (JavaNetParser.jj). Its original copyright is as follows.
  *
@@ -49,6 +49,7 @@ import de.renew.dbnets.datalogic.ActionCall;
 import de.renew.dbnets.datalogic.EditedFact;
 import de.renew.dbnets.datalogic.Query;
 import de.renew.dbnets.datalogic.QueryCall;
+import de.renew.dbnets.pa.ViewPlacePerformanceAnalysisInfo;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
 import de.renew.dbnets.persistence.JdbcConnection;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
@@ -170,6 +171,11 @@ TOKEN : /* RESERVED WORDS AND LITERALS */
 | < DBN_ACTION: "dbn_action" >
 | < DBN_DDL: "dbn_ddl" >
 | < DBN_JDBC_URL: "dbn_jdbc_url" >
+| < DBN_PA: "dbn_pa" >
+| < DBN_PA_ID_COL: "dbn_pa_id_col" >
+| < DBN_PA_MAX_DELAY: "dbn_pa_max_delay" >
+| < DBN_PA_REQ_MESSAGE_QUERY: "dbn_pa_req_message_query" >
+| < DBN_PA_SEND_TIME_COL: "dbn_pa_send_time_col" >
 | < DBN_QUERY: "dbn_query" >
 | < DEL: "del" >
 | < DO: "do" >
@@ -514,6 +520,7 @@ Object SinglePlaceInscription() :
   Object obj;
   Token errToken;
   QueryCall queryCall;
+  ViewPlacePerformanceAnalysisInfo viewPlacePerformanceAnalysisInfo;
 }
 {
   { errToken=token; }
@@ -577,6 +584,11 @@ Object SinglePlaceInscription() :
     queryCall = QueryCall()
     {
       return queryCall;
+    }
+  |
+    viewPlacePerformanceAnalysisInfo = ViewPlacePerformanceAnalysisInfo()
+    {
+      return viewPlacePerformanceAnalysisInfo;
     }
   )
 }
@@ -1081,6 +1093,44 @@ ActionCall ActionCall():
         throw JavaHelper.makeParseException("No action with name " + actionName + " found or params list size " +
          "was invalid", t);
     }
+  }
+}
+
+ViewPlacePerformanceAnalysisInfo ViewPlacePerformanceAnalysisInfo():
+{
+  String idColumnName;
+  String sendingTimeColumnName;
+  String requestMessageQueryName;
+  int maxDelay;
+}
+{
+  <DBN_PA> ":" "{" <DBN_PA_ID_COL> ":" idColumnName = Name()
+    "," <DBN_PA_SEND_TIME_COL> ":" sendingTimeColumnName = Name()
+    "," <DBN_PA_REQ_MESSAGE_QUERY> ":" requestMessageQueryName = Name()
+    "," <DBN_PA_MAX_DELAY> ":" maxDelay = IntegerLiteral() "}"
+  {
+        return new ViewPlacePerformanceAnalysisInfo(
+                idColumnName,
+                sendingTimeColumnName,
+                requestMessageQueryName,
+                maxDelay
+        );
+  }
+}
+
+Integer IntegerLiteral():
+{
+  Token t;
+  String integerString;
+}
+{
+  t = <INTEGER_LITERAL> { integerString = t.image; }
+  {
+      try {
+          return Integer.parseInt(integerString);
+      } catch (NumberFormatException e) {
+          throw JavaHelper.makeParseException("Integer literal is not parsable", t);
+      }
   }
 }
 

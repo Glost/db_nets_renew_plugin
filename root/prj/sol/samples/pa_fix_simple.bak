@@ -1,0 +1,15 @@
+11 
+    de.renew.gui.CPNDrawing 9 
+        de.renew.gui.DeclarationFigure "attributes" "attributes" 4 "FrameColor" "Color" 255 199 158 255 "FigureWithID" "Int" 135 "TextAlignment" "Int" 0 "FillColor" "Color" 255 199 158 255 225 70 "dbn_jdbc_url <{  }>\ndbn_ddl <{ }>\ndbn_query create_order_single <{ SELECT cl_ord_id, order_qty, sending_time FROM msg WHERE msg_type = \"D\"; }>\ndbn_query execution_report <{ SELECT cl_ord_id, order_qty, sending_time FROM msg WHERE msg_type = \"8\";; }>\ndbn_action create_order_single { params = < cl_ord_id, order_qty, sending_time >, add = { create_order_single (cl_ord_id : cl_ord_id, order_qty : order_qty, sending_time : sending_time) }, del = { } }" "SansSerif" 0 12 0 NULL NULL 1  
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 136 276 231 200 200 NULL  
+        de.renew.gui.ViewPlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 137 271 528 200 200 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 1 "FigureWithID" "Int" 138 720 259 320 148 NULL  
+        de.renew.gui.DBNetTransitionFigure "attributes" "attributes" 1 "FigureWithID" "Int" 139 719 547 320 148 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 140 1293 1293 223 223 NULL  
+        de.renew.gui.PlaceFigure "attributes" "attributes" 1 "FigureWithID" "Int" 141 1211 372 225 225 NULL  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 142 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 287 323 "dbn_query : create_order_single" "SansSerif" 0 12 0 REF 2 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  
+        de.renew.gui.CPNTextFigure "attributes" "attributes" 4 "TextAlignment" "Int" 1 "FigureWithID" "Int" 143 "FrameColor" "Color" 255 199 158 255 "FillColor" "Color" 255 199 158 255 292 620 "dbn_query : execution_report" "SansSerif" 0 12 0 REF 3 
+            CH.ifa.draw.standard.OffsetLocator 0 0 
+                CH.ifa.draw.standard.RelativeLocator 0.5 0.5   1  NULL  -11 -11 1942 1042 
