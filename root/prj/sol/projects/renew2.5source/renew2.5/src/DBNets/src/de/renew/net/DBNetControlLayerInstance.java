@@ -2,6 +2,8 @@ package de.renew.net;
 
 import de.renew.database.Transaction;
 import de.renew.database.TransactionSource;
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
+import de.renew.dbnets.persistence.SQLiteJdbcConnectionInstance;
 import de.renew.engine.common.SimulatorEventLogger;
 import de.renew.engine.common.StepIdentifier;
 import de.renew.engine.events.NetInstantiation;
@@ -9,10 +11,7 @@ import de.renew.engine.simulator.SimulationThreadPool;
 import de.renew.unify.Impossible;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,17 +21,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * The db-net's control layer's instance for the simulation.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class DBNetControlLayerInstance extends NetInstanceImpl {
 
     /**
      * The mapping from the connections' JDBC urls to the connections themselves.
      */
-    private static final Map<String, Connection> connectionsMap = new HashMap<>();
+    private static final Map<String, JdbcConnectionInstance> connectionsMap = new HashMap<>();
 
     /**
      * The db-net's control layer.
@@ -47,7 +46,7 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     /**
      * The database connection instance.
      */
-    private Connection connection;
+    private JdbcConnectionInstance connectionInstance;
 
     /**
      * The db-net's control layer's instance's constructor.
@@ -66,8 +65,8 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
      */
     @Override
     protected void finalize() throws Throwable {
-        if (Objects.nonNull(connection)) {
-            connection.close();
+        if (Objects.nonNull(connectionInstance)) {
+            connectionInstance.close();
         }
     }
 
@@ -86,8 +85,8 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
      *
      * @return The database connection instance.
      */
-    public Connection getConnection() {
-        return connection;
+    public JdbcConnectionInstance getConnectionInstance() {
+        return connectionInstance;
     }
 
     /**
@@ -221,23 +220,30 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     /**
      * Creates the persistence layer - the database connection and schema.
      *
-     * @throws Impossible If the SQL error occurred during the persistence layer creation.
+     * @throws Impossible If the SQL error occurred during the persistence layer creation
+     * or during closing the previous open database connection for the same JDBC URL.
      */
     private void createPersistenceLayer() throws Impossible {
-        createDatabaseConnection();
-        createDatabaseSchema();
+        String jdbcUrl = net.getJdbcConnection().getUrl().trim();
+        String ddlQueryString = net.getDatabaseSchemaDeclaration().getDdlQueryString();
+
+        closePreviousConnection(jdbcUrl);
+
+        // TODO: Selecting necessary implementation of the JdbcConnectionInstance interface.
+        connectionInstance = new SQLiteJdbcConnectionInstance();
+        connectionInstance.init(jdbcUrl, ddlQueryString);
+
+        connectionsMap.put(jdbcUrl, connectionInstance);
     }
 
     /**
-     * Creates the persistence layer's database connection.
+     * Closes the previous open database connection for the same JDBC URL if exists.
      *
-     * @throws Impossible If the SQL error occurred during the database connection creation
-     * or while closing the previous connection to the database.
+     * @param jdbcUrl The JDBC URL for which the previous open database connection should be closed.
+     * @throws Impossible If the SQL error occurred during closing the previous open database connection.
      */
-    private void createDatabaseConnection() throws Impossible {
-        String jdbcUrl = net.getJdbcConnection().getUrl().trim();
-
-        Connection previousConnection = connectionsMap.get(jdbcUrl);
+    private void closePreviousConnection(String jdbcUrl) throws Impossible {
+        JdbcConnectionInstance previousConnection = connectionsMap.get(jdbcUrl);
 
         if (Objects.nonNull(previousConnection)) {
             try {
@@ -245,47 +251,6 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
                 connectionsMap.remove(jdbcUrl);
             } catch (SQLException e) {
                 throw new Impossible("Error while closing previous connection to the database: " + e.getMessage(), e);
-            }
-        }
-
-        try {
-            connection = DriverManager.getConnection(jdbcUrl);
-            connectionsMap.put(jdbcUrl, connection);
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new Impossible("Error while connecting to the database: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Creates the persistence layer's database schema.
-     *
-     * @throws Impossible If the SQL error occurred during the database schema creation.
-     */
-    private void createDatabaseSchema() throws Impossible {
-        try {
-            String[] sqls = net.getDatabaseSchemaDeclaration().getDdlQueryString().split(";");
-
-            for (String sql : sqls) {
-                if (sql.trim().isEmpty()) {
-                    continue;
-                }
-
-                Statement statement = connection.createStatement();
-                statement.execute(sql);
-            }
-
-            connection.commit();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-
-                throw new Impossible("Error while creating the database schema, it is rollbacked: " +
-                        e.getMessage(), e);
-            } catch (SQLException rollbackEx) {
-                throw new Impossible("The database error occurred during performing the rollback: " +
-                        rollbackEx.getMessage() + " after the error creating the database schema: " +
-                        e.getMessage(), rollbackEx);
             }
         }
     }

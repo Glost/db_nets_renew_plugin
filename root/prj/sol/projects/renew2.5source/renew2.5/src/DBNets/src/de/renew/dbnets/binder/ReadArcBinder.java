@@ -1,6 +1,7 @@
 package de.renew.dbnets.binder;
 
 import de.renew.dbnets.datalogic.QueryCall;
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.searcher.BindingBadness;
 import de.renew.engine.searcher.Searcher;
 import de.renew.expression.VariableMapper;
@@ -13,7 +14,6 @@ import de.renew.unify.Tuple;
 import de.renew.unify.Unify;
 import de.renew.unify.Variable;
 
-import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -22,10 +22,10 @@ import java.util.List;
  * through the corresponding view place's query call.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class ReadArcBinder extends InputArcBinder {
 
@@ -47,7 +47,7 @@ public class ReadArcBinder extends InputArcBinder {
     /**
      * The database connection instance.
      */
-    private final Connection connection;
+    private final JdbcConnectionInstance connectionInstance;
 
     /**
      * Stores whether this binder was bound or not.
@@ -63,19 +63,19 @@ public class ReadArcBinder extends InputArcBinder {
      * @param variableMapper The transition instance's variable mapper.
      *                       Maps the net's variables' names into their values.
      * @param stateRecorder The state recorder instance.
-     * @param connection The database connection instance.
+     * @param connectionInstance The database connection instance.
      */
     public ReadArcBinder(Variable tokenVariable,
                          Variable delayVariable,
                          PlaceInstance placeInstance,
                          VariableMapper variableMapper,
                          StateRecorder stateRecorder,
-                         Connection connection) {
+                         JdbcConnectionInstance connectionInstance) {
         super(tokenVariable, delayVariable, placeInstance);
         this.tokenVariable = tokenVariable;
         this.variableMapper = variableMapper;
         this.stateRecorder = stateRecorder;
-        this.connection = connection;
+        this.connectionInstance = connectionInstance;
     }
 
     /**
@@ -110,7 +110,7 @@ public class ReadArcBinder extends InputArcBinder {
         QueryCall queryCall = ((ViewPlaceInstance) getPlaceInstance()).getPlace().getQueryCall();
 
         try {
-            List<Variable> queryResult = queryCall.executeQuery(connection, variableMapper, stateRecorder);
+            List<Variable> queryResult = queryCall.executeQuery(connectionInstance, variableMapper, stateRecorder);
             if (tokenVariable.getValue() instanceof Tuple) {
                 Tuple queryResultTuple = new Tuple(queryResult.toArray(), stateRecorder);
                 Unify.unify(tokenVariable, queryResultTuple, stateRecorder);

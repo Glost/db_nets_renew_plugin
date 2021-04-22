@@ -1,21 +1,20 @@
 package de.renew.dbnets.datalogic;
 
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.common.StepIdentifier;
 import de.renew.engine.searcher.LateExecutable;
 import de.renew.expression.VariableMapper;
 import de.renew.net.DBNetTransitionInstance;
 import de.renew.unify.Impossible;
 
-import java.sql.Connection;
-
 /**
  * The action call's executable. Executes the transition's action call.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class ActionCallExecutable implements LateExecutable {
 
@@ -37,7 +36,7 @@ public class ActionCallExecutable implements LateExecutable {
     /**
      * The database connection instance.
      */
-    private final Connection connection;
+    private final JdbcConnectionInstance connectionInstance;
 
     /**
      * The action call's executable's constructor.
@@ -46,16 +45,16 @@ public class ActionCallExecutable implements LateExecutable {
      * @param transitionInstance The transition instance.
      * @param variableMapper The transition instance's variable mapper.
      *                       Maps the net's variables' names into their values.
-     * @param connection The database connection instance.
+     * @param connectionInstance The database connection instance.
      */
     public ActionCallExecutable(ActionCall actionCall,
                                 DBNetTransitionInstance transitionInstance,
                                 VariableMapper variableMapper,
-                                Connection connection) {
+                                JdbcConnectionInstance connectionInstance) {
         this.actionCall = actionCall;
         this.transitionInstance = transitionInstance;
         this.variableMapper = variableMapper;
-        this.connection = connection;
+        this.connectionInstance = connectionInstance;
     }
 
     /**
@@ -88,7 +87,7 @@ public class ActionCallExecutable implements LateExecutable {
     @Override
     public void execute(StepIdentifier stepIdentifier) throws Impossible {
         try {
-            actionCall.performAction(variableMapper, connection);
+            actionCall.performAction(variableMapper, connectionInstance);
         } catch (Impossible e) {
             transitionInstance.setNeedRollback(true);
 

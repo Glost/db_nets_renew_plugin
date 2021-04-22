@@ -1,6 +1,7 @@
 package de.renew.net.arc;
 
 import de.renew.dbnets.binder.ReadArcBinder;
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.searcher.Binder;
 import de.renew.engine.searcher.Executable;
 import de.renew.engine.searcher.Searcher;
@@ -10,7 +11,6 @@ import de.renew.net.DBNetControlLayerInstance;
 import de.renew.unify.Impossible;
 import de.renew.unify.Variable;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -19,10 +19,10 @@ import java.util.Objects;
  * The read arc's occurrence for the concrete transition firing.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class ReadArcOccurrence extends ArcOccurrence {
 
@@ -66,14 +66,15 @@ public class ReadArcOccurrence extends ArcOccurrence {
 
         tokenVar = new Variable(evaluated, searcher.recorder);
 
-        Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
+        JdbcConnectionInstance connectionInstance =
+            ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnectionInstance();
         binder = new ReadArcBinder(
                 tokenVar,
                 delayVar,
                 placeInstance,
                 mapper,
                 searcher.recorder,
-                connection
+                connectionInstance
         );
 
         return Collections.singleton(binder);
