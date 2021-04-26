@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -72,6 +73,11 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
     private Stream<String> fixPcapFileLinesStream;
 
     /**
+     * The iterator of the stream of lines of the FIX PCAP file.
+     */
+    private Iterator<String> fixPcapFileLinesStreamIterator;
+
+    /**
      * Initializes the database connection instance by the given JDBC URL
      * and creates the database schema using the given DDL query.
      *
@@ -93,6 +99,7 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
 
         try {
             fixPcapFileLinesStream = Files.lines(Paths.get(fixPcapFilePath));
+            fixPcapFileLinesStreamIterator = fixPcapFileLinesStream.iterator();
         } catch (IOException e) {
             throw new Impossible("Cannot open file (" + fixPcapFilePath + "): " + e.getMessage(), e);
         }
