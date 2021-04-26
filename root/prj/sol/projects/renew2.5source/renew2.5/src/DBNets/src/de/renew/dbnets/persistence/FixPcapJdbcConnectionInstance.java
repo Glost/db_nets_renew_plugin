@@ -6,10 +6,19 @@ import de.renew.unify.Impossible;
 import de.renew.unify.StateRecorder;
 import de.renew.unify.Variable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * The database connection instance based on the Wireshark PCAP file with the captured FIX Protocol messages.
@@ -23,6 +32,46 @@ import java.util.Map;
 public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
 
     /**
+     * The regular expression for the FIX PCAP JDBC URL.
+     */
+    private static final String JDBC_URL_REGEX = "virtual:fixpcap:(?<fixPcapFilePath>.+):supp:(?<sqliteJdbcUrl>.+)";
+
+    /**
+     * The pattern for the regular expression for the FIX PCAP JDBC URL.
+     */
+    private static final Pattern JDBC_URL_PATTERN = Pattern.compile(JDBC_URL_REGEX);
+
+    /**
+     * The regular expression for the FIX tag-value pair.
+     */
+    private static final String FIX_TAG_VALUE_REGEX = "(?<tag>\\d+)=(?<value>\\d)";
+
+    /**
+     * The pattern for the regular expression for the FIX tag-value pair.
+     */
+    private static final Pattern FIX_TAG_VALUE_PATTERN = Pattern.compile(FIX_TAG_VALUE_REGEX);
+
+    /**
+     * The delimiter of the FIX tag-value pairs.
+     */
+    private static final char FIX_TAGS_DELIMITER = '\1';
+
+    /**
+     * The number of the FIX message type (MsgType) tag.
+     */
+    private static final String FIX_MSG_TYPE_TAG = "35";
+
+    /**
+     * The JDBC instance of the SQLite connection.
+     */
+    private Connection connection;
+
+    /**
+     * The stream of lines of the FIX PCAP file.
+     */
+    private Stream<String> fixPcapFileLinesStream;
+
+    /**
      * Initializes the database connection instance by the given JDBC URL
      * and creates the database schema using the given DDL query.
      *
@@ -33,7 +82,22 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
      */
     @Override
     public void init(String jdbcUrl, String ddlQueryString) throws Impossible {
-        // TODO: Implement the method.
+        Matcher matcher = JDBC_URL_PATTERN.matcher(jdbcUrl);
+
+        if (!matcher.matches()) {
+            throw new Impossible("JDBC URL for the FIX PCAP virtual JDBC connection is unparseable: " + jdbcUrl);
+        }
+
+        String fixPcapFilePath = matcher.group("fixPcapFilePath");
+        String sqliteJdbcUrl = matcher.group("sqliteJdbcUrl");
+
+        try {
+            fixPcapFileLinesStream = Files.lines(Paths.get(fixPcapFilePath));
+        } catch (IOException e) {
+            throw new Impossible("Cannot open file (" + fixPcapFilePath + "): " + e.getMessage(), e);
+        }
+
+        createDatabaseConnection(sqliteJdbcUrl);
     }
 
     /**
@@ -82,12 +146,43 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
     }
 
     /**
-     * Closes the database connection.
+     * Closes the FIX PCAP file stream and the SQLite database connection.
      *
-     * @throws SQLException If the database error occurred during the database connection closing.
+     * @throws SQLException If the database error occurred during the SQLite database connection closing.
      */
     @Override
     public void close() throws SQLException {
-        // TODO: Implement the method.
+        if (Objects.nonNull(connection)) {
+            connection.close();
+        }
+
+        if (Objects.nonNull(fixPcapFileLinesStream)) {
+            fixPcapFileLinesStream.close();
+        }
+    }
+
+    /**
+     * Closes the FIX PCAP file stream and the SQLite database connection.
+     *
+     * @throws Throwable If any error occurred.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        close();
+    }
+
+    /**
+     * Create the SQLite JDBC connection.
+     *
+     * @param jdbcUrl The JDBC URL of the SQLite database.
+     * @throws Impossible If the SQL error occurred during the SQLite database connection creation.
+     */
+    private void createDatabaseConnection(String jdbcUrl) throws Impossible {
+        try {
+            connection = DriverManager.getConnection(jdbcUrl);
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new Impossible("Error while connecting to the database: " + e.getMessage(), e);
+        }
     }
 }

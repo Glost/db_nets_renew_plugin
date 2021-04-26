@@ -61,7 +61,7 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     /**
      * Closes the database connection instance if there is any.
      *
-     * @throws Throwable If any error occured.
+     * @throws Throwable If any error occurred.
      */
     @Override
     protected void finalize() throws Throwable {

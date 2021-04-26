@@ -174,7 +174,19 @@ public class SQLiteJdbcConnectionInstance implements JdbcConnectionInstance {
      */
     @Override
     public void close() throws SQLException {
-        connection.close();
+        if (Objects.nonNull(connection)) {
+            connection.close();
+        }
+    }
+
+    /**
+     * Closes the database connection.
+     *
+     * @throws Throwable If any error occurred.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        close();
     }
 
     /**
