@@ -1,6 +1,7 @@
 package de.renew.dbnets.persistence;
 
 import de.renew.dbnets.datalogic.EditedFact;
+import de.renew.expression.LocalVariable;
 import de.renew.expression.VariableMapper;
 import de.renew.unify.Impossible;
 import de.renew.unify.StateRecorder;
@@ -49,7 +50,7 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
     /**
      * The regular expression for the SQL query for retrieving the FIX message of the given msg_type.
      */
-    private static final String SQL_QUERY_STRING_REGEX = ".*msg_type\\s+=\\s+(?<messageType>\\w+).*";
+    private static final String SQL_QUERY_STRING_REGEX = ".*msg_type\\s+=\\s+\"(?<messageType>\\w+)\".*";
 
     /**
      * The pattern for the regular expression for the SQL query for retrieving the FIX message of the given msg_type.
@@ -61,8 +62,8 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
      * of the given msg_type and with the given cl_ord_id.
      */
     private static final String SQL_QUERY_WITH_CL_ORD_ID_STRING_REGEX =
-        ".*((cl_ord_id\\s+=\\s+(?<clOrdIdL>\\w+).*msg_type\\s+=\\s+(?<messageTypeR>\\w+))|" +
-            "(msg_type\\s+=\\s+(?<messageTypeL>\\w+).*cl_ord_id\\s+=\\s+(?<clOrdIdR>\\w+))).*";
+        ".*((cl_ord_id\\s+=\\s+\"(?<clOrdIdL>\\w+)\".*msg_type\\s+=\\s+\"(?<messageTypeR>\\w+)\")|" +
+            "(msg_type\\s+=\\s+\"(?<messageTypeL>\\w+)\".*cl_ord_id\\s+=\\s+\"(?<clOrdIdR>\\w+)\")).*";
 
     /**
      * The pattern for the regular expression for the SQL query for retrieving the FIX message
@@ -74,7 +75,7 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
     /**
      * The regular expression for the FIX tag-value pair.
      */
-    private static final String FIX_TAG_VALUE_REGEX = "(?<tag>\\d+)=(?<value>\\d)";
+    private static final String FIX_TAG_VALUE_REGEX = "(?<tag>\\d+)=(?<value>.+)";
 
     /**
      * The pattern for the regular expression for the FIX tag-value pair.
@@ -97,9 +98,24 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
     private static final int FIX_CL_ORD_ID_TAG = 11;
 
     /**
-     * The number of the FIX client order id (SendingTime(52)) tag.
+     * The number of the FIX sending time (SendingTime(52)) tag.
      */
     private static final int FIX_SENDING_TIME_TAG = 52;
+
+    /**
+     * The expected message type (MsgType(35)) field name in the db-net's control layer.
+     */
+    private static final String MSG_TYPE_FIELD_NAME = "msg_type";
+
+    /**
+     * The expected client order id (ClOrdId(11)) field name in the db-net's control layer.
+     */
+    private static final String CL_ORD_ID_FIELD_NAME = "cl_ord_id";
+
+    /**
+     * The expected sending time (SendingTime(52)) field name in the db-net's control layer.
+     */
+    private static final String SENDING_TIME_FIELD_NAME = "sending_time";
 
     /**
      * The stream of lines of the FIX PCAP file.
@@ -121,6 +137,11 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
      * to the queue of the previously retrieved FIX messages of the corresponding msg_type.
      */
     private Map<String, Queue<Map<Integer, String>>> messageTypeToMessagesQueueMap;
+
+    /**
+     * The current autoincremented value.
+     */
+    private int autoincrementedValue = 0;
 
     /**
      * Initializes the database connection instance by the given JDBC URL
@@ -173,7 +194,7 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
 
         if (!sqlQueryStringMatcher.matches()) {
             throw new Impossible(
-                "SQL query string does not contain the valid msg_type equality constraint: " + sqlQueryString
+                    "SQL query string does not contain the valid msg_type equality constraint: " + sqlQueryString
             );
         }
 
@@ -189,25 +210,20 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
             Map<Integer, String> tagValues = Arrays.stream(line.split(FIX_TAGS_DELIMITER))
                 .map(this::parseFixTagValueString)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(FixTagValue::getTag, FixTagValue::getValue));
+                .collect(Collectors.toMap(FixTagValue::getTag, FixTagValue::getValue, (l, r) -> l));
 
             String logMessageType = tagValues.get(FIX_MSG_TYPE_TAG);
-            String logClOrdId = tagValues.get(FIX_CL_ORD_ID_TAG);
-
-            if (Objects.nonNull(logMessageType)) {
-                if (Objects.nonNull(logClOrdId)) {
-                    FixMessageKey fixMessageKey = new FixMessageKey(logMessageType, logClOrdId);
-                    fixMessagesMap.put(fixMessageKey, tagValues);
-                }
-
-                Queue<Map<Integer, String>> messageQueueForAdding =
-                    messageTypeToMessagesQueueMap.computeIfAbsent(logMessageType, s -> new ArrayDeque<>());
-
-                messageQueueForAdding.add(tagValues);
-            }
 
             if (queryMessageType.equals(logMessageType)) {
                 message = tagValues;
+                break;
+            }
+
+            if (Objects.nonNull(logMessageType)) {
+                Queue<Map<Integer, String>> messageQueueForAddingByMessageType =
+                    messageTypeToMessagesQueueMap.computeIfAbsent(logMessageType, s -> new ArrayDeque<>());
+
+                messageQueueForAddingByMessageType.add(tagValues);
             }
         }
 
@@ -222,27 +238,58 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
      * @param paramsValuesMap The map of the values for the edited (added/deleted) facts' params.
      * @param variableMapper The transition instance's variable mapper.
      *                       Maps the net's variables' names into their values.
+     * @throws Impossible If the database or other error occurred during the action performing.
      */
     @Override
     public synchronized void performAction(Collection<EditedFact> addedFacts,
                                            Collection<EditedFact> deletedFacts,
                                            Map<String, Object> paramsValuesMap,
-                                           VariableMapper variableMapper) {
-        // Doing nothing in the case of the FIX PCAP JDBC connection.
+                                           VariableMapper variableMapper) throws Impossible {
+        Map<String, Object> columnsToParams = addedFacts.stream()
+                .flatMap(editedFact -> editedFact.getColumnsToParams().entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (l, r) -> l));
+
+        Object messageTypeParam = columnsToParams.get(MSG_TYPE_FIELD_NAME);
+        Object clOrdIdParam = columnsToParams.get(CL_ORD_ID_FIELD_NAME);
+        Object sendingTimeParam = columnsToParams.get(SENDING_TIME_FIELD_NAME);
+
+        Variable messageTypeVariable = getParamVariable(messageTypeParam, paramsValuesMap, variableMapper);
+        Variable clOrdIdVariable = getParamVariable(clOrdIdParam, paramsValuesMap, variableMapper);
+        Variable sendingTimeVariable = getParamVariable(sendingTimeParam, paramsValuesMap, variableMapper);
+
+        if (
+                !(messageTypeVariable.getValue() instanceof String) ||
+                        !(clOrdIdVariable.getValue() instanceof String) ||
+                        !(sendingTimeVariable.getValue() instanceof String)
+        ) {
+            throw new Impossible(
+                    "msg_type, cl_ord_id and/or sending_time tag values were not of the string type or were null"
+            );
+        }
+
+        String messageType = (String) messageTypeVariable.getValue();
+        String clOrdId = (String) clOrdIdVariable.getValue();
+        String sendingTime = (String) sendingTimeVariable.getValue();
+
+        Map<Integer, String> message = new HashMap<>();
+        message.put(FIX_MSG_TYPE_TAG, messageType);
+        message.put(FIX_CL_ORD_ID_TAG, clOrdId);
+        message.put(FIX_SENDING_TIME_TAG, sendingTime);
+
+        FixMessageKey fixMessageKey = new FixMessageKey(messageType, clOrdId);
+        fixMessagesMap.put(fixMessageKey, message);
     }
 
     /**
      * Gets the generated value for the param.
      *
      * @param tableName The param usage's table (relation) name.
+     * @param stateRecorder The state recorder instance.
      * @return The generated value for the param.
      */
     @Override
-    public synchronized Variable mapParamToAutoincrementedValue(String tableName,
-                                                                StateRecorder stateRecorder) {
-        throw new UnsupportedOperationException(
-            "Autoincremented values are not supported for the FIX PCAP JDBC connection"
-        );
+    public synchronized Variable mapParamToAutoincrementedValue(String tableName, StateRecorder stateRecorder) {
+        return new Variable(autoincrementedValue++, stateRecorder);
     }
 
     /**
@@ -284,17 +331,19 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
 
         FixMessageKey fixMessageKey = new FixMessageKey(queryMessageType, queryClOrdId);
 
-        Map<Integer, String> message = fixMessagesMap.get(fixMessageKey);
+        Map<Integer, String> message = fixMessagesMap.remove(fixMessageKey);
 
         return getVariablesList(message, stateRecorder);
     }
 
     /**
-     * Returns the list of Renew variables with values of the cl_ord_id and msg_type tags of the given FIX message.
+     * Returns the list of Renew variables with values of the msg_type, cl_ord_id and sending_time tags
+     * of the given FIX message.
      *
      * @param fixTagValueMessage The given FIX message.
      * @param stateRecorder The state recorder instance.
-     * @return The list of Renew variables with values of the cl_ord_id and msg_type tags of the given FIX message.
+     * @return The list of Renew variables with values of the msg_type, cl_ord_id and sending_time tags
+     * of the given FIX message.
      */
     private List<Variable> getVariablesList(Map<Integer, String> fixTagValueMessage, StateRecorder stateRecorder) {
         if (Objects.isNull(fixTagValueMessage)) {
@@ -302,6 +351,7 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
         }
 
         return Arrays.asList(
+            new Variable(fixTagValueMessage.get(FIX_MSG_TYPE_TAG), stateRecorder),
             new Variable(fixTagValueMessage.get(FIX_CL_ORD_ID_TAG), stateRecorder),
             new Variable(fixTagValueMessage.get(FIX_SENDING_TIME_TAG), stateRecorder)
         );
@@ -327,6 +377,38 @@ public class FixPcapJdbcConnectionInstance implements JdbcConnectionInstance {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /**
+     * Retrieves the variable for the given param object.
+     *
+     * @param param The param object.
+     * @param paramsValuesMap The map of the values for the edited (added/deleted) facts' params.
+     * @param variableMapper The transition instance's variable mapper.
+     *                       Maps the net's variables' names into their values.
+     * @return The variable for the given param object.
+     * @throws Impossible If the variable for the given param object cannot be retrieved.
+     */
+    private Variable getParamVariable(Object param,
+                                      Map<String, Object> paramsValuesMap,
+                                      VariableMapper variableMapper) throws Impossible {
+        if (param instanceof Variable) {
+            return (Variable) param;
+        }
+
+        if (param instanceof String) {
+            Object paramValueObject = paramsValuesMap.get((String) param);
+
+            if (paramValueObject instanceof Variable) {
+                return (Variable) paramValueObject;
+            }
+
+            if (paramValueObject instanceof String) {
+                return variableMapper.map(new LocalVariable((String) paramValueObject));
+            }
+        }
+
+        throw new Impossible("The FIX PCAP action param " + param + " cannot be retrieved as string");
     }
 
     /**

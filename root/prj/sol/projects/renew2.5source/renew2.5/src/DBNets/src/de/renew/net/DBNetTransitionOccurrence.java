@@ -3,6 +3,7 @@ package de.renew.net;
 import de.renew.dbnets.binder.ActionCallValuesBinder;
 import de.renew.dbnets.datalogic.ActionCall;
 import de.renew.dbnets.datalogic.ActionCallExecutable;
+import de.renew.dbnets.pa.PerformanceAnalysisExecutable;
 import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.common.CompositeOccurrence;
 import de.renew.engine.common.TraceExecutable;
@@ -126,7 +127,8 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
     }
 
     /**
-     * Makes the transition's occurrence's executables including the transition's action call's executable.
+     * Makes the transition's occurrence's executables
+     * including the transition's performance analysis and action call executables.
      * Based on the {@link super#makeExecutables(VariableMapperCopier)} implementation.
      *
      * @param copier The variable mappers' copier.
@@ -164,14 +166,23 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
         executables.add(new FiringStartExecutable(event));
         executables.add(new FiringCompleteExecutable(event));
 
+        JdbcConnectionInstance connectionInstance =
+                ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnectionInstance();
+
+        if (Objects.nonNull(((DBNetTransition) getTransition().getTransition()).getPerformanceAnalysisInfo())) {
+            executables.add(new PerformanceAnalysisExecutable(
+                    ((DBNetTransitionInstance) getTransition()),
+                    copier.makeCopy(mapper),
+                    stateRecorder,
+                    connectionInstance
+            ));
+        }
+
         ActionCall actionCall = ((DBNetTransition) getTransition().getTransition()).getActionCall();
 
         if (Objects.isNull(actionCall)) {
             return executables;
         }
-
-        JdbcConnectionInstance connectionInstance =
-            ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnectionInstance();
 
         executables.add(new ActionCallExecutable(
                 actionCall,

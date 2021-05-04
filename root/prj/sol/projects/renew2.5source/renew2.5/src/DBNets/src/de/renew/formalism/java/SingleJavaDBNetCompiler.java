@@ -1,7 +1,6 @@
 package de.renew.formalism.java;
 
 import de.renew.dbnets.datalogic.QueryCall;
-import de.renew.dbnets.pa.ViewPlacePerformanceAnalysisInfo;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
 import de.renew.dbnets.shadow.ReadArcFactory;
 import de.renew.dbnets.shadow.RollbackArcFactory;
@@ -197,10 +196,6 @@ public class SingleJavaDBNetCompiler extends SingleJavaNetCompiler {
             } else if (place instanceof ViewPlace) {
                 if (parsedInscriptions.elementAt(i) instanceof QueryCall) {
                     ((ViewPlace) place).setQueryCall((QueryCall) parsedInscriptions.elementAt(i));
-                } else if (parsedInscriptions.elementAt(i) instanceof ViewPlacePerformanceAnalysisInfo) {
-                    ((ViewPlace) place).setViewPlacePerformanceAnalysisInfo(
-                            (ViewPlacePerformanceAnalysisInfo) parsedInscriptions.elementAt(i)
-                    );
                 }
             }
         }

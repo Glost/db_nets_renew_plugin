@@ -1,15 +1,16 @@
 package de.renew.net;
 
 import de.renew.dbnets.datalogic.ActionCall;
+import de.renew.dbnets.pa.PerformanceAnalysisInfo;
 
 /**
  * The db-net's transition.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class DBNetTransition extends Transition {
 
@@ -18,6 +19,11 @@ public class DBNetTransition extends Transition {
      * for modifying the persistence layer's data).
      */
     private ActionCall actionCall;
+
+    /**
+     * The metadata for performance analysis of modeled system on the current transition.
+     */
+    private PerformanceAnalysisInfo performanceAnalysisInfo;
 
     /**
      * The db-net's transition's constructor.
@@ -48,5 +54,23 @@ public class DBNetTransition extends Transition {
      */
     public void setActionCall(ActionCall actionCall) {
         this.actionCall = actionCall;
+    }
+
+    /**
+     * Returns the metadata for performance analysis of modeled system on the current transition.
+     *
+     * @return The metadata for performance analysis of modeled system on the current transition.
+     */
+    public PerformanceAnalysisInfo getPerformanceAnalysisInfo() {
+        return performanceAnalysisInfo;
+    }
+
+    /**
+     * Sets the metadata for performance analysis of modeled system on the current transition.
+     *
+     * @param performanceAnalysisInfo The metadata for performance analysis of modeled system on the current transition.
+     */
+    public void setPerformanceAnalysisInfo(PerformanceAnalysisInfo performanceAnalysisInfo) {
+        this.performanceAnalysisInfo = performanceAnalysisInfo;
     }
 }

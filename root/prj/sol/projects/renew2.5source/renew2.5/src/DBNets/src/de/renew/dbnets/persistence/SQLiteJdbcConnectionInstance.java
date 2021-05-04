@@ -133,6 +133,7 @@ public class SQLiteJdbcConnectionInstance implements JdbcConnectionInstance {
      * Gets the generated value for the param.
      *
      * @param tableName The param usage's table (relation) name.
+     * @param stateRecorder The state recorder instance.
      * @return The generated value for the param.
      * @throws SQLException If the database error occurred during the value generating.
      */

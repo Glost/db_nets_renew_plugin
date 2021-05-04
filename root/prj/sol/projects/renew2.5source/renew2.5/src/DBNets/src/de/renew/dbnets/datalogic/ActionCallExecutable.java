@@ -68,7 +68,7 @@ public class ActionCallExecutable implements LateExecutable {
     }
 
     /**
-     * Returns that this executable is long since it performs the database operations..
+     * Returns that this executable is long since it performs the database operations.
      *
      * @return true.
      */
