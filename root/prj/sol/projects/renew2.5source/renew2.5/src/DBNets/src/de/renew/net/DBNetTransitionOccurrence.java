@@ -3,6 +3,8 @@ package de.renew.net;
 import de.renew.dbnets.binder.ActionCallValuesBinder;
 import de.renew.dbnets.datalogic.ActionCall;
 import de.renew.dbnets.datalogic.ActionCallExecutable;
+import de.renew.dbnets.pa.PerformanceAnalysisExecutable;
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.common.CompositeOccurrence;
 import de.renew.engine.common.TraceExecutable;
 import de.renew.engine.searcher.Binder;
@@ -21,7 +23,6 @@ import de.renew.unify.StateRecorder;
 import de.renew.unify.Unify;
 import de.renew.unify.Variable;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
@@ -32,10 +33,10 @@ import java.util.stream.Stream;
  * The db-net's transition's occurrence for the concrete transition firing.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class DBNetTransitionOccurrence extends CompositeOccurrence {
 
@@ -110,7 +111,8 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
     @Override
     public Collection<Binder> makeBinders(Searcher searcher) throws Impossible {
         ActionCall actionCall = ((DBNetTransition) getTransition().getTransition()).getActionCall();
-        Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
+        JdbcConnectionInstance connectionInstance =
+            ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnectionInstance();
 
         return Stream.concat(
                 super.makeBinders(searcher).stream(),
@@ -119,13 +121,14 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
                         (DBNetTransitionInstance) getTransition(),
                         mapper,
                         stateRecorder,
-                        connection
+                        connectionInstance
                 ))
         ).collect(Collectors.toList());
     }
 
     /**
-     * Makes the transition's occurrence's executables including the transition's action call's executable.
+     * Makes the transition's occurrence's executables
+     * including the transition's performance analysis and action call executables.
      * Based on the {@link super#makeExecutables(VariableMapperCopier)} implementation.
      *
      * @param copier The variable mappers' copier.
@@ -163,19 +166,29 @@ public class DBNetTransitionOccurrence extends CompositeOccurrence {
         executables.add(new FiringStartExecutable(event));
         executables.add(new FiringCompleteExecutable(event));
 
+        JdbcConnectionInstance connectionInstance =
+                ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnectionInstance();
+
+        if (Objects.nonNull(((DBNetTransition) getTransition().getTransition()).getPerformanceAnalysisInfo())) {
+            executables.add(new PerformanceAnalysisExecutable(
+                    ((DBNetTransitionInstance) getTransition()),
+                    copier.makeCopy(mapper),
+                    stateRecorder,
+                    connectionInstance
+            ));
+        }
+
         ActionCall actionCall = ((DBNetTransition) getTransition().getTransition()).getActionCall();
 
         if (Objects.isNull(actionCall)) {
             return executables;
         }
 
-        Connection connection = ((DBNetControlLayerInstance) getTransition().getNetInstance()).getConnection();
-
         executables.add(new ActionCallExecutable(
                 actionCall,
                 ((DBNetTransitionInstance) getTransition()),
                 copier.makeCopy(mapper),
-                connection
+                connectionInstance
         ));
 
         return executables;

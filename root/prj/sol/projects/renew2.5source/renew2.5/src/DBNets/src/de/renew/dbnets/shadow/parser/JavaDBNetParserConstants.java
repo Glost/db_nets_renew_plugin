@@ -51,221 +51,227 @@ public interface JavaDBNetParserConstants {
   /** RegularExpression Id. */
   int DBN_PA = 25;
   /** RegularExpression Id. */
-  int DBN_PA_ID_COL = 26;
+  int DBN_PA_ID_NAME = 26;
   /** RegularExpression Id. */
   int DBN_PA_MAX_DELAY = 27;
   /** RegularExpression Id. */
-  int DBN_PA_REQ_MESSAGE_QUERY = 28;
+  int DBN_PA_MESSAGE_TYPE_NUM = 28;
   /** RegularExpression Id. */
-  int DBN_PA_SEND_TIME_COL = 29;
+  int DBN_PA_REQ_MESSAGE_QUERY = 29;
   /** RegularExpression Id. */
-  int DBN_QUERY = 30;
+  int DBN_PA_SEND_TIME_NAME = 30;
   /** RegularExpression Id. */
-  int DEL = 31;
+  int DBN_PA_SEND_TIME_NUM = 31;
   /** RegularExpression Id. */
-  int DO = 32;
+  int DBN_PA_SEND_TIME_PATTERN = 32;
   /** RegularExpression Id. */
-  int DOUBLE = 33;
+  int DBN_QUERY = 33;
   /** RegularExpression Id. */
-  int ELSE = 34;
+  int DEL = 34;
   /** RegularExpression Id. */
-  int EXTENDS = 35;
+  int DO = 35;
   /** RegularExpression Id. */
-  int FALSE = 36;
+  int DOUBLE = 36;
   /** RegularExpression Id. */
-  int FINAL = 37;
+  int ELSE = 37;
   /** RegularExpression Id. */
-  int FINALLY = 38;
+  int EXTENDS = 38;
   /** RegularExpression Id. */
-  int FLOAT = 39;
+  int FALSE = 39;
   /** RegularExpression Id. */
-  int FOR = 40;
+  int FINAL = 40;
   /** RegularExpression Id. */
-  int GOTO = 41;
+  int FINALLY = 41;
   /** RegularExpression Id. */
-  int GUARD = 42;
+  int FLOAT = 42;
   /** RegularExpression Id. */
-  int IF = 43;
+  int FOR = 43;
   /** RegularExpression Id. */
-  int IMPLEMENTS = 44;
+  int GOTO = 44;
   /** RegularExpression Id. */
-  int IMPORT = 45;
+  int GUARD = 45;
   /** RegularExpression Id. */
-  int INSTANCEOF = 46;
+  int IF = 46;
   /** RegularExpression Id. */
-  int INT = 47;
+  int IMPLEMENTS = 47;
   /** RegularExpression Id. */
-  int INTERFACE = 48;
+  int IMPORT = 48;
   /** RegularExpression Id. */
-  int LONG = 49;
+  int INSTANCEOF = 49;
   /** RegularExpression Id. */
-  int MANUAL = 50;
+  int INT = 50;
   /** RegularExpression Id. */
-  int NATIVE = 51;
+  int INTERFACE = 51;
   /** RegularExpression Id. */
-  int NEW = 52;
+  int LONG = 52;
   /** RegularExpression Id. */
-  int NULL = 53;
+  int MANUAL = 53;
   /** RegularExpression Id. */
-  int PACKAGE = 54;
+  int NATIVE = 54;
   /** RegularExpression Id. */
-  int PARAMS = 55;
+  int NEW = 55;
   /** RegularExpression Id. */
-  int PRIVATE = 56;
+  int NULL = 56;
   /** RegularExpression Id. */
-  int PROTECTED = 57;
+  int PACKAGE = 57;
   /** RegularExpression Id. */
-  int PUBLIC = 58;
+  int PARAMS = 58;
   /** RegularExpression Id. */
-  int RETURN = 59;
+  int PRIVATE = 59;
   /** RegularExpression Id. */
-  int SHORT = 60;
+  int PROTECTED = 60;
   /** RegularExpression Id. */
-  int STATIC = 61;
+  int PUBLIC = 61;
   /** RegularExpression Id. */
-  int SUPER = 62;
+  int RETURN = 62;
   /** RegularExpression Id. */
-  int SWITCH = 63;
+  int SHORT = 63;
   /** RegularExpression Id. */
-  int SYNCHRONIZED = 64;
+  int STATIC = 64;
   /** RegularExpression Id. */
-  int THIS = 65;
+  int SUPER = 65;
   /** RegularExpression Id. */
-  int THROW = 66;
+  int SWITCH = 66;
   /** RegularExpression Id. */
-  int THROWS = 67;
+  int SYNCHRONIZED = 67;
   /** RegularExpression Id. */
-  int TRANSIENT = 68;
+  int THIS = 68;
   /** RegularExpression Id. */
-  int TRUE = 69;
+  int THROW = 69;
   /** RegularExpression Id. */
-  int TRY = 70;
+  int THROWS = 70;
   /** RegularExpression Id. */
-  int VOID = 71;
+  int TRANSIENT = 71;
   /** RegularExpression Id. */
-  int VOLATILE = 72;
+  int TRUE = 72;
   /** RegularExpression Id. */
-  int WHILE = 73;
+  int TRY = 73;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 74;
+  int VOID = 74;
   /** RegularExpression Id. */
-  int DECIMAL_LITERAL = 75;
+  int VOLATILE = 75;
   /** RegularExpression Id. */
-  int HEX_LITERAL = 76;
+  int WHILE = 76;
   /** RegularExpression Id. */
-  int OCTAL_LITERAL = 77;
+  int INTEGER_LITERAL = 77;
   /** RegularExpression Id. */
-  int FLOATING_POINT_LITERAL = 78;
+  int DECIMAL_LITERAL = 78;
   /** RegularExpression Id. */
-  int EXPONENT = 79;
+  int HEX_LITERAL = 79;
   /** RegularExpression Id. */
-  int CHARACTER_LITERAL = 80;
+  int OCTAL_LITERAL = 80;
   /** RegularExpression Id. */
-  int STRING_LITERAL = 81;
+  int FLOATING_POINT_LITERAL = 81;
   /** RegularExpression Id. */
-  int IDENTIFIER = 82;
+  int EXPONENT = 82;
   /** RegularExpression Id. */
-  int LETTER = 83;
+  int CHARACTER_LITERAL = 83;
   /** RegularExpression Id. */
-  int DIGIT = 84;
+  int STRING_LITERAL = 84;
   /** RegularExpression Id. */
-  int LPAREN = 85;
+  int IDENTIFIER = 85;
   /** RegularExpression Id. */
-  int RPAREN = 86;
+  int LETTER = 86;
   /** RegularExpression Id. */
-  int LBRACE = 87;
+  int DIGIT = 87;
   /** RegularExpression Id. */
-  int RBRACE = 88;
+  int LPAREN = 88;
   /** RegularExpression Id. */
-  int LBRACKET = 89;
+  int RPAREN = 89;
   /** RegularExpression Id. */
-  int RBRACKET = 90;
+  int LBRACE = 90;
   /** RegularExpression Id. */
-  int SEMICOLON = 91;
+  int RBRACE = 91;
   /** RegularExpression Id. */
-  int COMMA = 92;
+  int LBRACKET = 92;
   /** RegularExpression Id. */
-  int DOT = 93;
+  int RBRACKET = 93;
   /** RegularExpression Id. */
-  int ASSIGN = 94;
+  int SEMICOLON = 94;
   /** RegularExpression Id. */
-  int AT = 95;
+  int COMMA = 95;
   /** RegularExpression Id. */
-  int GT = 96;
+  int DOT = 96;
   /** RegularExpression Id. */
-  int LT = 97;
+  int ASSIGN = 97;
   /** RegularExpression Id. */
-  int BANG = 98;
+  int AT = 98;
   /** RegularExpression Id. */
-  int TILDE = 99;
+  int GT = 99;
   /** RegularExpression Id. */
-  int HOOK = 100;
+  int LT = 100;
   /** RegularExpression Id. */
-  int COLON = 101;
+  int BANG = 101;
   /** RegularExpression Id. */
-  int EQ = 102;
+  int TILDE = 102;
   /** RegularExpression Id. */
-  int LE = 103;
+  int HOOK = 103;
   /** RegularExpression Id. */
-  int GE = 104;
+  int COLON = 104;
   /** RegularExpression Id. */
-  int NE = 105;
+  int EQ = 105;
   /** RegularExpression Id. */
-  int SC_OR = 106;
+  int LE = 106;
   /** RegularExpression Id. */
-  int SC_AND = 107;
+  int GE = 107;
   /** RegularExpression Id. */
-  int INCR = 108;
+  int NE = 108;
   /** RegularExpression Id. */
-  int DECR = 109;
+  int SC_OR = 109;
   /** RegularExpression Id. */
-  int PLUS = 110;
+  int SC_AND = 110;
   /** RegularExpression Id. */
-  int MINUS = 111;
+  int INCR = 111;
   /** RegularExpression Id. */
-  int STAR = 112;
+  int DECR = 112;
   /** RegularExpression Id. */
-  int SLASH = 113;
+  int PLUS = 113;
   /** RegularExpression Id. */
-  int BIT_AND = 114;
+  int MINUS = 114;
   /** RegularExpression Id. */
-  int BIT_OR = 115;
+  int STAR = 115;
   /** RegularExpression Id. */
-  int XOR = 116;
+  int SLASH = 116;
   /** RegularExpression Id. */
-  int REM = 117;
+  int BIT_AND = 117;
   /** RegularExpression Id. */
-  int LSHIFT = 118;
+  int BIT_OR = 118;
   /** RegularExpression Id. */
-  int RSIGNEDSHIFT = 119;
+  int XOR = 119;
   /** RegularExpression Id. */
-  int RUNSIGNEDSHIFT = 120;
+  int REM = 120;
   /** RegularExpression Id. */
-  int PLUSASSIGN = 121;
+  int LSHIFT = 121;
   /** RegularExpression Id. */
-  int MINUSASSIGN = 122;
+  int RSIGNEDSHIFT = 122;
   /** RegularExpression Id. */
-  int STARASSIGN = 123;
+  int RUNSIGNEDSHIFT = 123;
   /** RegularExpression Id. */
-  int SLASHASSIGN = 124;
+  int PLUSASSIGN = 124;
   /** RegularExpression Id. */
-  int ANDASSIGN = 125;
+  int MINUSASSIGN = 125;
   /** RegularExpression Id. */
-  int ORASSIGN = 126;
+  int STARASSIGN = 126;
   /** RegularExpression Id. */
-  int XORASSIGN = 127;
+  int SLASHASSIGN = 127;
   /** RegularExpression Id. */
-  int REMASSIGN = 128;
+  int ANDASSIGN = 128;
   /** RegularExpression Id. */
-  int LSHIFTASSIGN = 129;
+  int ORASSIGN = 129;
   /** RegularExpression Id. */
-  int RSIGNEDSHIFTASSIGN = 130;
+  int XORASSIGN = 130;
   /** RegularExpression Id. */
-  int RUNSIGNEDSHIFTASSIGN = 131;
+  int REMASSIGN = 131;
   /** RegularExpression Id. */
-  int OTHERCHAR = 132;
+  int LSHIFTASSIGN = 132;
   /** RegularExpression Id. */
-  int MULTILINE_STRING = 133;
+  int RSIGNEDSHIFTASSIGN = 133;
+  /** RegularExpression Id. */
+  int RUNSIGNEDSHIFTASSIGN = 134;
+  /** RegularExpression Id. */
+  int OTHERCHAR = 135;
+  /** RegularExpression Id. */
+  int MULTILINE_STRING = 136;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -298,10 +304,13 @@ public interface JavaDBNetParserConstants {
     "\"dbn_ddl\"",
     "\"dbn_jdbc_url\"",
     "\"dbn_pa\"",
-    "\"dbn_pa_id_col\"",
+    "\"dbn_pa_id_name\"",
     "\"dbn_pa_max_delay\"",
+    "\"dbn_pa_message_type_num\"",
     "\"dbn_pa_req_message_query\"",
-    "\"dbn_pa_send_time_col\"",
+    "\"dbn_pa_send_time_name\"",
+    "\"dbn_pa_send_time_num\"",
+    "\"dbn_pa_send_time_pattern\"",
     "\"dbn_query\"",
     "\"del\"",
     "\"do\"",

@@ -9,10 +9,10 @@ import de.renew.unify.Impossible;
  * The db-net's control layer.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class DBNetControlLayer extends Net {
 

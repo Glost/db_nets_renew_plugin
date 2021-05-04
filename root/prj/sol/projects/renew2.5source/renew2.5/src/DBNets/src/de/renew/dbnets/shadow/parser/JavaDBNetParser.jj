@@ -2,7 +2,7 @@
  * Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
  * Master Degree Program "System and Software Engineering", the 2nd year student.
  * Master Thesis on the Topic
- * "Method of Performance Analysis of Time-Critical Concurrent Applications Using DB-Nets".
+ * "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
  * HSE University, Moscow, Russia, 2019 - 2021.
  *
  * This db-net's parser is based on the Renew's net parser (JavaNetParser.jj). Its original copyright is as follows.
@@ -49,7 +49,7 @@ import de.renew.dbnets.datalogic.ActionCall;
 import de.renew.dbnets.datalogic.EditedFact;
 import de.renew.dbnets.datalogic.Query;
 import de.renew.dbnets.datalogic.QueryCall;
-import de.renew.dbnets.pa.ViewPlacePerformanceAnalysisInfo;
+import de.renew.dbnets.pa.PerformanceAnalysisInfo;
 import de.renew.dbnets.persistence.DatabaseSchemaDeclaration;
 import de.renew.dbnets.persistence.JdbcConnection;
 import de.renew.dbnets.shadow.ParsedDBNetDeclarationNode;
@@ -172,10 +172,13 @@ TOKEN : /* RESERVED WORDS AND LITERALS */
 | < DBN_DDL: "dbn_ddl" >
 | < DBN_JDBC_URL: "dbn_jdbc_url" >
 | < DBN_PA: "dbn_pa" >
-| < DBN_PA_ID_COL: "dbn_pa_id_col" >
+| < DBN_PA_ID_NAME: "dbn_pa_id_name" >
 | < DBN_PA_MAX_DELAY: "dbn_pa_max_delay" >
+| < DBN_PA_MESSAGE_TYPE_NUM: "dbn_pa_message_type_num" >
 | < DBN_PA_REQ_MESSAGE_QUERY: "dbn_pa_req_message_query" >
-| < DBN_PA_SEND_TIME_COL: "dbn_pa_send_time_col" >
+| < DBN_PA_SEND_TIME_NAME: "dbn_pa_send_time_name" >
+| < DBN_PA_SEND_TIME_NUM: "dbn_pa_send_time_num" >
+| < DBN_PA_SEND_TIME_PATTERN: "dbn_pa_send_time_pattern" >
 | < DBN_QUERY: "dbn_query" >
 | < DEL: "del" >
 | < DO: "do" >
@@ -520,7 +523,6 @@ Object SinglePlaceInscription() :
   Object obj;
   Token errToken;
   QueryCall queryCall;
-  ViewPlacePerformanceAnalysisInfo viewPlacePerformanceAnalysisInfo;
 }
 {
   { errToken=token; }
@@ -584,11 +586,6 @@ Object SinglePlaceInscription() :
     queryCall = QueryCall()
     {
       return queryCall;
-    }
-  |
-    viewPlacePerformanceAnalysisInfo = ViewPlacePerformanceAnalysisInfo()
-    {
-      return viewPlacePerformanceAnalysisInfo;
     }
   )
 }
@@ -661,6 +658,12 @@ Collection<TransitionInscription> SingleTransitionInscription(boolean create, Tr
     inscr = ActionCall()
     {
         ((DBNetTransition) transition).setActionCall((ActionCall) inscr);
+        result = Collections.singleton(inscr);
+    }
+  |
+    inscr = PerformanceAnalysisInfo()
+    {
+        ((DBNetTransition) transition).setPerformanceAnalysisInfo((PerformanceAnalysisInfo) inscr);
         result = Collections.singleton(inscr);
     }
   )
@@ -1096,23 +1099,45 @@ ActionCall ActionCall():
   }
 }
 
-ViewPlacePerformanceAnalysisInfo ViewPlacePerformanceAnalysisInfo():
+PerformanceAnalysisInfo PerformanceAnalysisInfo():
 {
-  String idColumnName;
-  String sendingTimeColumnName;
+  Token t;
+  String idFieldName;
+  String sendingTimeFieldName;
+  int sendingTimeFieldNumber;
+  String sendingTimePattern;
+  int messageTypeFieldNumber;
   String requestMessageQueryName;
   int maxDelay;
 }
 {
-  <DBN_PA> ":" "{" <DBN_PA_ID_COL> ":" idColumnName = Name()
-    "," <DBN_PA_SEND_TIME_COL> ":" sendingTimeColumnName = Name()
+  t = <DBN_PA> ":" "{" <DBN_PA_ID_NAME> ":" idFieldName = Name()
+    "," <DBN_PA_SEND_TIME_NAME> ":" sendingTimeFieldName = Name()
+    "," <DBN_PA_SEND_TIME_NUM> ":" sendingTimeFieldNumber = IntegerLiteral()
+    "," <DBN_PA_SEND_TIME_PATTERN> ":" sendingTimePattern = StringLiteral()
+    "," <DBN_PA_MESSAGE_TYPE_NUM> ":" messageTypeFieldNumber = IntegerLiteral()
     "," <DBN_PA_REQ_MESSAGE_QUERY> ":" requestMessageQueryName = Name()
     "," <DBN_PA_MAX_DELAY> ":" maxDelay = IntegerLiteral() "}"
   {
-        return new ViewPlacePerformanceAnalysisInfo(
-                idColumnName,
-                sendingTimeColumnName,
-                requestMessageQueryName,
+        Optional<Query> requestMessageQuery = Optional.ofNullable(
+                ((ParsedDBNetDeclarationNode) decl).getQueryByName(requestMessageQueryName)
+        );
+
+        QueryCall requestMessageQueryCall;
+
+        if (requestMessageQuery.isPresent()) {
+            requestMessageQueryCall = new QueryCall(requestMessageQuery.get());
+        } else {
+            throw JavaHelper.makeParseException("No query with name " + requestMessageQueryName + " found", t);
+        }
+
+        return new PerformanceAnalysisInfo(
+                idFieldName,
+                sendingTimeFieldName,
+                sendingTimeFieldNumber,
+                sendingTimePattern,
+                messageTypeFieldNumber,
+                requestMessageQueryCall,
                 maxDelay
         );
   }
@@ -1131,6 +1156,17 @@ Integer IntegerLiteral():
       } catch (NumberFormatException e) {
           throw JavaHelper.makeParseException("Integer literal is not parsable", t);
       }
+  }
+}
+
+String StringLiteral() :
+{
+  Token t;
+}
+{
+  t=<STRING_LITERAL>
+  {
+      return LiteralParser.parseString(t.image);
   }
 }
 

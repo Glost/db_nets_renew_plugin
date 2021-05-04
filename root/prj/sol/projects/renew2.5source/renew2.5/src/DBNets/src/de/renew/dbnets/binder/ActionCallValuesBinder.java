@@ -1,6 +1,7 @@
 package de.renew.dbnets.binder;
 
 import de.renew.dbnets.datalogic.ActionCall;
+import de.renew.dbnets.persistence.JdbcConnectionInstance;
 import de.renew.engine.searcher.Binder;
 import de.renew.engine.searcher.BindingBadness;
 import de.renew.engine.searcher.Searcher;
@@ -12,9 +13,6 @@ import de.renew.unify.StateRecorder;
 import de.renew.unify.Unify;
 import de.renew.unify.Variable;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
@@ -27,10 +25,10 @@ import java.util.stream.IntStream;
  * Binder which maps the variables to the action call's generated values and literals.
  *
  * @author Anton Rigin, National Research University - Higher School of Economics, Faculty of Computer Science,
- *         Master Degree Program "System and Software Engineering", the 1st year student.
- *         Term Project (Coursework) on the Topic
- *         "Reference and Data Semantic-Based Simulator of Petri Nets Extension with the Use of Renew Tool".
- *         HSE University, Moscow, Russia, 2019 - 2020.
+ *         Master Degree Program "System and Software Engineering", the 2nd year student.
+ *         Master Thesis on the Topic
+ *         "Method of Performance Analysis of Time-Critical Applications Using DB-Nets".
+ *         HSE University, Moscow, Russia, 2019 - 2021.
  */
 public class ActionCallValuesBinder implements Binder {
 
@@ -67,7 +65,7 @@ public class ActionCallValuesBinder implements Binder {
     /**
      * The database connection instance.
      */
-    private final Connection connection;
+    private final JdbcConnectionInstance connectionInstance;
 
     /**
      * Stores whether this binder was bound or not.
@@ -82,18 +80,18 @@ public class ActionCallValuesBinder implements Binder {
      * @param variableMapper The transition instance's variable mapper.
      *                       Maps the net's variables' names into their values.
      * @param stateRecorder The state recorder instance.
-     * @param connection The database connection instance.
+     * @param connectionInstance The database connection instance.
      */
     public ActionCallValuesBinder(ActionCall actionCall,
                                   DBNetTransitionInstance transitionInstance,
                                   VariableMapper variableMapper,
                                   StateRecorder stateRecorder,
-                                  Connection connection) {
+                                  JdbcConnectionInstance connectionInstance) {
         this.actionCall = actionCall;
         this.transitionInstance = transitionInstance;
         this.variableMapper = variableMapper;
         this.stateRecorder = stateRecorder;
-        this.connection = connection;
+        this.connectionInstance = connectionInstance;
     }
 
     /**
@@ -169,46 +167,12 @@ public class ActionCallValuesBinder implements Binder {
         Matcher dbnAutoincrementMatcher = DBN_AUTOINCREMENT_PATTERN.matcher(paramString);
 
         if (dbnAutoincrementMatcher.matches()) {
-            Variable generatedValue = mapParamToAutoincrementedValue(dbnAutoincrementMatcher.group("tableName"));
+            Variable generatedValue = connectionInstance.mapParamToAutoincrementedValue(
+                dbnAutoincrementMatcher.group("tableName"),
+                stateRecorder
+            );
             Variable variable = variableMapper.map(new LocalVariable(paramName));
             Unify.unify(variable, generatedValue, stateRecorder);
         }
-    }
-
-    /**
-     * Gets the generated value for the param.
-     *
-     * @param tableName The param usage's table (relation) name.
-     * @return The generated value for the param.
-     * @throws SQLException If the database error occurred during the value generating.
-     */
-    private Variable mapParamToAutoincrementedValue(String tableName) throws SQLException {
-        String sql = "SELECT seq FROM sqlite_sequence WHERE name = ?;";
-
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, tableName);
-
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        if (resultSet.isClosed()) {
-            String insertSql = "INSERT INTO sqlite_sequence (name, seq) VALUES (?, 2)";
-
-            PreparedStatement insertPreparedStatement = connection.prepareStatement(insertSql);
-            insertPreparedStatement.setString(1, tableName);
-
-            return new Variable(1, stateRecorder);
-        }
-
-        int seq = resultSet.getInt(1);
-
-        String updateSql = "UPDATE sqlite_sequence SET seq = ? WHERE name = ?;";
-
-        PreparedStatement updatePreparedStatement = connection.prepareStatement(updateSql);
-        updatePreparedStatement.setInt(1, seq + 1);
-        updatePreparedStatement.setString(2, tableName);
-
-        updatePreparedStatement.executeUpdate();
-
-        return new Variable(seq, stateRecorder);
     }
 }
