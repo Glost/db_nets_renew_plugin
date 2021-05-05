@@ -44,7 +44,7 @@ public class DBNetControlLayerInstance extends NetInstanceImpl {
     /**
      * The header row for the output CSV file with max delay violations.
      */
-    private static final String OUTPUT_CSV_FILE_HEADER = "#,Request Message Type;Message ID,Delay,Max Delay,Diff";
+    private static final String OUTPUT_CSV_FILE_HEADER = "#,Request Message Type,Message ID,Delay,Max Delay,Diff";
 
     /**
      * The delimiter for columns of the output CSV file with max delay violations.
