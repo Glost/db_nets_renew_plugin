@@ -1,5 +1,7 @@
 # Renew DB-nets Plugin Output (Binaries)
 
+Anton Rigin, Faculty of Computer Science, HSE University, Moscow, Russia, 2019 - 2021.
+
 The parts of the Renew software tool source code are used.
 
 The `.bat`/`.sh` files may be used on the Windows/Linux for the running the Renew with the DB-nets plugin and GUI.
