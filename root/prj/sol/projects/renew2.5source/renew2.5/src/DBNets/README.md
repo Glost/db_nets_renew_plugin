@@ -2,6 +2,8 @@
 
 The parts of the Renew software tool source code are used.
 
+Anton Rigin, Faculty of Computer Science, HSE University, Moscow, Russia, 2019 - 2021.
+
 In the current folder the DB-Nets Renew Plugin source code is presented.
 
 * The plugin configuration is in the [`etc/plugin.cfg`](etc/plugin.cfg) file
