@@ -14,3 +14,7 @@ Parts of the Renew software tool source code are used in several methods of DB-N
 * [Renew DB-Nets Plugin Output (Binaries)](root/prj/sol/output)
 * [Renew DB-Nets Plugin Used Libraries](root/prj/sol/lib)
 * [Samples](root/prj/sol/samples)
+
+## Acknowledgment
+
+Thanks to Dr. Sergey Shershakov for his great scientific supervision and help.
