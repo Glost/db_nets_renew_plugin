@@ -1,6 +1,6 @@
 # DB-Nets Renew Plugin
 
-The parts of the Renew software tool source code are used.
+Parts of the Renew software tool source code are used in several methods.
 
 Anton Rigin, Faculty of Computer Science, HSE University, Moscow, Russia, 2019 - 2021.
 
